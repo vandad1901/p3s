@@ -2,7 +2,7 @@
 set -eo pipefail
 
 sudo apt update
-sudo apt install -y build-essential wget
+sudo apt install -y build-essential wget unzip
 
 ASDF_VERSION="0.18.1"
 TMP_DIR="$(mktemp -d)"
@@ -24,3 +24,4 @@ source "$ZSHRC"
 asdf plugin add golang
 asdf plugin add nodejs
 asdf plugin add yarn
+asdf plugin add protoc https://github.com/paxosglobal/asdf-protoc.git
