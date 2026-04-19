@@ -24,4 +24,3 @@ source "$ZSHRC"
 asdf plugin add golang
 asdf plugin add nodejs
 asdf plugin add yarn
-asdf plugin add protoc https://github.com/paxosglobal/asdf-protoc.git
