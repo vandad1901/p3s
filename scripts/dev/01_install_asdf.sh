@@ -1,9 +1,6 @@
 #!/bin/zsh
 set -eo pipefail
 
-sudo apt update
-sudo apt install -y build-essential wget unzip
-
 ASDF_VERSION="0.18.1"
 TMP_DIR="$(mktemp -d)"
 ZSHRC="$HOME/.zshrc"

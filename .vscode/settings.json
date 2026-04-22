@@ -11,5 +11,6 @@
         "--ts_proto_opt=onlyTypes=true",
         "--ts_proto_out=${workspaceFolder}/frontend/gen",
         "--go_out=${workspaceFolder}/backend/gen"
-    ]
+    ],
+    "go.lintTool": "golangci-lint-v2"
 }
