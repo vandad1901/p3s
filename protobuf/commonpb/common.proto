@@ -1,0 +1,11 @@
+syntax = "proto3";
+option go_package = "./commonpb";
+
+import "google/protobuf/timestamp.proto";
+
+package purpl3shadow.commonpb;
+
+message IDVersion {
+  int64                     id         = 1;
+  google.protobuf.Timestamp updated_at = 2;
+}
