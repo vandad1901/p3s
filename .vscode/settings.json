@@ -1,9 +1,7 @@
 {
-    // Import paths for IntelliSense and diagnostics (recommended)
     "protobuf.includes": [
         "${workspaceFolder}/protobuf"
     ],
-    // Protoc compilation settings
     "protobuf.protoc.path": "protoc",
     "protobuf.protoc.options": [
         "--plugin=${workspaceFolder}/node_modules/.bin/protoc-gen-ts_proto",
