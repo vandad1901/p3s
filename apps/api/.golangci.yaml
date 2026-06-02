@@ -1,0 +1,21 @@
+version: "2"
+linters:
+  default: all
+  disable:
+    - depguard
+    - wsl
+    - gomodguard
+  enable:
+    - wsl_v5
+    - gomodguard_v2 
+
+linters-settings:
+  depguard:
+    rules:
+      default:
+        list-mode: lax # allow unless explicitely denied
+        files:
+          - $all
+          - "!$test"
+        allow:
+          - $all

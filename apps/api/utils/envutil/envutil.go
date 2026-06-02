@@ -34,7 +34,7 @@ func (e *ErrEnvVarNotSet) Error() string {
 	return "environment variable not set: " + e.Key
 }
 
-func init() {
+func load() {
 	var found bool
 
 	DBHost, found = os.LookupEnv(EnvKeyDBHost)

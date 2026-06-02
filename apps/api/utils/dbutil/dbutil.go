@@ -2,6 +2,7 @@ package dbutil
 
 import (
 	"fmt"
+	"purpl3shadow/utils/envutil"
 
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
@@ -10,8 +11,8 @@ import (
 var DB *gorm.DB
 
 func OpenDatabaseConnection() {
-	dsn := "host=localhost user=postgres password=postgres " +
-		"dbname=purpl3shadow port=5432 sslmode=disable TimeZone=America/Toronto"
+	dsn := fmt.Sprintf("host=%s user=%s password=%s dbname=%s port=%s sslmode=disable TimeZone=America/Toronto",
+		envutil.DBHost, envutil.DBUser, envutil.DBPass, envutil.DBName, envutil.DBPort)
 
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
