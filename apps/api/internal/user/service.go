@@ -1,19 +1,20 @@
 package user
 
 import (
-	"crypto/rand"
-	"encoding/base64"
+	"context"
+	"purpl3shadow/gen/commonpb"
+	"purpl3shadow/gen/userpb"
+	"purpl3shadow/utils/dbutil"
 
-	"golang.org/x/crypto/argon2"
 	"gorm.io/gorm"
 )
 
 type UserService interface {
-	GetUserByID(id int) (*User, error)
-	GetUserByUsername(username string) (*User, error)
-	CreateUser(username, email, password string) (*User, error)
-	UpdateUser(id int, username, email, password string) (*User, error)
-	DeleteUser(id int) error
+	GetUserByID(ctx context.Context, id int64) (*userpb.User, error)
+	GetUserByUsername(ctx context.Context, username string) (*userpb.User, error)
+	CreateUser(ctx context.Context, user *userpb.User) (*commonpb.IDVersion, error)
+	UpdateUser(ctx context.Context, user *userpb.User) (*commonpb.IDVersion, error)
+	DeleteUser(ctx context.Context, id int64) error
 }
 
 type UserServiceImpl struct {
@@ -24,80 +25,92 @@ func NewUserService(db *gorm.DB) UserService {
 	return &UserServiceImpl{db: db}
 }
 
-func hashPassword(password string) (string, string, error) {
-	const (
-		saltLength   = 16
-		argonTime    = 1
-		argonMemory  = 64 * 1024
-		argonThreads = 4
-		argonKeyLen  = 32
+func (s *UserServiceImpl) GetUserByID(ctx context.Context, id int64) (*userpb.User, error) {
+	var user User
+
+	err := dbutil.SerializableTx(s.db, func(tx *gorm.DB) error {
+		if err := tx.First(&user, id).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &userpb.User{
+		Id:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
+}
+
+func (s *UserServiceImpl) GetUserByUsername(ctx context.Context, username string) (*userpb.User, error) {
+	var user User
+
+	err := dbutil.SerializableTx(s.db, func(tx *gorm.DB) error {
+		if err := tx.Where("username = ?", username).First(&user).Error; err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if err != nil {
+		return nil, err
+	}
+
+	return &userpb.User{
+		Id:       user.ID,
+		Username: user.Username,
+		Email:    user.Email,
+	}, nil
+}
+
+func (s *UserServiceImpl) CreateUser(ctx context.Context, in *userpb.User) (*commonpb.IDVersion, error) {
+	var (
+		res *commonpb.IDVersion
 	)
 
-	salt := make([]byte, saltLength)
-	if _, err := rand.Read(salt); err != nil {
-		return "", "", err
-	}
-
-	hashedPassword := argon2.IDKey([]byte(password), salt, argonTime, argonMemory, argonThreads, argonKeyLen)
-
-	return base64.RawStdEncoding.EncodeToString(salt), base64.RawStdEncoding.EncodeToString(hashedPassword), nil
-}
-
-func (s *UserServiceImpl) GetUserByID(id int) (*User, error) {
-	var user User
-	if err := s.db.First(&user, id).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-func (s *UserServiceImpl) GetUserByUsername(username string) (*User, error) {
-	var user User
-	if err := s.db.Where("username = ?", username).First(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
-
-func (s *UserServiceImpl) CreateUser(username, email, password string) (*User, error) {
-	salt, passwordHash, err := hashPassword(password)
+	user, err := mapToUser(in)
 	if err != nil {
 		return nil, err
 	}
 
-	user := User{
-		Username:     username,
-		Email:        email,
-		Salt:         salt,
-		PasswordHash: passwordHash,
-	}
-	if err := s.db.Create(&user).Error; err != nil {
-		return nil, err
-	}
-	return &user, nil
-}
+	err = dbutil.SerializableTx(s.db, func(tx *gorm.DB) error {
+		res, err = dbCreateUser(tx, user)
 
-func (s *UserServiceImpl) UpdateUser(id int, username, email, password string) (*User, error) {
-	user, err := s.GetUserByID(id)
+		return nil
+	})
 	if err != nil {
 		return nil, err
 	}
 
-	salt, passwordHash, err := hashPassword(password)
+	return res, nil
+}
+
+func (s *UserServiceImpl) UpdateUser(ctx context.Context, in *userpb.User) (*commonpb.IDVersion, error) {
+	var (
+		res *commonpb.IDVersion
+	)
+
+	user, err := mapToUser(in)
 	if err != nil {
 		return nil, err
 	}
 
-	user.Username = username
-	user.Email = email
-	user.Salt = salt
-	user.PasswordHash = passwordHash
-	if err := s.db.Save(user).Error; err != nil {
+	err = dbutil.SerializableTx(s.db, func(tx *gorm.DB) error {
+		res, err = dbUpdateUser(tx, user)
+
+		return nil
+	})
+	if err != nil {
 		return nil, err
 	}
-	return user, nil
+
+	return res, nil
 }
 
-func (s *UserServiceImpl) DeleteUser(id int) error {
+func (s *UserServiceImpl) DeleteUser(ctx context.Context, id int64) error {
 	return s.db.Delete(&User{}, id).Error
 }

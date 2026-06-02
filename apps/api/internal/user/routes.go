@@ -1,9 +1,16 @@
 package user
 
-import "github.com/gin-gonic/gin"
+import (
+	"net/http"
 
-func RegisterRoutes(r *gin.Engine) {
-	r.GET("/users", func(ctx *gin.Context) {
-		ctx.Status(200)
+	"github.com/gin-gonic/gin"
+)
+
+func RegisterRoutes(r *gin.Engine, userService UserService) {
+	userGroup := r.Group("/users")
+
+	userGroup.GET("/:id", getHandler(userService))
+	userGroup.POST("/", func(ctx *gin.Context) {
+		ctx.Status(http.StatusCreated)
 	})
 }
