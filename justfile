@@ -25,10 +25,10 @@ DATABASE_URL := "postgres://" + PGUSER + ":" + PGPASSWORD + "@" + PGHOST + ":" +
     {{ MIGRATE }} -database "{{ DATABASE_URL }}" -path apps/api/migrations down
 
 @compose-up:
-    podman compose -f ./infra/compose/docker-compose.yml up -d 
+    docker compose -f ./infra/compose/docker-compose.yml up -d
 
 @compose-down:
-    podman compose -f ./infra/compose/docker-compose.yml down
+    docker compose -f ./infra/compose/docker-compose.yml down
 
 @generate:
     protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto \
