@@ -9,6 +9,9 @@
 export const protobufPackage = "purpl3shadow.userpb";
 
 export interface User {
-  id: string;
-  name: string;
+  id: number;
+  password: string;
+  /** string password_hash = 3; */
+  username: string;
+  email: string;
 }

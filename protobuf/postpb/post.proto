@@ -1,10 +1,14 @@
 syntax = "proto3";
 option go_package = "./postpb";
 
+import "google/protobuf/timestamp.proto";
+
 package purpl3shadow.postpb;
 
 message Post {
   int64  id        = 1;
   int64  author_id = 2;
   string content   = 3;
+
+  google.protobuf.Timestamp created_at = 4;
 }
