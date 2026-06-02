@@ -7,11 +7,11 @@ import (
 )
 
 const (
-	EnvKeyDBHost = "DB_HOST"
-	EnvKeyDBPort = "DB_PORT"
-	EnvKeyDBUser = "DB_USER"
-	EnvKeyDBPass = "DB_PASS"
-	EnvKeyDBName = "DB_NAME"
+	EnvKeyDBHost = "PG_HOST"
+	EnvKeyDBPort = "PG_PORT"
+	EnvKeyDBUser = "PG_USER"
+	EnvKeyDBPass = "PG_PASSWORD"
+	EnvKeyDBName = "PG_DATABASE"
 
 	EnvKeyJWTSecret = "JWT_SECRET"
 )

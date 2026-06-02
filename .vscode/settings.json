@@ -1,4 +1,5 @@
 {
+    "git.addAICoAuthor": "off",
     "protobuf.includes": [
         "${workspaceFolder}/protobuf"
     ],
