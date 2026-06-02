@@ -24,6 +24,22 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
+  backend:
+    build:
+       context: ${PWD}/apps/api
+    container_name: backend
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+    environment:
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: purpl3shadow
+      DB_USER: postgres
+      DB_PASSWORD: postgres
+    depends_on:
+      - postgres
+
 volumes:
   db_data:
   pgadmin_data:
