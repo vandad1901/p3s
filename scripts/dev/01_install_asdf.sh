@@ -16,8 +16,15 @@ if ! grep -Fxq "$SHIMS_LINE" "$ZSHRC"; then
   echo "$SHIMS_LINE" >> "$ZSHRC"
 fi
 
-source "$ZSHRC"
-
 asdf plugin add golang
 asdf plugin add nodejs
 asdf plugin add yarn
+
+GOENV_LINE='. ${ASDF_DATA_DIR:-$HOME/.asdf}/plugins/golang/set-env.zsh'
+if ! grep -Fxq "$GOENV_LINE" "$ZSHRC"; then
+  echo "$GOENV_LINE" >> "$ZSHRC"
+fi
+
+chmod u+x '${ASDF_DATA_DIR:-$HOME/.asdf}/plugins/golang/set-env.zsh'
+
+source "$ZSHRC"

@@ -33,9 +33,4 @@ alias compose := compose-up
     docker compose -f ./infra/compose/docker-compose.yml down
 
 @generate:
-    protoc --plugin=./node_modules/.bin/protoc-gen-ts_proto \
-        --proto_path=./protobuf \
-        --ts_proto_opt=onlyTypes=true \
-        --ts_proto_out=./apps/lib/types \
-        --go_out=./apps/api/gen \
-        protobuf/**/*.proto
+    buf generate
