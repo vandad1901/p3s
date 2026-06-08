@@ -3,7 +3,7 @@ option go_package = "./postpb";
 
 import "google/protobuf/timestamp.proto";
 
-package purpl3shadow.postpb;
+package postpb.v1;
 
 message Post {
   int64  id        = 1;

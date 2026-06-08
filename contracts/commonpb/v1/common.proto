@@ -3,7 +3,7 @@ option go_package = "./commonpb";
 
 import "google/protobuf/timestamp.proto";
 
-package purpl3shadow.commonpb;
+package commonpb.v1;
 
 message IDVersion {
   int64                     id         = 1;

@@ -1,28 +1,29 @@
 set shell := ["sh", "-cu"]
 set dotenv-load := true
 
-PGHOST := env_var_or_default("PG_HOST", "localhost")
-PGPORT := env_var_or_default("PG_PORT", "5432")
-PGUSER := env_var_or_default("PG_USER", "postgres")
-PGPASSWORD := env_var_or_default("PG_PASSWORD", "postgres")
-PGDATABASE := env_var_or_default("PG_DATABASE", "purpl3shadow")
 MIGRATE := "~/.asdf/installs/golang/1.26.3/bin/migrate"
-DATABASE_URL := "postgres://" + PGUSER + ":" + PGPASSWORD + "@" + PGHOST + ":" + PGPORT + "/" + PGDATABASE + "?sslmode=disable"
+AUTHPREFIX := "AUTH_"
+AUTH_PGUSER := env_var_or_default(AUTHPREFIX + "PG_USER", "postgres")
+AUTH_PGPASSWORD := env_var_or_default(AUTHPREFIX + "PG_PASSWORD", "postgres")
+AUTH_PGHOST := env_var_or_default(AUTHPREFIX + "PG_HOST", "localhost")
+AUTH_PGPORT := env_var_or_default(AUTHPREFIX + "PG_PORT", "5432")
+AUTH_PGDATABASE := env_var_or_default(AUTHPREFIX + "PG_DATABASE", "purpl3shadow")
+AUTH_DATABASE_URL := "postgres://" + AUTH_PGUSER + ":" + AUTH_PGPASSWORD + "@" + AUTH_PGHOST + ":" + AUTH_PGPORT + "/" + AUTH_PGDATABASE + "?sslmode=disable"
 
 @default:
     just --list
 
 @db-reset: && db-up
-    echo "[INFO] dropping database {{ PGDATABASE }} at {{ PGHOST }}:{{ PGPORT }} with user {{ PGUSER }}"
-    PGPASSWORD="{{ PGPASSWORD }}" dropdb --if-exists -h "{{ PGHOST }}" -p "{{ PGPORT }}" -U "{{ PGUSER }}" "{{ PGDATABASE }}"
-    echo "[INFO] creating database {{ PGDATABASE }} at {{ PGHOST }}:{{ PGPORT }} with user {{ PGUSER }}"
-    PGPASSWORD="{{ PGPASSWORD }}" createdb -h "{{ PGHOST }}" -p "{{ PGPORT }}" -U "{{ PGUSER }}" "{{ PGDATABASE }}"
+    echo "[INFO] dropping database {{ AUTH_PGDATABASE }} at {{ AUTH_PGHOST }}:{{ AUTH_PGPORT }} with user {{ AUTH_PGUSER }}"
+    PGPASSWORD="{{ AUTH_PGPASSWORD }}" dropdb --if-exists -h "{{ AUTH_PGHOST }}" -p "{{ AUTH_PGPORT }}" -U "{{ AUTH_PGUSER }}" "{{ AUTH_PGDATABASE }}"
+    echo "[INFO] creating database {{ AUTH_PGDATABASE }} at {{ AUTH_PGHOST }}:{{ AUTH_PGPORT }} with user {{ AUTH_PGUSER }}"
+    PGPASSWORD="{{ AUTH_PGPASSWORD }}" createdb -h "{{ AUTH_PGHOST }}" -p "{{ AUTH_PGPORT }}" -U "{{ AUTH_PGUSER }}" "{{ AUTH_PGDATABASE }}"
 
 @db-up:
-    {{ MIGRATE }} -database "{{ DATABASE_URL }}" -path apps/api/migrations up
+    {{ MIGRATE }} -database "{{ AUTH_DATABASE_URL }}" -path apps/api/migrations up
 
 @db-down:
-    {{ MIGRATE }} -database "{{ DATABASE_URL }}" -path apps/api/migrations down
+    {{ MIGRATE }} -database "{{ AUTH_DATABASE_URL }}" -path apps/api/migrations down
 
 alias compose := compose-up
 

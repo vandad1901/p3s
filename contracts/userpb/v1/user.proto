@@ -1,0 +1,75 @@
+syntax = "proto3";
+
+option go_package = "github.com/vandad1901/purpl3shadow/packages/go/protobuf/userpb;userpb";
+package userpb.v1;
+
+import "google/api/annotations.proto";
+
+service UserService {
+  rpc Register (RegisterRequest) returns (RegisterResponse)
+  {
+    option (google.api.http) = {
+      post: "/v1/users"
+      body: "*"
+    };
+  };
+  rpc Login (LoginRequest) returns (LoginResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/login"
+      body: "*"
+    };
+  };
+  rpc RefreshJWT (RefreshJWTRequest) returns (RefreshJWTResponse) {
+    option (google.api.http) = {
+      post: "/v1/users/refresh"
+      body: "*"
+    };
+  };
+  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
+    option (google.api.http) = {
+      get: "/v1/users/{id}"
+    };
+  };
+}
+
+message User {
+  int64  id       = 1;
+  string password = 2;
+  string username = 4;
+  string email    = 5;
+}
+
+message RegisterRequest {
+  User user = 1;
+}
+
+message RegisterResponse {
+  string jwt           = 1;
+  string refresh_token = 2;
+}
+
+message LoginRequest {
+  string username = 1;
+  string password = 2;
+}
+
+message LoginResponse {
+  string jwt           = 1;
+  string refresh_token = 2;
+}
+
+message RefreshJWTRequest {
+  string refresh_token = 1;
+}
+
+message RefreshJWTResponse {
+  string jwt = 1;
+}
+
+message GetUserRequest {
+  int64 id = 1;
+}
+
+message GetUserResponse {
+  User user = 1;
+}
