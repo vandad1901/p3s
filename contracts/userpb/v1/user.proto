@@ -4,24 +4,25 @@ option go_package = "github.com/vandad1901/purpl3shadow/packages/go/protobuf/use
 package userpb.v1;
 
 import "google/api/annotations.proto";
+import "google/protobuf/timestamp.proto";
 
 service UserService {
   rpc Register (RegisterRequest) returns (RegisterResponse)
   {
     option (google.api.http) = {
-      post: "/v1/users"
+      post: "/v1/auth/register"
       body: "*"
     };
   };
   rpc Login (LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/v1/users/login"
+      post: "/v1/auth/login"
       body: "*"
     };
   };
   rpc RefreshJWT (RefreshJWTRequest) returns (RefreshJWTResponse) {
     option (google.api.http) = {
-      post: "/v1/users/refresh"
+      post: "/v1/auth/refresh"
       body: "*"
     };
   };
@@ -34,18 +35,49 @@ service UserService {
 
 message User {
   int64  id       = 1;
-  string password = 2;
-  string username = 4;
-  string email    = 5;
+  string username = 2;
+  string email    = 3;
+}
+
+message AuthSession {
+  int64 user_id = 1;
+
+  // Unique session identifier (enables revocation, tracking, multi-device support)
+  string session_id = 2;
+
+  // Access token (JWT)
+  string jwt = 3;
+
+  // Refresh token (used to rotate session)
+  string refresh_token = 4;
+
+  // Lifecycle timestamps
+  google.protobuf.Timestamp issued_at          = 5;
+  google.protobuf.Timestamp expires_at         = 6;
+  google.protobuf.Timestamp refresh_expires_at = 7;
+
+  // Optional session metadata (useful for security + debugging)
+  string device_id  = 8;
+  string ip_address = 9;
+  string user_agent = 10;
+
+  // Session state (for revocation / logout-all / security control)
+  SessionStatus status = 11;
+}
+
+enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0;
+  SESSION_STATUS_ACTIVE      = 1;
+  SESSION_STATUS_REVOKED     = 2;
 }
 
 message RegisterRequest {
-  User user = 1;
+  User   user     = 1;
+  string password = 2;
 }
 
 message RegisterResponse {
-  string jwt           = 1;
-  string refresh_token = 2;
+  AuthSession session = 1;
 }
 
 message LoginRequest {
@@ -54,8 +86,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  string jwt           = 1;
-  string refresh_token = 2;
+  AuthSession session = 1;
 }
 
 message RefreshJWTRequest {
@@ -63,7 +94,7 @@ message RefreshJWTRequest {
 }
 
 message RefreshJWTResponse {
-  string jwt = 1;
+  AuthSession session = 1;
 }
 
 message GetUserRequest {

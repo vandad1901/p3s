@@ -8,20 +8,48 @@
 
 export const protobufPackage = "userpb.v1";
 
+export enum SessionStatus {
+  SESSION_STATUS_UNSPECIFIED = 0,
+  SESSION_STATUS_ACTIVE = 1,
+  SESSION_STATUS_REVOKED = 2,
+  UNRECOGNIZED = -1,
+}
+
 export interface User {
   id: number;
-  password: string;
   username: string;
   email: string;
 }
 
+export interface AuthSession {
+  userId: number;
+  /** Unique session identifier (enables revocation, tracking, multi-device support) */
+  sessionId: string;
+  /** Access token (JWT) */
+  jwt: string;
+  /** Refresh token (used to rotate session) */
+  refreshToken: string;
+  /** Lifecycle timestamps */
+  issuedAt: Date | undefined;
+  expiresAt: Date | undefined;
+  refreshExpiresAt:
+    | Date
+    | undefined;
+  /** Optional session metadata (useful for security + debugging) */
+  deviceId: string;
+  ipAddress: string;
+  userAgent: string;
+  /** Session state (for revocation / logout-all / security control) */
+  status: SessionStatus;
+}
+
 export interface RegisterRequest {
   user: User | undefined;
+  password: string;
 }
 
 export interface RegisterResponse {
-  jwt: string;
-  refreshToken: string;
+  session: AuthSession | undefined;
 }
 
 export interface LoginRequest {
@@ -30,8 +58,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  jwt: string;
-  refreshToken: string;
+  session: AuthSession | undefined;
 }
 
 export interface RefreshJWTRequest {
@@ -39,7 +66,7 @@ export interface RefreshJWTRequest {
 }
 
 export interface RefreshJWTResponse {
-  jwt: string;
+  session: AuthSession | undefined;
 }
 
 export interface GetUserRequest {
