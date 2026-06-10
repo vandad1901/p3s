@@ -1,0 +1,6 @@
+[tools]
+buf = "1.70.0"
+golang = "1.26.3"
+gomigrate = "4.19.1"
+node = "24.14.1"
+protoc-gen-go = "1.36.11"
