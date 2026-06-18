@@ -16,6 +16,7 @@ Thumbs.db
 .env.*
 !.env.example
 !.env.*.example
+*.pem
 
 # ------------------------------
 # Logs / Runtime

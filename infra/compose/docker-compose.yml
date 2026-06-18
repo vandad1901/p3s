@@ -1,46 +1,17 @@
-name: purpl3shadow # NAME
+name: purpl3shadow
 
 services:
-  postgres:
-    image: docker.io/library/postgres:15
+  auth:
+    build:
+      context: ../..
+      dockerfile: ./apps/auth/dockerfile
+
     restart: unless-stopped
     env_file:
-      - ${PWD}/.env
-    environment:
-      POSTGRES_USER: ${PG_USER}
-      POSTGRES_PASSWORD: ${PG_PASSWORD}
-      POSTGRES_DB: ${PG_DATABASE}
-    ports:
-      - "${PG_PORT}:5432"
-    volumes:
-      - db_data:/var/lib/postgresql/data
-
-  pgadmin:
-    image: docker.io/dpage/pgadmin4
-    restart: unless-stopped
-    ports:
-      - "8885:80"
-    environment:
-      PGADMIN_DEFAULT_EMAIL: admin@admin.com
-      PGADMIN_DEFAULT_PASSWORD: admin
-    volumes:
-      - pgadmin_data:/var/lib/pgadmin
-
-  backend:
-    build:
-       context: ${PWD}/apps/api
-    restart: unless-stopped
+      - ../../apps/auth/.env
     ports:
       - "8080:8080"
-    environment:
-      DB_HOST: postgres
-      DB_PORT: 5432
-      DB_NAME: purpl3shadow
-      DB_USER: postgres
-      DB_PASSWORD: postgres
     depends_on:
-      - postgres
-
-volumes:
-  db_data:
-  pgadmin_data:
+      - auth-pg
+    networks:
+      - envoy-net
