@@ -39,36 +39,16 @@ message User {
   string email    = 3;
 }
 
-message AuthSession {
-  int64 user_id = 1;
-
-  // Unique session identifier (enables revocation, tracking, multi-device support)
-  string session_id = 2;
-
-  // Access token (JWT)
-  string jwt = 3;
-
-  // Refresh token (used to rotate session)
-  string refresh_token = 4;
-
-  // Lifecycle timestamps
-  google.protobuf.Timestamp issued_at          = 5;
-  google.protobuf.Timestamp expires_at         = 6;
-  google.protobuf.Timestamp refresh_expires_at = 7;
-
-  // Optional session metadata (useful for security + debugging)
-  string device_id  = 8;
-  string ip_address = 9;
-  string user_agent = 10;
-
-  // Session state (for revocation / logout-all / security control)
-  SessionStatus status = 11;
-}
-
 enum SessionStatus {
   SESSION_STATUS_UNSPECIFIED = 0;
   SESSION_STATUS_ACTIVE      = 1;
   SESSION_STATUS_REVOKED     = 2;
+}
+
+message AuthSessionResponse {
+  string                    jwt               = 1;
+  string                    refresh_token     = 2;
+  google.protobuf.Timestamp access_expires_at = 3;
 }
 
 message RegisterRequest {
@@ -77,7 +57,7 @@ message RegisterRequest {
 }
 
 message RegisterResponse {
-  AuthSession session = 1;
+  AuthSessionResponse session = 1;
 }
 
 message LoginRequest {
@@ -86,7 +66,7 @@ message LoginRequest {
 }
 
 message LoginResponse {
-  AuthSession session = 1;
+  AuthSessionResponse session = 1;
 }
 
 message RefreshJWTRequest {
@@ -94,7 +74,7 @@ message RefreshJWTRequest {
 }
 
 message RefreshJWTResponse {
-  AuthSession session = 1;
+  AuthSessionResponse session = 1;
 }
 
 message GetUserRequest {

@@ -21,26 +21,10 @@ export interface User {
   email: string;
 }
 
-export interface AuthSession {
-  userId: number;
-  /** Unique session identifier (enables revocation, tracking, multi-device support) */
-  sessionId: string;
-  /** Access token (JWT) */
+export interface AuthSessionResponse {
   jwt: string;
-  /** Refresh token (used to rotate session) */
   refreshToken: string;
-  /** Lifecycle timestamps */
-  issuedAt: Date | undefined;
-  expiresAt: Date | undefined;
-  refreshExpiresAt:
-    | Date
-    | undefined;
-  /** Optional session metadata (useful for security + debugging) */
-  deviceId: string;
-  ipAddress: string;
-  userAgent: string;
-  /** Session state (for revocation / logout-all / security control) */
-  status: SessionStatus;
+  accessExpiresAt: Date | undefined;
 }
 
 export interface RegisterRequest {
@@ -49,7 +33,7 @@ export interface RegisterRequest {
 }
 
 export interface RegisterResponse {
-  session: AuthSession | undefined;
+  session: AuthSessionResponse | undefined;
 }
 
 export interface LoginRequest {
@@ -58,7 +42,7 @@ export interface LoginRequest {
 }
 
 export interface LoginResponse {
-  session: AuthSession | undefined;
+  session: AuthSessionResponse | undefined;
 }
 
 export interface RefreshJWTRequest {
@@ -66,7 +50,7 @@ export interface RefreshJWTRequest {
 }
 
 export interface RefreshJWTResponse {
-  session: AuthSession | undefined;
+  session: AuthSessionResponse | undefined;
 }
 
 export interface GetUserRequest {
