@@ -600,7 +600,7 @@ const file_userpb_v1_user_proto_rawDesc = "" +
 	"\x05Login\x12\x17.userpb.v1.LoginRequest\x1a\x18.userpb.v1.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12f\n" +
 	"\n" +
 	"RefreshJWT\x12\x1c.userpb.v1.RefreshJWTRequest\x1a\x1d.userpb.v1.RefreshJWTResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12X\n" +
-	"\aGetUser\x12\x19.userpb.v1.GetUserRequest\x1a\x1a.userpb.v1.GetUserResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}BGZEgithub.com/vandad1901/purpl3shadow/packages/go/protobuf/userpb;userpbb\x06proto3"
+	"\aGetUser\x12\x19.userpb.v1.GetUserRequest\x1a\x1a.userpb.v1.GetUserResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}B>Z<github.com/vandad1901/p3s/packages/go/protobuf/userpb;userpbb\x06proto3"
 
 var (
 	file_userpb_v1_user_proto_rawDescOnce sync.Once
