@@ -1,17 +1,16 @@
-name: purpl3shadow
+name: p3s
 
 services:
   auth:
     build:
       context: ../..
       dockerfile: ./apps/auth/dockerfile
-
     restart: unless-stopped
     env_file:
       - ../../apps/auth/.env
-    ports:
-      - "8080:8080"
+    environment:
+      - AUTH_PG_HOST=auth-pg
+    volumes:
+      - ../../apps/auth/jwt_private_key.pem:/app/jwt_private_key.pem
     depends_on:
       - auth-pg
-    networks:
-      - envoy-net

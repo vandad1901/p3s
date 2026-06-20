@@ -1,14 +1,14 @@
-name: purpl3shadow
+name: p3s
 
 services:
   pgadmin:
     image: docker.io/dpage/pgadmin4
     restart: unless-stopped
-    ports:
-      - "8885:80"
     environment:
       PGADMIN_DEFAULT_EMAIL: admin@admin.com
       PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "8885:80"
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
@@ -24,10 +24,18 @@ services:
     volumes:
       - db_data:/var/lib/postgresql/data
 
+  envoy:
+    image: envoyproxy/envoy:v1.31-latest
+    restart: unless-stopped
+    ports:
+      - "8080:8080"
+      - "9901:9901"
+    volumes:
+      - ../../apps/envoy:/etc/envoy
+    # depends_on:
+    #   - auth
+
 volumes:
   db_data:
   pgadmin_data:
 
-networks:
-  envoy-net:
-    driver: overlay
