@@ -2,13 +2,13 @@
 A simple blogging platform built with Go and Angular. It allows users to create and manage blog content with support for media uploads and external integrations, focusing on a clean service-oriented backend architecture.
 
 ## Features
-User authentication and authorization via dedicated auth service (JWT + refresh tokens)
-Rich text editor for creating and editing blog posts
-Media uploads (images, video, audio) with asynchronous processing
-Cross-posting integration with external platforms (e.g. Telegram channels)
-Responsive design for mobile and desktop
-RESTful API for managing blog posts, media, and user accounts
-Dockerized for easy deployment
+✅ User authentication and authorization via dedicated auth service (JWT + refresh tokens)
+🚧 Rich text editor for creating and editing blog posts
+🚧 Media uploads (images, video, audio) with asynchronous processing
+🚧 Cross-posting integration with external platforms (e.g. Telegram channels)
+🚧 Responsive design for mobile and desktop
+🚧 RESTful API for managing blog posts, media, and user accounts
+✅ Dockerized for easy deployment
 
 ## Architecture
 This system uses protobuf as the single source of truth for all service-level contracts. Each service exposes explicitly defined protobuf message types as its outputs, including multiple “view” types when different representations of the same domain data are needed. The REST API and internal service calls both act as consumers of these shared contracts, ensuring consistency across all system boundaries while keeping domain models strictly internal. We effectively elevate contracts to first-class citizens in our architecture.
