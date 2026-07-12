@@ -46,9 +46,11 @@ enum SessionStatus {
 }
 
 message AuthSessionResponse {
-  string                    jwt               = 1;
-  string                    refresh_token     = 2;
-  google.protobuf.Timestamp access_expires_at = 3;
+  int64 session_id = 1;
+
+  string                    jwt               = 2;
+  string                    refresh_token     = 3;
+  google.protobuf.Timestamp access_expires_at = 4;
 }
 
 message RegisterRequest {
@@ -70,11 +72,13 @@ message LoginResponse {
 }
 
 message RefreshJWTRequest {
-  string refresh_token = 1;
+  int64  user_id       = 1;
+  int64  session_id    = 2;
+  string refresh_token = 3;
 }
 
 message RefreshJWTResponse {
-  AuthSessionResponse session = 1;
+  string jwt = 1;
 }
 
 message GetUserRequest {

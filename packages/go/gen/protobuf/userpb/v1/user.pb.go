@@ -134,9 +134,10 @@ func (x *User) GetEmail() string {
 
 type AuthSessionResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
-	Jwt             string                 `protobuf:"bytes,1,opt,name=jwt,proto3" json:"jwt,omitempty"`
-	RefreshToken    string                 `protobuf:"bytes,2,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
-	AccessExpiresAt *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=access_expires_at,json=accessExpiresAt,proto3" json:"access_expires_at,omitempty"`
+	SessionId       int64                  `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	Jwt             string                 `protobuf:"bytes,2,opt,name=jwt,proto3" json:"jwt,omitempty"`
+	RefreshToken    string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	AccessExpiresAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=access_expires_at,json=accessExpiresAt,proto3" json:"access_expires_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
 }
@@ -169,6 +170,13 @@ func (x *AuthSessionResponse) ProtoReflect() protoreflect.Message {
 // Deprecated: Use AuthSessionResponse.ProtoReflect.Descriptor instead.
 func (*AuthSessionResponse) Descriptor() ([]byte, []int) {
 	return file_userpb_v1_user_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *AuthSessionResponse) GetSessionId() int64 {
+	if x != nil {
+		return x.SessionId
+	}
+	return 0
 }
 
 func (x *AuthSessionResponse) GetJwt() string {
@@ -386,7 +394,9 @@ func (x *LoginResponse) GetSession() *AuthSessionResponse {
 
 type RefreshJWTRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	RefreshToken  string                 `protobuf:"bytes,1,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SessionId     int64                  `protobuf:"varint,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	RefreshToken  string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -421,6 +431,20 @@ func (*RefreshJWTRequest) Descriptor() ([]byte, []int) {
 	return file_userpb_v1_user_proto_rawDescGZIP(), []int{6}
 }
 
+func (x *RefreshJWTRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *RefreshJWTRequest) GetSessionId() int64 {
+	if x != nil {
+		return x.SessionId
+	}
+	return 0
+}
+
 func (x *RefreshJWTRequest) GetRefreshToken() string {
 	if x != nil {
 		return x.RefreshToken
@@ -430,7 +454,7 @@ func (x *RefreshJWTRequest) GetRefreshToken() string {
 
 type RefreshJWTResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Session       *AuthSessionResponse   `protobuf:"bytes,1,opt,name=session,proto3" json:"session,omitempty"`
+	Jwt           string                 `protobuf:"bytes,1,opt,name=jwt,proto3" json:"jwt,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -465,11 +489,11 @@ func (*RefreshJWTResponse) Descriptor() ([]byte, []int) {
 	return file_userpb_v1_user_proto_rawDescGZIP(), []int{7}
 }
 
-func (x *RefreshJWTResponse) GetSession() *AuthSessionResponse {
+func (x *RefreshJWTResponse) GetJwt() string {
 	if x != nil {
-		return x.Session
+		return x.Jwt
 	}
-	return nil
+	return ""
 }
 
 type GetUserRequest struct {
@@ -568,11 +592,13 @@ const file_userpb_v1_user_proto_rawDesc = "" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +
-	"\x05email\x18\x03 \x01(\tR\x05email\"\x94\x01\n" +
-	"\x13AuthSessionResponse\x12\x10\n" +
-	"\x03jwt\x18\x01 \x01(\tR\x03jwt\x12#\n" +
-	"\rrefresh_token\x18\x02 \x01(\tR\frefreshToken\x12F\n" +
-	"\x11access_expires_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\x0faccessExpiresAt\"R\n" +
+	"\x05email\x18\x03 \x01(\tR\x05email\"\xb3\x01\n" +
+	"\x13AuthSessionResponse\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x01 \x01(\x03R\tsessionId\x12\x10\n" +
+	"\x03jwt\x18\x02 \x01(\tR\x03jwt\x12#\n" +
+	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12F\n" +
+	"\x11access_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x0faccessExpiresAt\"R\n" +
 	"\x0fRegisterRequest\x12#\n" +
 	"\x04user\x18\x01 \x01(\v2\x0f.userpb.v1.UserR\x04user\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"L\n" +
@@ -582,11 +608,14 @@ const file_userpb_v1_user_proto_rawDesc = "" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"I\n" +
 	"\rLoginResponse\x128\n" +
-	"\asession\x18\x01 \x01(\v2\x1e.userpb.v1.AuthSessionResponseR\asession\"8\n" +
-	"\x11RefreshJWTRequest\x12#\n" +
-	"\rrefresh_token\x18\x01 \x01(\tR\frefreshToken\"N\n" +
-	"\x12RefreshJWTResponse\x128\n" +
-	"\asession\x18\x01 \x01(\v2\x1e.userpb.v1.AuthSessionResponseR\asession\" \n" +
+	"\asession\x18\x01 \x01(\v2\x1e.userpb.v1.AuthSessionResponseR\asession\"p\n" +
+	"\x11RefreshJWTRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\x03R\tsessionId\x12#\n" +
+	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"&\n" +
+	"\x12RefreshJWTResponse\x12\x10\n" +
+	"\x03jwt\x18\x01 \x01(\tR\x03jwt\" \n" +
 	"\x0eGetUserRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\"6\n" +
 	"\x0fGetUserResponse\x12#\n" +
@@ -635,21 +664,20 @@ var file_userpb_v1_user_proto_depIdxs = []int32{
 	1,  // 1: userpb.v1.RegisterRequest.user:type_name -> userpb.v1.User
 	2,  // 2: userpb.v1.RegisterResponse.session:type_name -> userpb.v1.AuthSessionResponse
 	2,  // 3: userpb.v1.LoginResponse.session:type_name -> userpb.v1.AuthSessionResponse
-	2,  // 4: userpb.v1.RefreshJWTResponse.session:type_name -> userpb.v1.AuthSessionResponse
-	1,  // 5: userpb.v1.GetUserResponse.user:type_name -> userpb.v1.User
-	3,  // 6: userpb.v1.UserService.Register:input_type -> userpb.v1.RegisterRequest
-	5,  // 7: userpb.v1.UserService.Login:input_type -> userpb.v1.LoginRequest
-	7,  // 8: userpb.v1.UserService.RefreshJWT:input_type -> userpb.v1.RefreshJWTRequest
-	9,  // 9: userpb.v1.UserService.GetUser:input_type -> userpb.v1.GetUserRequest
-	4,  // 10: userpb.v1.UserService.Register:output_type -> userpb.v1.RegisterResponse
-	6,  // 11: userpb.v1.UserService.Login:output_type -> userpb.v1.LoginResponse
-	8,  // 12: userpb.v1.UserService.RefreshJWT:output_type -> userpb.v1.RefreshJWTResponse
-	10, // 13: userpb.v1.UserService.GetUser:output_type -> userpb.v1.GetUserResponse
-	10, // [10:14] is the sub-list for method output_type
-	6,  // [6:10] is the sub-list for method input_type
-	6,  // [6:6] is the sub-list for extension type_name
-	6,  // [6:6] is the sub-list for extension extendee
-	0,  // [0:6] is the sub-list for field type_name
+	1,  // 4: userpb.v1.GetUserResponse.user:type_name -> userpb.v1.User
+	3,  // 5: userpb.v1.UserService.Register:input_type -> userpb.v1.RegisterRequest
+	5,  // 6: userpb.v1.UserService.Login:input_type -> userpb.v1.LoginRequest
+	7,  // 7: userpb.v1.UserService.RefreshJWT:input_type -> userpb.v1.RefreshJWTRequest
+	9,  // 8: userpb.v1.UserService.GetUser:input_type -> userpb.v1.GetUserRequest
+	4,  // 9: userpb.v1.UserService.Register:output_type -> userpb.v1.RegisterResponse
+	6,  // 10: userpb.v1.UserService.Login:output_type -> userpb.v1.LoginResponse
+	8,  // 11: userpb.v1.UserService.RefreshJWT:output_type -> userpb.v1.RefreshJWTResponse
+	10, // 12: userpb.v1.UserService.GetUser:output_type -> userpb.v1.GetUserResponse
+	9,  // [9:13] is the sub-list for method output_type
+	5,  // [5:9] is the sub-list for method input_type
+	5,  // [5:5] is the sub-list for extension type_name
+	5,  // [5:5] is the sub-list for extension extendee
+	0,  // [0:5] is the sub-list for field type_name
 }
 
 func init() { file_userpb_v1_user_proto_init() }
