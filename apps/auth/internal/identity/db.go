@@ -1,0 +1,51 @@
+package identity
+
+import (
+	"errors"
+	"time"
+
+	"github.com/vandad1901/p3s/packages/go/apperror"
+	commonpb "github.com/vandad1901/p3s/packages/go/gen/protobuf/commonpb/v1"
+
+	"google.golang.org/protobuf/types/known/timestamppb"
+	"gorm.io/gorm"
+)
+
+func (_ *User) TableName() string {
+	return "users"
+}
+
+func dbCreateUser(tx *gorm.DB, user *User) (*commonpb.IDVersion, error) {
+	currentTime := time.Now()
+
+	user.ID = 0
+	user.CreatedAt = currentTime
+	user.UpdatedAt = currentTime
+
+	err := tx.Create(user).Error
+	if err != nil {
+		if errors.Is(err, gorm.ErrDuplicatedKey) {
+			return nil, apperror.InvalidArgument("identity.DuplicateUsername")
+		}
+
+		return nil, err
+	}
+
+	return &commonpb.IDVersion{
+		Id:        user.ID,
+		UpdatedAt: timestamppb.New(currentTime)}, nil
+}
+
+func dbGetUserByUsername(tx *gorm.DB, username string) (*User, error) {
+	user := new(User)
+
+	err := tx.Table("users").
+		Where("username = ?", username).
+		Select("*").
+		Take(user).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return user, nil
+}
