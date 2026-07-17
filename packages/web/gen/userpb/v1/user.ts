@@ -56,17 +56,8 @@ export interface RefreshJWTResponse {
   jwt: string;
 }
 
-export interface GetUserRequest {
-  id: number;
-}
-
-export interface GetUserResponse {
-  user: User | undefined;
-}
-
 export interface UserService {
   Register(request: RegisterRequest): Promise<RegisterResponse>;
   Login(request: LoginRequest): Promise<LoginResponse>;
   RefreshJWT(request: RefreshJWTRequest): Promise<RefreshJWTResponse>;
-  GetUser(request: GetUserRequest): Promise<GetUserResponse>;
 }

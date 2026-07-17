@@ -26,11 +26,6 @@ service UserService {
       body: "*"
     };
   };
-  rpc GetUser (GetUserRequest) returns (GetUserResponse) {
-    option (google.api.http) = {
-      get: "/v1/users/{id}"
-    };
-  };
 }
 
 message User {
@@ -79,12 +74,4 @@ message RefreshJWTRequest {
 
 message RefreshJWTResponse {
   string jwt = 1;
-}
-
-message GetUserRequest {
-  int64 id = 1;
-}
-
-message GetUserResponse {
-  User user = 1;
 }

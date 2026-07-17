@@ -496,94 +496,6 @@ func (x *RefreshJWTResponse) GetJwt() string {
 	return ""
 }
 
-type GetUserRequest struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserRequest) Reset() {
-	*x = GetUserRequest{}
-	mi := &file_userpb_v1_user_proto_msgTypes[8]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserRequest) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserRequest) ProtoMessage() {}
-
-func (x *GetUserRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_userpb_v1_user_proto_msgTypes[8]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserRequest.ProtoReflect.Descriptor instead.
-func (*GetUserRequest) Descriptor() ([]byte, []int) {
-	return file_userpb_v1_user_proto_rawDescGZIP(), []int{8}
-}
-
-func (x *GetUserRequest) GetId() int64 {
-	if x != nil {
-		return x.Id
-	}
-	return 0
-}
-
-type GetUserResponse struct {
-	state         protoimpl.MessageState `protogen:"open.v1"`
-	User          *User                  `protobuf:"bytes,1,opt,name=user,proto3" json:"user,omitempty"`
-	unknownFields protoimpl.UnknownFields
-	sizeCache     protoimpl.SizeCache
-}
-
-func (x *GetUserResponse) Reset() {
-	*x = GetUserResponse{}
-	mi := &file_userpb_v1_user_proto_msgTypes[9]
-	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-	ms.StoreMessageInfo(mi)
-}
-
-func (x *GetUserResponse) String() string {
-	return protoimpl.X.MessageStringOf(x)
-}
-
-func (*GetUserResponse) ProtoMessage() {}
-
-func (x *GetUserResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_userpb_v1_user_proto_msgTypes[9]
-	if x != nil {
-		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
-		if ms.LoadMessageInfo() == nil {
-			ms.StoreMessageInfo(mi)
-		}
-		return ms
-	}
-	return mi.MessageOf(x)
-}
-
-// Deprecated: Use GetUserResponse.ProtoReflect.Descriptor instead.
-func (*GetUserResponse) Descriptor() ([]byte, []int) {
-	return file_userpb_v1_user_proto_rawDescGZIP(), []int{9}
-}
-
-func (x *GetUserResponse) GetUser() *User {
-	if x != nil {
-		return x.User
-	}
-	return nil
-}
-
 var File_userpb_v1_user_proto protoreflect.FileDescriptor
 
 const file_userpb_v1_user_proto_rawDesc = "" +
@@ -615,21 +527,16 @@ const file_userpb_v1_user_proto_rawDesc = "" +
 	"session_id\x18\x02 \x01(\x03R\tsessionId\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"&\n" +
 	"\x12RefreshJWTResponse\x12\x10\n" +
-	"\x03jwt\x18\x01 \x01(\tR\x03jwt\" \n" +
-	"\x0eGetUserRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"6\n" +
-	"\x0fGetUserResponse\x12#\n" +
-	"\x04user\x18\x01 \x01(\v2\x0f.userpb.v1.UserR\x04user*f\n" +
+	"\x03jwt\x18\x01 \x01(\tR\x03jwt*f\n" +
 	"\rSessionStatus\x12\x1e\n" +
 	"\x1aSESSION_STATUS_UNSPECIFIED\x10\x00\x12\x19\n" +
 	"\x15SESSION_STATUS_ACTIVE\x10\x01\x12\x1a\n" +
-	"\x16SESSION_STATUS_REVOKED\x10\x022\x89\x03\n" +
+	"\x16SESSION_STATUS_REVOKED\x10\x022\xaf\x02\n" +
 	"\vUserService\x12a\n" +
 	"\bRegister\x12\x1a.userpb.v1.RegisterRequest\x1a\x1b.userpb.v1.RegisterResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12U\n" +
 	"\x05Login\x12\x17.userpb.v1.LoginRequest\x1a\x18.userpb.v1.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12f\n" +
 	"\n" +
-	"RefreshJWT\x12\x1c.userpb.v1.RefreshJWTRequest\x1a\x1d.userpb.v1.RefreshJWTResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refresh\x12X\n" +
-	"\aGetUser\x12\x19.userpb.v1.GetUserRequest\x1a\x1a.userpb.v1.GetUserResponse\"\x16\x82\xd3\xe4\x93\x02\x10\x12\x0e/v1/users/{id}B>Z<github.com/vandad1901/p3s/packages/go/protobuf/userpb;userpbb\x06proto3"
+	"RefreshJWT\x12\x1c.userpb.v1.RefreshJWTRequest\x1a\x1d.userpb.v1.RefreshJWTResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refreshB>Z<github.com/vandad1901/p3s/packages/go/protobuf/userpb;userpbb\x06proto3"
 
 var (
 	file_userpb_v1_user_proto_rawDescOnce sync.Once
@@ -644,7 +551,7 @@ func file_userpb_v1_user_proto_rawDescGZIP() []byte {
 }
 
 var file_userpb_v1_user_proto_enumTypes = make([]protoimpl.EnumInfo, 1)
-var file_userpb_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 10)
+var file_userpb_v1_user_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_userpb_v1_user_proto_goTypes = []any{
 	(SessionStatus)(0),            // 0: userpb.v1.SessionStatus
 	(*User)(nil),                  // 1: userpb.v1.User
@@ -655,29 +562,24 @@ var file_userpb_v1_user_proto_goTypes = []any{
 	(*LoginResponse)(nil),         // 6: userpb.v1.LoginResponse
 	(*RefreshJWTRequest)(nil),     // 7: userpb.v1.RefreshJWTRequest
 	(*RefreshJWTResponse)(nil),    // 8: userpb.v1.RefreshJWTResponse
-	(*GetUserRequest)(nil),        // 9: userpb.v1.GetUserRequest
-	(*GetUserResponse)(nil),       // 10: userpb.v1.GetUserResponse
-	(*timestamppb.Timestamp)(nil), // 11: google.protobuf.Timestamp
+	(*timestamppb.Timestamp)(nil), // 9: google.protobuf.Timestamp
 }
 var file_userpb_v1_user_proto_depIdxs = []int32{
-	11, // 0: userpb.v1.AuthSessionResponse.access_expires_at:type_name -> google.protobuf.Timestamp
-	1,  // 1: userpb.v1.RegisterRequest.user:type_name -> userpb.v1.User
-	2,  // 2: userpb.v1.RegisterResponse.session:type_name -> userpb.v1.AuthSessionResponse
-	2,  // 3: userpb.v1.LoginResponse.session:type_name -> userpb.v1.AuthSessionResponse
-	1,  // 4: userpb.v1.GetUserResponse.user:type_name -> userpb.v1.User
-	3,  // 5: userpb.v1.UserService.Register:input_type -> userpb.v1.RegisterRequest
-	5,  // 6: userpb.v1.UserService.Login:input_type -> userpb.v1.LoginRequest
-	7,  // 7: userpb.v1.UserService.RefreshJWT:input_type -> userpb.v1.RefreshJWTRequest
-	9,  // 8: userpb.v1.UserService.GetUser:input_type -> userpb.v1.GetUserRequest
-	4,  // 9: userpb.v1.UserService.Register:output_type -> userpb.v1.RegisterResponse
-	6,  // 10: userpb.v1.UserService.Login:output_type -> userpb.v1.LoginResponse
-	8,  // 11: userpb.v1.UserService.RefreshJWT:output_type -> userpb.v1.RefreshJWTResponse
-	10, // 12: userpb.v1.UserService.GetUser:output_type -> userpb.v1.GetUserResponse
-	9,  // [9:13] is the sub-list for method output_type
-	5,  // [5:9] is the sub-list for method input_type
-	5,  // [5:5] is the sub-list for extension type_name
-	5,  // [5:5] is the sub-list for extension extendee
-	0,  // [0:5] is the sub-list for field type_name
+	9, // 0: userpb.v1.AuthSessionResponse.access_expires_at:type_name -> google.protobuf.Timestamp
+	1, // 1: userpb.v1.RegisterRequest.user:type_name -> userpb.v1.User
+	2, // 2: userpb.v1.RegisterResponse.session:type_name -> userpb.v1.AuthSessionResponse
+	2, // 3: userpb.v1.LoginResponse.session:type_name -> userpb.v1.AuthSessionResponse
+	3, // 4: userpb.v1.UserService.Register:input_type -> userpb.v1.RegisterRequest
+	5, // 5: userpb.v1.UserService.Login:input_type -> userpb.v1.LoginRequest
+	7, // 6: userpb.v1.UserService.RefreshJWT:input_type -> userpb.v1.RefreshJWTRequest
+	4, // 7: userpb.v1.UserService.Register:output_type -> userpb.v1.RegisterResponse
+	6, // 8: userpb.v1.UserService.Login:output_type -> userpb.v1.LoginResponse
+	8, // 9: userpb.v1.UserService.RefreshJWT:output_type -> userpb.v1.RefreshJWTResponse
+	7, // [7:10] is the sub-list for method output_type
+	4, // [4:7] is the sub-list for method input_type
+	4, // [4:4] is the sub-list for extension type_name
+	4, // [4:4] is the sub-list for extension extendee
+	0, // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_userpb_v1_user_proto_init() }
@@ -691,7 +593,7 @@ func file_userpb_v1_user_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_userpb_v1_user_proto_rawDesc), len(file_userpb_v1_user_proto_rawDesc)),
 			NumEnums:      1,
-			NumMessages:   10,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
