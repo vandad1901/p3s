@@ -27,6 +27,13 @@ func SerializableTx(db *gorm.DB, fn func(tx *gorm.DB) error) error {
 		return err
 	}
 
+	defer func() {
+		if r := recover(); r != nil {
+			tx.Rollback()
+			panic(r)
+		}
+	}()
+
 	err := fn(tx)
 	if err != nil {
 		tx.Rollback()
