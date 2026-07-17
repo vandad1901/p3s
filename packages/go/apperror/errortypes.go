@@ -3,10 +3,10 @@ package apperror
 type Category int32
 
 const (
-	CategoryInternal = iota
-	CategoryNotFound
+	CategoryNotFound = iota + 1
 	CategoryInvalidArgument
 	CategoryConflict
+	CategoryUnauthenticated
 )
 
 type Error struct {
@@ -17,10 +17,6 @@ type Error struct {
 
 func (e Error) Error() string {
 	return e.Code
-}
-
-func Internal(code string) Error {
-	return Error{Category: CategoryInternal, Code: code}
 }
 
 func NotFound(code string) Error {
@@ -37,4 +33,8 @@ func InvalidArgumentDetails(code string, details map[string]string) Error {
 
 func Conflict(code string) Error {
 	return Error{Category: CategoryConflict, Code: code}
+}
+
+func Unauthenticated(code string) Error {
+	return Error{Category: CategoryUnauthenticated, Code: code}
 }
