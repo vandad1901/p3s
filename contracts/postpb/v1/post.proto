@@ -1,9 +1,9 @@
 syntax = "proto3";
+
 option go_package = "./postpb";
+package postpb.v1;
 
 import "google/protobuf/timestamp.proto";
-
-package postpb.v1;
 
 message Post {
   int64  id        = 1;
