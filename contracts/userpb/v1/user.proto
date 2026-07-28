@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/vandad1901/p3s/packages/go/protobuf/userpb;userpb";
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/userpb/v1;userpb";
 package userpb.v1;
 
 import "google/api/annotations.proto";

@@ -82,8 +82,7 @@ const file_commonpb_v1_common_proto_rawDesc = "" +
 	"\tIDVersion\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtB\fZ\n" +
-	"./commonpbb\x06proto3"
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAtBIZGgithub.com/vandad1901/p3s/packages/go/gen/protobuf/commonpb/v1;commonpbb\x06proto3"
 
 var (
 	file_commonpb_v1_common_proto_rawDescOnce sync.Once

@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "./commonpb";
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/commonpb/v1;commonpb";
 package commonpb.v1;
 
 import "google/protobuf/timestamp.proto";

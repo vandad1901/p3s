@@ -1,14 +1,65 @@
 syntax = "proto3";
 
-option go_package = "./postpb";
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1;postpb";
 package postpb.v1;
 
+import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
-message Post {
-  int64  id        = 1;
-  int64  author_id = 2;
-  string content   = 3;
+import "google/api/annotations.proto";
+import "commonpb/v1/common.proto";
 
-  google.protobuf.Timestamp created_at = 4;
+service PostService {
+  rpc Create (CreateRequest) returns (commonpb.v1.IDVersion)
+  {
+    option (google.api.http) = {
+      post: "/v1/post/"
+      body: "post"
+    };
+  };
+  rpc Get (GetRequest) returns (Post)
+  {
+    option (google.api.http) = {
+      get: "/v1/post/{id}"
+    };
+  };
+  rpc Update (UpdateRequest) returns (commonpb.v1.IDVersion) {
+    option (google.api.http) = {
+      patch: "/v1/post/"
+      body : "post"
+    };
+  };
+  rpc Delete (DeleteRequest) returns (google.protobuf.Empty) {
+    option (google.api.http) = {
+      delete: "/v1/post/{id}"
+    };
+  };
+
+}
+
+message Post {
+  int64  id      = 1;
+  string content = 2;
+
+  google.protobuf.Timestamp created_at = 3;
+  int64                     created_by = 4;
+  google.protobuf.Timestamp updated_at = 5;
+  int64                     updated_by = 6;
+}
+
+message CreateRequest {
+  Post post = 1;
+}
+
+message GetRequest {
+  int64 id = 1;
+}
+
+message UpdateRequest {
+  Post post = 1;
+}
+
+message DeleteRequest {
+  int64                     id         = 1;
+  google.protobuf.Timestamp updated_at = 2;
 }

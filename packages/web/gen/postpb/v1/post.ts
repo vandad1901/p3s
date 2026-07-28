@@ -5,12 +5,40 @@
 // source: postpb/v1/post.proto
 
 /* eslint-disable */
+import type { IDVersion } from "../../commonpb/v1/common";
+import type { Empty } from "../../google/protobuf/empty";
 
 export const protobufPackage = "postpb.v1";
 
 export interface Post {
   id: number;
-  authorId: number;
   content: string;
   createdAt: Date | undefined;
+  createdBy: number;
+  updatedAt: Date | undefined;
+  updatedBy: number;
+}
+
+export interface CreateRequest {
+  post: Post | undefined;
+}
+
+export interface GetRequest {
+  id: number;
+}
+
+export interface UpdateRequest {
+  post: Post | undefined;
+}
+
+export interface DeleteRequest {
+  id: number;
+  updatedAt: Date | undefined;
+}
+
+export interface PostService {
+  Create(request: CreateRequest): Promise<IDVersion>;
+  Get(request: GetRequest): Promise<Post>;
+  Update(request: UpdateRequest): Promise<IDVersion>;
+  Delete(request: DeleteRequest): Promise<Empty>;
 }
