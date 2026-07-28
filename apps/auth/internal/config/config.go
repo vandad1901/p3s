@@ -16,11 +16,13 @@ const (
 
 type Config struct {
 	GRPCListenAddress string
+	HTTPListenAddress string
 	Environment       Environment
 }
 
 func LoadConfig() *Config {
 	gRPCListenAddress := envutil.MustGetString("GRPC_LISTEN_ADDRESS")
+	httpListenAddress := envutil.MustGetString("HTTP_LISTEN_ADDRESS")
 	environment := envutil.MustGetString("APP_ENV")
 
 	switch Environment(environment) {
@@ -31,6 +33,7 @@ func LoadConfig() *Config {
 
 	return &Config{
 		GRPCListenAddress: gRPCListenAddress,
+		HTTPListenAddress: httpListenAddress,
 		Environment:       Environment(environment),
 	}
 }
