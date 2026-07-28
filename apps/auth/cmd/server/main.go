@@ -63,7 +63,7 @@ func main() {
 	manageAppLifecycle(cfg, grpcServer, httpServer)
 }
 
-func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, db *gorm.DB) app {
+func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, db *gorm.DB) *app {
 	tokenServiceV1 := token.NewService(signer)
 	identityServiceV1 := identity.NewService(db)
 	sessionServiceV1 := session.NewService(db, tokenServiceV1)
@@ -71,7 +71,7 @@ func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, 
 
 	jwksServiceV1 := jwks.NewService(jwtConfig.PrivateKey, "your-key-id")
 
-	return app{
+	return &app{
 		tokenService:    tokenServiceV1,
 		identityService: identityServiceV1,
 		sessionService:  sessionServiceV1,
@@ -80,8 +80,8 @@ func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, 
 	}
 }
 
-func registerGRPCServers(a app, grpcServer *grpc.Server, cfg *config.Config) {
-	userrpc.RegisterUserRPCServer(grpcServer,
+func registerGRPCServers(a *app, grpcServer *grpc.Server, cfg *config.Config) {
+	userrpc.Register(grpcServer,
 		a.identityService, a.authService, a.sessionService)
 
 	if cfg.Environment == config.Development {
@@ -89,7 +89,7 @@ func registerGRPCServers(a app, grpcServer *grpc.Server, cfg *config.Config) {
 	}
 }
 
-func registerHTTPHandlers(a app, httpServer *echo.Echo) {
+func registerHTTPHandlers(a *app, httpServer *echo.Echo) {
 	httpServer.GET("/jwks.json", a.jwksService.Handle)
 }
 

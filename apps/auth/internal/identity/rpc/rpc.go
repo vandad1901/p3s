@@ -18,7 +18,7 @@ type UserRPCServer struct {
 	sessionService  *session.Service
 }
 
-func RegisterUserRPCServer(s *grpc.Server,
+func Register(s *grpc.Server,
 	identityService *identity.Service, authService *auth.Service, sessionService *session.Service) {
 	userpb.RegisterUserServiceServer(s, &UserRPCServer{
 		identityService: identityService,
