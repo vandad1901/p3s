@@ -1,0 +1,43 @@
+set shell := ["sh", "-cu"]
+set dotenv-load
+
+###Style
+
+RED := '\033[0;31m'
+GREEN := '\033[0;32m'
+YELLOW := '\033[1;33m'
+BLUE := '\033[0;34m'
+NORMAL := '\033[0m'
+
+### Env
+
+PREFIX := "API_"
+PGUser := env_var(PREFIX + "PG_USER")
+PGPassword := env_var(PREFIX + "PG_PASSWORD")
+PGHost := env_var(PREFIX + "PG_HOST")
+PGPort := env_var(PREFIX + "PG_PORT")
+PGDatabase := env_var(PREFIX + "PG_DATABASE")
+
+###
+
+AUTH_DATABASE_URL := "postgres://" + PGUser + ":" + PGPassword + "@" + PGHost + ":" + PGPort + "/" + PGDatabase + "?sslmode=disable"
+
+@dev:
+    go run ./cmd/server/
+
+@debug:
+    dlv debug ./cmd/server \
+      --headless \
+      --listen=:38697 \
+      --api-version=2 \
+      --accept-multiclient
+
+@db-reset: && db-up
+    echo "{{ YELLOW }}[i] {{ RED }}Dropping{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
+    PGPASSWORD="{{ PGPassword }}" dropdb --force --if-exists -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
+    echo "{{ YELLOW }}[i] {{ GREEN }}Creating{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
+    PGPASSWORD="{{ PGPassword }}" createdb -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
+
+@db-up:
+    echo "{{ YELLOW }}[i]{{ NORMAL }} Applying migrations to database: {{ BLUE }}auth{{ NORMAL }}"
+    migrate -database "{{ AUTH_DATABASE_URL }}" -path ./migrations up

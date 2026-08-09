@@ -9,6 +9,15 @@
             "program": "${workspaceFolder}/apps/auth/cmd/server",
             "envFile": "${workspaceFolder}/apps/auth/.env",
             "cwd": "${workspaceFolder}/apps/auth/"
+        },
+        {
+            "name": "Debug: API Service",
+            "type": "go",
+            "request": "launch",
+            "mode": "debug",
+            "program": "${workspaceFolder}/apps/api/cmd/server",
+            "envFile": "${workspaceFolder}/apps/api/.env",
+            "cwd": "${workspaceFolder}/apps/api/"
         }
     ]
 }

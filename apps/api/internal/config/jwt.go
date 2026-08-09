@@ -1,0 +1,43 @@
+package config
+
+import (
+	"crypto/ecdsa"
+	"crypto/x509"
+	"encoding/pem"
+	"log"
+	"os"
+
+	"github.com/vandad1901/p3s/packages/go/envutil"
+)
+
+type JWTConfig struct {
+	PrivateKey *ecdsa.PrivateKey
+}
+
+func LoadJWTConfig() *JWTConfig {
+	privateKeyPath := envutil.MustGetString("JWT_PRIVATE_KEY_PATH")
+
+	privateKeyPEM, err := os.ReadFile(privateKeyPath)
+	if err != nil {
+		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Unable to read file: %s", err)
+	}
+
+	block, _ := pem.Decode([]byte(privateKeyPEM))
+	if block == nil {
+		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Private key must be in PEM format")
+	}
+
+	key, err := x509.ParsePKCS8PrivateKey(block.Bytes)
+	if err != nil {
+		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Unable to parse private key: %s", err)
+	}
+
+	ecKey, ok := key.(*ecdsa.PrivateKey)
+	if !ok {
+		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Not an ECDSA private key")
+	}
+
+	return &JWTConfig{
+		PrivateKey: ecKey,
+	}
+}

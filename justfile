@@ -1,4 +1,5 @@
 mod auth "apps/auth"
+mod api "apps/api"
 
 set shell := ["sh", "-cu"]
 
@@ -41,6 +42,7 @@ set shell := ["sh", "-cu"]
 
 @db:
     just auth db-reset
+    just api db-reset
 
 @generate:
     buf generate
