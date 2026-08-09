@@ -12,11 +12,11 @@ NORMAL := '\033[0m'
 ### Env
 
 PREFIX := "AUTH_"
-PGUser := env_var("AUTH_" + "PG_USER")
-PGPassword := env_var("AUTH_" + "PG_PASSWORD")
-PGHost := env_var("AUTH_" + "PG_HOST")
-PGPort := env_var("AUTH_" + "PG_PORT")
-PGDatabase := env_var("AUTH_" + "PG_DATABASE")
+PGUser := env_var(PREFIX + "PG_USER")
+PGPassword := env_var(PREFIX + "PG_PASSWORD")
+PGHost := env_var(PREFIX + "PG_HOST")
+PGPort := env_var(PREFIX + "PG_PORT")
+PGDatabase := env_var(PREFIX + "PG_DATABASE")
 
 ###
 
@@ -34,7 +34,7 @@ AUTH_DATABASE_URL := "postgres://" + PGUser + ":" + PGPassword + "@" + PGHost + 
 
 @db-reset: && db-up
     echo "{{ YELLOW }}[i] {{ RED }}Dropping{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
-    PGPASSWORD="{{ PGPassword }}" dropdb --if-exists -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
+    PGPASSWORD="{{ PGPassword }}" dropdb --force --if-exists -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
     echo "{{ YELLOW }}[i] {{ GREEN }}Creating{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
     PGPASSWORD="{{ PGPassword }}" createdb -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
 
