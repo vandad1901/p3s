@@ -10,25 +10,63 @@ import type { Empty } from "../../google/protobuf/empty";
 
 export const protobufPackage = "postpb.v1";
 
+export enum PostStatus {
+  POST_STATUS_UNSPECIFIED = 0,
+  POST_STATUS_DRAFT = 1,
+  POST_STATUS_PUBLISHED = 2,
+  UNRECOGNIZED = -1,
+}
+
+export enum BlockType {
+  BLOCK_TYPE_UNSPECIFIED = 0,
+  BLOCK_TYPE_HEADER = 1,
+  BLOCK_TYPE_TEXT = 2,
+  UNRECOGNIZED = -1,
+}
+
 export interface Post {
   id: number;
-  content: string;
+  title: string;
+  slug: string;
+  postStatus: PostStatus;
   createdAt: Date | undefined;
   createdBy: number;
   updatedAt: Date | undefined;
   updatedBy: number;
 }
 
+export interface PostBlock {
+  id: number;
+  postId: number;
+  position: number;
+  blockType: BlockType;
+  media: string;
+  text: string;
+}
+
 export interface CreateRequest {
   post: Post | undefined;
+  postBlocks: PostBlock[];
 }
 
 export interface GetRequest {
   id: number;
 }
 
+export interface GetResponse {
+  post: Post | undefined;
+  postBlocks: PostBlock[];
+}
+
+export interface PostBlockUpdateRequest {
+  inserted: PostBlock[];
+  updated: PostBlock[];
+  deleted: number[];
+}
+
 export interface UpdateRequest {
   post: Post | undefined;
+  postBlockRequest: PostBlockUpdateRequest | undefined;
 }
 
 export interface DeleteRequest {
@@ -38,7 +76,7 @@ export interface DeleteRequest {
 
 export interface PostService {
   Create(request: CreateRequest): Promise<IDVersion>;
-  Get(request: GetRequest): Promise<Post>;
+  Get(request: GetRequest): Promise<GetResponse>;
   Update(request: UpdateRequest): Promise<IDVersion>;
   Delete(request: DeleteRequest): Promise<Empty>;
 }

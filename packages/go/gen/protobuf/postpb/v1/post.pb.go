@@ -25,14 +25,114 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
+type PostStatus int32
+
+const (
+	PostStatus_POST_STATUS_UNSPECIFIED PostStatus = 0
+	PostStatus_POST_STATUS_DRAFT       PostStatus = 1
+	PostStatus_POST_STATUS_PUBLISHED   PostStatus = 2
+)
+
+// Enum value maps for PostStatus.
+var (
+	PostStatus_name = map[int32]string{
+		0: "POST_STATUS_UNSPECIFIED",
+		1: "POST_STATUS_DRAFT",
+		2: "POST_STATUS_PUBLISHED",
+	}
+	PostStatus_value = map[string]int32{
+		"POST_STATUS_UNSPECIFIED": 0,
+		"POST_STATUS_DRAFT":       1,
+		"POST_STATUS_PUBLISHED":   2,
+	}
+)
+
+func (x PostStatus) Enum() *PostStatus {
+	p := new(PostStatus)
+	*p = x
+	return p
+}
+
+func (x PostStatus) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (PostStatus) Descriptor() protoreflect.EnumDescriptor {
+	return file_postpb_v1_post_proto_enumTypes[0].Descriptor()
+}
+
+func (PostStatus) Type() protoreflect.EnumType {
+	return &file_postpb_v1_post_proto_enumTypes[0]
+}
+
+func (x PostStatus) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use PostStatus.Descriptor instead.
+func (PostStatus) EnumDescriptor() ([]byte, []int) {
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{0}
+}
+
+type BlockType int32
+
+const (
+	BlockType_BLOCK_TYPE_UNSPECIFIED BlockType = 0
+	BlockType_BLOCK_TYPE_HEADER      BlockType = 1
+	BlockType_BLOCK_TYPE_TEXT        BlockType = 2
+)
+
+// Enum value maps for BlockType.
+var (
+	BlockType_name = map[int32]string{
+		0: "BLOCK_TYPE_UNSPECIFIED",
+		1: "BLOCK_TYPE_HEADER",
+		2: "BLOCK_TYPE_TEXT",
+	}
+	BlockType_value = map[string]int32{
+		"BLOCK_TYPE_UNSPECIFIED": 0,
+		"BLOCK_TYPE_HEADER":      1,
+		"BLOCK_TYPE_TEXT":        2,
+	}
+)
+
+func (x BlockType) Enum() *BlockType {
+	p := new(BlockType)
+	*p = x
+	return p
+}
+
+func (x BlockType) String() string {
+	return protoimpl.X.EnumStringOf(x.Descriptor(), protoreflect.EnumNumber(x))
+}
+
+func (BlockType) Descriptor() protoreflect.EnumDescriptor {
+	return file_postpb_v1_post_proto_enumTypes[1].Descriptor()
+}
+
+func (BlockType) Type() protoreflect.EnumType {
+	return &file_postpb_v1_post_proto_enumTypes[1]
+}
+
+func (x BlockType) Number() protoreflect.EnumNumber {
+	return protoreflect.EnumNumber(x)
+}
+
+// Deprecated: Use BlockType.Descriptor instead.
+func (BlockType) EnumDescriptor() ([]byte, []int) {
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{1}
+}
+
 type Post struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
-	Content       string                 `protobuf:"bytes,2,opt,name=content,proto3" json:"content,omitempty"`
-	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,3,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
-	CreatedBy     int64                  `protobuf:"varint,4,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
-	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
-	UpdatedBy     int64                  `protobuf:"varint,6,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
+	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
+	Slug          string                 `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
+	PostStatus    PostStatus             `protobuf:"varint,4,opt,name=post_status,json=postStatus,proto3,enum=postpb.v1.PostStatus" json:"post_status,omitempty"`
+	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
+	CreatedBy     int64                  `protobuf:"varint,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
+	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
+	UpdatedBy     int64                  `protobuf:"varint,8,opt,name=updated_by,json=updatedBy,proto3" json:"updated_by,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -74,11 +174,25 @@ func (x *Post) GetId() int64 {
 	return 0
 }
 
-func (x *Post) GetContent() string {
+func (x *Post) GetTitle() string {
 	if x != nil {
-		return x.Content
+		return x.Title
 	}
 	return ""
+}
+
+func (x *Post) GetSlug() string {
+	if x != nil {
+		return x.Slug
+	}
+	return ""
+}
+
+func (x *Post) GetPostStatus() PostStatus {
+	if x != nil {
+		return x.PostStatus
+	}
+	return PostStatus_POST_STATUS_UNSPECIFIED
 }
 
 func (x *Post) GetCreatedAt() *timestamppb.Timestamp {
@@ -109,16 +223,101 @@ func (x *Post) GetUpdatedBy() int64 {
 	return 0
 }
 
+type PostBlock struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	PostId        int64                  `protobuf:"varint,2,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
+	Position      int32                  `protobuf:"varint,3,opt,name=position,proto3" json:"position,omitempty"`
+	BlockType     BlockType              `protobuf:"varint,4,opt,name=block_type,json=blockType,proto3,enum=postpb.v1.BlockType" json:"block_type,omitempty"`
+	Media         string                 `protobuf:"bytes,5,opt,name=media,proto3" json:"media,omitempty"`
+	Text          string                 `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PostBlock) Reset() {
+	*x = PostBlock{}
+	mi := &file_postpb_v1_post_proto_msgTypes[1]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PostBlock) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PostBlock) ProtoMessage() {}
+
+func (x *PostBlock) ProtoReflect() protoreflect.Message {
+	mi := &file_postpb_v1_post_proto_msgTypes[1]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PostBlock.ProtoReflect.Descriptor instead.
+func (*PostBlock) Descriptor() ([]byte, []int) {
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{1}
+}
+
+func (x *PostBlock) GetId() int64 {
+	if x != nil {
+		return x.Id
+	}
+	return 0
+}
+
+func (x *PostBlock) GetPostId() int64 {
+	if x != nil {
+		return x.PostId
+	}
+	return 0
+}
+
+func (x *PostBlock) GetPosition() int32 {
+	if x != nil {
+		return x.Position
+	}
+	return 0
+}
+
+func (x *PostBlock) GetBlockType() BlockType {
+	if x != nil {
+		return x.BlockType
+	}
+	return BlockType_BLOCK_TYPE_UNSPECIFIED
+}
+
+func (x *PostBlock) GetMedia() string {
+	if x != nil {
+		return x.Media
+	}
+	return ""
+}
+
+func (x *PostBlock) GetText() string {
+	if x != nil {
+		return x.Text
+	}
+	return ""
+}
+
 type CreateRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Post          *Post                  `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
+	PostBlocks    []*PostBlock           `protobuf:"bytes,2,rep,name=post_blocks,json=postBlocks,proto3" json:"post_blocks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
 func (x *CreateRequest) Reset() {
 	*x = CreateRequest{}
-	mi := &file_postpb_v1_post_proto_msgTypes[1]
+	mi := &file_postpb_v1_post_proto_msgTypes[2]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -130,7 +329,7 @@ func (x *CreateRequest) String() string {
 func (*CreateRequest) ProtoMessage() {}
 
 func (x *CreateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_postpb_v1_post_proto_msgTypes[1]
+	mi := &file_postpb_v1_post_proto_msgTypes[2]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -143,12 +342,19 @@ func (x *CreateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use CreateRequest.ProtoReflect.Descriptor instead.
 func (*CreateRequest) Descriptor() ([]byte, []int) {
-	return file_postpb_v1_post_proto_rawDescGZIP(), []int{1}
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{2}
 }
 
 func (x *CreateRequest) GetPost() *Post {
 	if x != nil {
 		return x.Post
+	}
+	return nil
+}
+
+func (x *CreateRequest) GetPostBlocks() []*PostBlock {
+	if x != nil {
+		return x.PostBlocks
 	}
 	return nil
 }
@@ -162,7 +368,7 @@ type GetRequest struct {
 
 func (x *GetRequest) Reset() {
 	*x = GetRequest{}
-	mi := &file_postpb_v1_post_proto_msgTypes[2]
+	mi := &file_postpb_v1_post_proto_msgTypes[3]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -174,7 +380,7 @@ func (x *GetRequest) String() string {
 func (*GetRequest) ProtoMessage() {}
 
 func (x *GetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_postpb_v1_post_proto_msgTypes[2]
+	mi := &file_postpb_v1_post_proto_msgTypes[3]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -187,7 +393,7 @@ func (x *GetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRequest.ProtoReflect.Descriptor instead.
 func (*GetRequest) Descriptor() ([]byte, []int) {
-	return file_postpb_v1_post_proto_rawDescGZIP(), []int{2}
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{3}
 }
 
 func (x *GetRequest) GetId() int64 {
@@ -197,16 +403,129 @@ func (x *GetRequest) GetId() int64 {
 	return 0
 }
 
-type UpdateRequest struct {
+type GetResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Post          *Post                  `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
+	PostBlocks    []*PostBlock           `protobuf:"bytes,2,rep,name=post_blocks,json=postBlocks,proto3" json:"post_blocks,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
+func (x *GetResponse) Reset() {
+	*x = GetResponse{}
+	mi := &file_postpb_v1_post_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetResponse) ProtoMessage() {}
+
+func (x *GetResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_postpb_v1_post_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetResponse.ProtoReflect.Descriptor instead.
+func (*GetResponse) Descriptor() ([]byte, []int) {
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *GetResponse) GetPost() *Post {
+	if x != nil {
+		return x.Post
+	}
+	return nil
+}
+
+func (x *GetResponse) GetPostBlocks() []*PostBlock {
+	if x != nil {
+		return x.PostBlocks
+	}
+	return nil
+}
+
+type PostBlockUpdateRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Inserted      []*PostBlock           `protobuf:"bytes,1,rep,name=inserted,proto3" json:"inserted,omitempty"`
+	Updated       []*PostBlock           `protobuf:"bytes,2,rep,name=updated,proto3" json:"updated,omitempty"`
+	Deleted       []int64                `protobuf:"varint,3,rep,packed,name=deleted,proto3" json:"deleted,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *PostBlockUpdateRequest) Reset() {
+	*x = PostBlockUpdateRequest{}
+	mi := &file_postpb_v1_post_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *PostBlockUpdateRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*PostBlockUpdateRequest) ProtoMessage() {}
+
+func (x *PostBlockUpdateRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_postpb_v1_post_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use PostBlockUpdateRequest.ProtoReflect.Descriptor instead.
+func (*PostBlockUpdateRequest) Descriptor() ([]byte, []int) {
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *PostBlockUpdateRequest) GetInserted() []*PostBlock {
+	if x != nil {
+		return x.Inserted
+	}
+	return nil
+}
+
+func (x *PostBlockUpdateRequest) GetUpdated() []*PostBlock {
+	if x != nil {
+		return x.Updated
+	}
+	return nil
+}
+
+func (x *PostBlockUpdateRequest) GetDeleted() []int64 {
+	if x != nil {
+		return x.Deleted
+	}
+	return nil
+}
+
+type UpdateRequest struct {
+	state            protoimpl.MessageState  `protogen:"open.v1"`
+	Post             *Post                   `protobuf:"bytes,1,opt,name=post,proto3" json:"post,omitempty"`
+	PostBlockRequest *PostBlockUpdateRequest `protobuf:"bytes,2,opt,name=post_block_request,json=postBlockRequest,proto3" json:"post_block_request,omitempty"`
+	unknownFields    protoimpl.UnknownFields
+	sizeCache        protoimpl.SizeCache
+}
+
 func (x *UpdateRequest) Reset() {
 	*x = UpdateRequest{}
-	mi := &file_postpb_v1_post_proto_msgTypes[3]
+	mi := &file_postpb_v1_post_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -218,7 +537,7 @@ func (x *UpdateRequest) String() string {
 func (*UpdateRequest) ProtoMessage() {}
 
 func (x *UpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_postpb_v1_post_proto_msgTypes[3]
+	mi := &file_postpb_v1_post_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -231,12 +550,19 @@ func (x *UpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRequest) Descriptor() ([]byte, []int) {
-	return file_postpb_v1_post_proto_rawDescGZIP(), []int{3}
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *UpdateRequest) GetPost() *Post {
 	if x != nil {
 		return x.Post
+	}
+	return nil
+}
+
+func (x *UpdateRequest) GetPostBlockRequest() *PostBlockUpdateRequest {
+	if x != nil {
+		return x.PostBlockRequest
 	}
 	return nil
 }
@@ -251,7 +577,7 @@ type DeleteRequest struct {
 
 func (x *DeleteRequest) Reset() {
 	*x = DeleteRequest{}
-	mi := &file_postpb_v1_post_proto_msgTypes[4]
+	mi := &file_postpb_v1_post_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -263,7 +589,7 @@ func (x *DeleteRequest) String() string {
 func (*DeleteRequest) ProtoMessage() {}
 
 func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_postpb_v1_post_proto_msgTypes[4]
+	mi := &file_postpb_v1_post_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -276,7 +602,7 @@ func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRequest) Descriptor() ([]byte, []int) {
-	return file_postpb_v1_post_proto_rawDescGZIP(), []int{4}
+	return file_postpb_v1_post_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *DeleteRequest) GetId() int64 {
@@ -297,32 +623,63 @@ var File_postpb_v1_post_proto protoreflect.FileDescriptor
 
 const file_postpb_v1_post_proto_rawDesc = "" +
 	"\n" +
-	"\x14postpb/v1/post.proto\x12\tpostpb.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x18commonpb/v1/common.proto\"\xe4\x01\n" +
+	"\x14postpb/v1/post.proto\x12\tpostpb.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x18commonpb/v1/common.proto\"\xac\x02\n" +
 	"\x04Post\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x18\n" +
-	"\acontent\x18\x02 \x01(\tR\acontent\x129\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
+	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
+	"\x04slug\x18\x03 \x01(\tR\x04slug\x126\n" +
+	"\vpost_status\x18\x04 \x01(\x0e2\x15.postpb.v1.PostStatusR\n" +
+	"postStatus\x129\n" +
 	"\n" +
-	"created_at\x18\x03 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1d\n" +
+	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1d\n" +
 	"\n" +
-	"created_by\x18\x04 \x01(\x03R\tcreatedBy\x129\n" +
+	"created_by\x18\x06 \x01(\x03R\tcreatedBy\x129\n" +
 	"\n" +
-	"updated_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
+	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_by\x18\x06 \x01(\x03R\tupdatedBy\"4\n" +
+	"updated_by\x18\b \x01(\x03R\tupdatedBy\"\xaf\x01\n" +
+	"\tPostBlock\x12\x0e\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
+	"\apost_id\x18\x02 \x01(\x03R\x06postId\x12\x1a\n" +
+	"\bposition\x18\x03 \x01(\x05R\bposition\x123\n" +
+	"\n" +
+	"block_type\x18\x04 \x01(\x0e2\x14.postpb.v1.BlockTypeR\tblockType\x12\x14\n" +
+	"\x05media\x18\x05 \x01(\tR\x05media\x12\x12\n" +
+	"\x04text\x18\x06 \x01(\tR\x04text\"k\n" +
 	"\rCreateRequest\x12#\n" +
-	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\"\x1c\n" +
+	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\x125\n" +
+	"\vpost_blocks\x18\x02 \x03(\v2\x14.postpb.v1.PostBlockR\n" +
+	"postBlocks\"\x1c\n" +
 	"\n" +
 	"GetRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"4\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"i\n" +
+	"\vGetResponse\x12#\n" +
+	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\x125\n" +
+	"\vpost_blocks\x18\x02 \x03(\v2\x14.postpb.v1.PostBlockR\n" +
+	"postBlocks\"\x94\x01\n" +
+	"\x16PostBlockUpdateRequest\x120\n" +
+	"\binserted\x18\x01 \x03(\v2\x14.postpb.v1.PostBlockR\binserted\x12.\n" +
+	"\aupdated\x18\x02 \x03(\v2\x14.postpb.v1.PostBlockR\aupdated\x12\x18\n" +
+	"\adeleted\x18\x03 \x03(\x03R\adeleted\"\x85\x01\n" +
 	"\rUpdateRequest\x12#\n" +
-	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\"Z\n" +
+	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\x12O\n" +
+	"\x12post_block_request\x18\x02 \x01(\v2!.postpb.v1.PostBlockUpdateRequestR\x10postBlockRequest\"Z\n" +
 	"\rDeleteRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt2\xd0\x02\n" +
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt*[\n" +
+	"\n" +
+	"PostStatus\x12\x1b\n" +
+	"\x17POST_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11POST_STATUS_DRAFT\x10\x01\x12\x19\n" +
+	"\x15POST_STATUS_PUBLISHED\x10\x02*S\n" +
+	"\tBlockType\x12\x1a\n" +
+	"\x16BLOCK_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
+	"\x11BLOCK_TYPE_HEADER\x10\x01\x12\x13\n" +
+	"\x0fBLOCK_TYPE_TEXT\x10\x022\xd7\x02\n" +
 	"\vPostService\x12S\n" +
-	"\x06Create\x12\x18.postpb.v1.CreateRequest\x1a\x16.commonpb.v1.IDVersion\"\x17\x82\xd3\xe4\x93\x02\x11:\x04post\"\t/v1/post/\x12D\n" +
-	"\x03Get\x12\x15.postpb.v1.GetRequest\x1a\x0f.postpb.v1.Post\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/post/{id}\x12S\n" +
+	"\x06Create\x12\x18.postpb.v1.CreateRequest\x1a\x16.commonpb.v1.IDVersion\"\x17\x82\xd3\xe4\x93\x02\x11:\x04post\"\t/v1/post/\x12K\n" +
+	"\x03Get\x12\x15.postpb.v1.GetRequest\x1a\x16.postpb.v1.GetResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/post/{id}\x12S\n" +
 	"\x06Update\x12\x18.postpb.v1.UpdateRequest\x1a\x16.commonpb.v1.IDVersion\"\x17\x82\xd3\xe4\x93\x02\x11:\x04post2\t/v1/post/\x12Q\n" +
 	"\x06Delete\x12\x18.postpb.v1.DeleteRequest\x1a\x16.google.protobuf.Empty\"\x15\x82\xd3\xe4\x93\x02\x0f*\r/v1/post/{id}BEZCgithub.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1;postpbb\x06proto3"
 
@@ -338,36 +695,50 @@ func file_postpb_v1_post_proto_rawDescGZIP() []byte {
 	return file_postpb_v1_post_proto_rawDescData
 }
 
-var file_postpb_v1_post_proto_msgTypes = make([]protoimpl.MessageInfo, 5)
+var file_postpb_v1_post_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
+var file_postpb_v1_post_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
 var file_postpb_v1_post_proto_goTypes = []any{
-	(*Post)(nil),                  // 0: postpb.v1.Post
-	(*CreateRequest)(nil),         // 1: postpb.v1.CreateRequest
-	(*GetRequest)(nil),            // 2: postpb.v1.GetRequest
-	(*UpdateRequest)(nil),         // 3: postpb.v1.UpdateRequest
-	(*DeleteRequest)(nil),         // 4: postpb.v1.DeleteRequest
-	(*timestamppb.Timestamp)(nil), // 5: google.protobuf.Timestamp
-	(*v1.IDVersion)(nil),          // 6: commonpb.v1.IDVersion
-	(*emptypb.Empty)(nil),         // 7: google.protobuf.Empty
+	(PostStatus)(0),                // 0: postpb.v1.PostStatus
+	(BlockType)(0),                 // 1: postpb.v1.BlockType
+	(*Post)(nil),                   // 2: postpb.v1.Post
+	(*PostBlock)(nil),              // 3: postpb.v1.PostBlock
+	(*CreateRequest)(nil),          // 4: postpb.v1.CreateRequest
+	(*GetRequest)(nil),             // 5: postpb.v1.GetRequest
+	(*GetResponse)(nil),            // 6: postpb.v1.GetResponse
+	(*PostBlockUpdateRequest)(nil), // 7: postpb.v1.PostBlockUpdateRequest
+	(*UpdateRequest)(nil),          // 8: postpb.v1.UpdateRequest
+	(*DeleteRequest)(nil),          // 9: postpb.v1.DeleteRequest
+	(*timestamppb.Timestamp)(nil),  // 10: google.protobuf.Timestamp
+	(*v1.IDVersion)(nil),           // 11: commonpb.v1.IDVersion
+	(*emptypb.Empty)(nil),          // 12: google.protobuf.Empty
 }
 var file_postpb_v1_post_proto_depIdxs = []int32{
-	5, // 0: postpb.v1.Post.created_at:type_name -> google.protobuf.Timestamp
-	5, // 1: postpb.v1.Post.updated_at:type_name -> google.protobuf.Timestamp
-	0, // 2: postpb.v1.CreateRequest.post:type_name -> postpb.v1.Post
-	0, // 3: postpb.v1.UpdateRequest.post:type_name -> postpb.v1.Post
-	5, // 4: postpb.v1.DeleteRequest.updated_at:type_name -> google.protobuf.Timestamp
-	1, // 5: postpb.v1.PostService.Create:input_type -> postpb.v1.CreateRequest
-	2, // 6: postpb.v1.PostService.Get:input_type -> postpb.v1.GetRequest
-	3, // 7: postpb.v1.PostService.Update:input_type -> postpb.v1.UpdateRequest
-	4, // 8: postpb.v1.PostService.Delete:input_type -> postpb.v1.DeleteRequest
-	6, // 9: postpb.v1.PostService.Create:output_type -> commonpb.v1.IDVersion
-	0, // 10: postpb.v1.PostService.Get:output_type -> postpb.v1.Post
-	6, // 11: postpb.v1.PostService.Update:output_type -> commonpb.v1.IDVersion
-	7, // 12: postpb.v1.PostService.Delete:output_type -> google.protobuf.Empty
-	9, // [9:13] is the sub-list for method output_type
-	5, // [5:9] is the sub-list for method input_type
-	5, // [5:5] is the sub-list for extension type_name
-	5, // [5:5] is the sub-list for extension extendee
-	0, // [0:5] is the sub-list for field type_name
+	0,  // 0: postpb.v1.Post.post_status:type_name -> postpb.v1.PostStatus
+	10, // 1: postpb.v1.Post.created_at:type_name -> google.protobuf.Timestamp
+	10, // 2: postpb.v1.Post.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: postpb.v1.PostBlock.block_type:type_name -> postpb.v1.BlockType
+	2,  // 4: postpb.v1.CreateRequest.post:type_name -> postpb.v1.Post
+	3,  // 5: postpb.v1.CreateRequest.post_blocks:type_name -> postpb.v1.PostBlock
+	2,  // 6: postpb.v1.GetResponse.post:type_name -> postpb.v1.Post
+	3,  // 7: postpb.v1.GetResponse.post_blocks:type_name -> postpb.v1.PostBlock
+	3,  // 8: postpb.v1.PostBlockUpdateRequest.inserted:type_name -> postpb.v1.PostBlock
+	3,  // 9: postpb.v1.PostBlockUpdateRequest.updated:type_name -> postpb.v1.PostBlock
+	2,  // 10: postpb.v1.UpdateRequest.post:type_name -> postpb.v1.Post
+	7,  // 11: postpb.v1.UpdateRequest.post_block_request:type_name -> postpb.v1.PostBlockUpdateRequest
+	10, // 12: postpb.v1.DeleteRequest.updated_at:type_name -> google.protobuf.Timestamp
+	4,  // 13: postpb.v1.PostService.Create:input_type -> postpb.v1.CreateRequest
+	5,  // 14: postpb.v1.PostService.Get:input_type -> postpb.v1.GetRequest
+	8,  // 15: postpb.v1.PostService.Update:input_type -> postpb.v1.UpdateRequest
+	9,  // 16: postpb.v1.PostService.Delete:input_type -> postpb.v1.DeleteRequest
+	11, // 17: postpb.v1.PostService.Create:output_type -> commonpb.v1.IDVersion
+	6,  // 18: postpb.v1.PostService.Get:output_type -> postpb.v1.GetResponse
+	11, // 19: postpb.v1.PostService.Update:output_type -> commonpb.v1.IDVersion
+	12, // 20: postpb.v1.PostService.Delete:output_type -> google.protobuf.Empty
+	17, // [17:21] is the sub-list for method output_type
+	13, // [13:17] is the sub-list for method input_type
+	13, // [13:13] is the sub-list for extension type_name
+	13, // [13:13] is the sub-list for extension extendee
+	0,  // [0:13] is the sub-list for field type_name
 }
 
 func init() { file_postpb_v1_post_proto_init() }
@@ -380,13 +751,14 @@ func file_postpb_v1_post_proto_init() {
 		File: protoimpl.DescBuilder{
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_postpb_v1_post_proto_rawDesc), len(file_postpb_v1_post_proto_rawDesc)),
-			NumEnums:      0,
-			NumMessages:   5,
+			NumEnums:      2,
+			NumMessages:   8,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
 		GoTypes:           file_postpb_v1_post_proto_goTypes,
 		DependencyIndexes: file_postpb_v1_post_proto_depIdxs,
+		EnumInfos:         file_postpb_v1_post_proto_enumTypes,
 		MessageInfos:      file_postpb_v1_post_proto_msgTypes,
 	}.Build()
 	File_postpb_v1_post_proto = out.File

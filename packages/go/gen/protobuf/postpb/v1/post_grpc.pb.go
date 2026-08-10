@@ -32,7 +32,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type PostServiceClient interface {
 	Create(ctx context.Context, in *CreateRequest, opts ...grpc.CallOption) (*v1.IDVersion, error)
-	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*Post, error)
+	Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error)
 	Update(ctx context.Context, in *UpdateRequest, opts ...grpc.CallOption) (*v1.IDVersion, error)
 	Delete(ctx context.Context, in *DeleteRequest, opts ...grpc.CallOption) (*emptypb.Empty, error)
 }
@@ -55,9 +55,9 @@ func (c *postServiceClient) Create(ctx context.Context, in *CreateRequest, opts 
 	return out, nil
 }
 
-func (c *postServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*Post, error) {
+func (c *postServiceClient) Get(ctx context.Context, in *GetRequest, opts ...grpc.CallOption) (*GetResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(Post)
+	out := new(GetResponse)
 	err := c.cc.Invoke(ctx, PostService_Get_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
@@ -90,7 +90,7 @@ func (c *postServiceClient) Delete(ctx context.Context, in *DeleteRequest, opts 
 // for forward compatibility.
 type PostServiceServer interface {
 	Create(context.Context, *CreateRequest) (*v1.IDVersion, error)
-	Get(context.Context, *GetRequest) (*Post, error)
+	Get(context.Context, *GetRequest) (*GetResponse, error)
 	Update(context.Context, *UpdateRequest) (*v1.IDVersion, error)
 	Delete(context.Context, *DeleteRequest) (*emptypb.Empty, error)
 	mustEmbedUnimplementedPostServiceServer()
@@ -106,7 +106,7 @@ type UnimplementedPostServiceServer struct{}
 func (UnimplementedPostServiceServer) Create(context.Context, *CreateRequest) (*v1.IDVersion, error) {
 	return nil, status.Error(codes.Unimplemented, "method Create not implemented")
 }
-func (UnimplementedPostServiceServer) Get(context.Context, *GetRequest) (*Post, error) {
+func (UnimplementedPostServiceServer) Get(context.Context, *GetRequest) (*GetResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method Get not implemented")
 }
 func (UnimplementedPostServiceServer) Update(context.Context, *UpdateRequest) (*v1.IDVersion, error) {
