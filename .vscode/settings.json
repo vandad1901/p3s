@@ -11,17 +11,13 @@
         "--ts_proto_out=${workspaceFolder}/frontend/gen",
         "--go_out=${workspaceFolder}/backend/gen"
     ],
+    "go.buildTags": "test",
+    "go.testEnvFile": "${workspaceFolder}/apps/api/.env.test",
+    "go.testExplorer.enable": true,
+    "go.testExplorer.showDynamicSubtestsInEditor": true,
+    "go.testTags": "test",
     "go.lintTool": "golangci-lint-v2",
     "go.lintFlags": [
         "--path-mode=abs",
-        "--fast-only"
     ],
-    "go.formatTool": "custom",
-    "go.alternateTools": {
-        "customFormatter": "golangci-lint-v2"
-    },
-    "go.formatFlags": [
-        "fmt",
-        "--stdin"
-    ]
 }
