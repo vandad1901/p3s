@@ -12,13 +12,12 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
-  auth-pg:
+  pg:
     image: docker.io/library/postgres:15
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${AUTH_PG_USER}
       POSTGRES_PASSWORD: ${AUTH_PG_PASSWORD}
-      POSTGRES_DB: ${AUTH_PG_DATABASE}
     ports:
       - "${AUTH_PG_PORT}:5432"
     volumes:
