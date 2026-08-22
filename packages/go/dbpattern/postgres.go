@@ -23,7 +23,9 @@ func SerializableTx(db *gorm.DB, fn func(tx *gorm.DB) error) error {
 	tx := db.Begin(&sql.TxOptions{
 		Isolation: sql.LevelSerializable,
 	})
-	if err := tx.Error; err != nil {
+
+	err := tx.Error
+	if err != nil {
 		return err
 	}
 
@@ -34,7 +36,7 @@ func SerializableTx(db *gorm.DB, fn func(tx *gorm.DB) error) error {
 		}
 	}()
 
-	err := fn(tx)
+	err = fn(tx)
 	if err != nil {
 		tx.Rollback()
 
