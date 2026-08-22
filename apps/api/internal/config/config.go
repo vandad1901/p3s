@@ -20,11 +20,14 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	gRPCListenAddress := envutil.MustGetString("GRPC_LISTEN_ADDRESS")
 	environment := envutil.MustGetString("APP_ENV")
 
+	var gRPCListenAddress string
+
 	switch Environment(environment) {
-	case Development, Test, Production:
+	case Development, Production:
+		gRPCListenAddress = envutil.MustGetString("GRPC_LISTEN_ADDRESS")
+	case Test:
 	default:
 		log.Fatalf("Invalid APP_env: %s", environment)
 	}

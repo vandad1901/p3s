@@ -17,12 +17,12 @@ type JWTConfig struct {
 func LoadJWTConfig() *JWTConfig {
 	privateKeyPath := envutil.MustGetString("JWT_PRIVATE_KEY_PATH")
 
-	privateKeyPEM, err := os.ReadFile(privateKeyPath)
+	privateKeyPEM, err := os.ReadFile(privateKeyPath) //nolint:gosec
 	if err != nil {
 		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Unable to read file: %s", err)
 	}
 
-	block, _ := pem.Decode([]byte(privateKeyPEM))
+	block, _ := pem.Decode(privateKeyPEM)
 	if block == nil {
 		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Private key must be in PEM format")
 	}
