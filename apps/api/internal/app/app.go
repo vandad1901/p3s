@@ -2,12 +2,11 @@ package app
 
 import (
 	"context"
+	"errors"
+	"fmt"
 	"log"
 	"net"
-	"os"
-	"os/signal"
 	"sync"
-	"syscall"
 	"time"
 
 	"github.com/vandad1901/p3s/apps/api/internal/config"
@@ -29,9 +28,8 @@ type App struct {
 	grpcServer *grpc.Server
 }
 
-func Boot() *App {
+func Boot(cfg *config.Config) (*App, error) {
 	var (
-		cfg = config.LoadConfig()
 		dsn = config.GetDSN()
 	)
 
@@ -39,12 +37,12 @@ func Boot() *App {
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		log.Fatalf("[!] Failed to get SQL DB: %v", err)
+		return nil, fmt.Errorf("get sql db: %w", err)
 	}
 
 	err = sqlDB.Ping()
 	if err != nil {
-		log.Fatalf("[!] Failed to ping database: %v", err)
+		return nil, fmt.Errorf("ping database: %w", err)
 	}
 
 	a := initializeServices(db)
@@ -56,69 +54,16 @@ func Boot() *App {
 		registerGRPCServers(a, a.grpcServer, cfg)
 	}
 
+	return a, nil
+}
+
+func MustBoot(cfg *config.Config) *App {
+	a, err := Boot(cfg)
+	if err != nil {
+		log.Fatalf("[!] Failed to boot the application: %v", err)
+	}
+
 	return a
-}
-
-func (a *App) Run() {
-	if a.grpcServer == nil {
-		return
-	}
-
-	cfg := config.LoadConfig()
-
-	var wg sync.WaitGroup
-
-	wg.Go(func() {
-		serveGRPC(cfg, a.grpcServer)
-	})
-
-	sigChan := make(chan os.Signal, 1)
-
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
-	defer signal.Stop(sigChan)
-
-	sig := <-sigChan
-	log.Printf("[i] Received signal %v, shutting down gracefully...", sig)
-
-	ctx, cancel := context.WithTimeout(
-		context.Background(),
-		shutdownTimeoutSecs*time.Second,
-	)
-	defer cancel()
-
-	wg.Go(func() {
-		log.Println("[i] Shutting down gRPC server...")
-		a.grpcServer.GracefulStop()
-	})
-
-	done := make(chan struct{})
-
-	go func() {
-		wg.Wait()
-		close(done)
-	}()
-
-	select {
-	case <-done:
-		log.Println("[i] All servers shutdown gracefully completed")
-	case <-ctx.Done():
-		log.Println("[!] Graceful shutdown timed out, forcing stop")
-		a.grpcServer.Stop()
-	}
-
-	a.Close()
-}
-
-func (a *App) Close() {
-	sqlDB, err := a.db.DB()
-	if err != nil {
-		log.Fatalf("Failed to get SQL DB: %v", err)
-	}
-
-	err = sqlDB.Close()
-	if err != nil {
-		log.Fatalf("Failed to close SQL DB: %v", err)
-	}
 }
 
 func initializeServices(db *gorm.DB) *App {
@@ -137,16 +82,81 @@ func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 	}
 }
 
-func serveGRPC(cfg *config.Config, grpcServer *grpc.Server) {
-	lis, err := net.Listen("tcp", cfg.GRPCListenAddress)
+const RUNNER_COUNT = 1
+
+func (a *App) Run(cfg *config.Config) chan error {
+	errChan := make(chan error, RUNNER_COUNT)
+
+	go func() {
+		err := serveGRPC(cfg, a.grpcServer)
+		if err != nil {
+			errChan <- err
+		}
+	}()
+
+	return errChan
+}
+
+func serveGRPC(cfg *config.Config, grpcServer *grpc.Server) error {
+	lc := net.ListenConfig{}
+
+	lis, err := lc.Listen(context.Background(), "tcp", cfg.GRPCListenAddress)
 	if err != nil {
-		log.Fatalf("[!] Failed to listen on gRPC port: %v", err)
+		return fmt.Errorf("grpc listen on %s: %w", cfg.GRPCListenAddress, err)
 	}
 
-	log.Printf("[i] API gRPC Listening on %s", cfg.GRPCListenAddress)
+	log.Printf("[i] Auth gRPC Listening on %s", cfg.GRPCListenAddress)
 
 	err = grpcServer.Serve(lis)
-	if err != nil {
-		log.Fatalf("[!] Failed to serve gRPC server: %v", err)
+	if err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		return fmt.Errorf("serve grpc: %w", err)
+	}
+
+	log.Println("[i] gRPC server stopped gracefully")
+
+	return nil
+}
+
+func (a *App) Close() {
+	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
+	defer cancel()
+
+	var stoppers sync.WaitGroup
+
+	stoppers.Go(func() {
+		log.Println("[i] Shutting down gRPC server...")
+		a.grpcServer.GracefulStop()
+	})
+
+	done := make(chan struct{})
+
+	go func() {
+		stoppers.Wait()
+
+		sqlDB, err := a.db.DB()
+		if err != nil {
+			log.Fatalf("Failed to get SQL DB: %v", err)
+			close(done)
+
+			return
+		}
+
+		err = sqlDB.Close()
+		if err != nil {
+			log.Fatalf("Failed to close SQL DB: %v", err)
+			close(done)
+
+			return
+		}
+
+		close(done)
+	}()
+
+	select {
+	case <-done:
+		log.Println("[i] All servers shutdown gracefully completed")
+	case <-ctx.Done():
+		log.Println("[!] Graceful shutdown timed out, forcing stop")
+		a.grpcServer.Stop()
 	}
 }

@@ -6,6 +6,7 @@ import (
 
 	"github.com/cucumber/godog"
 	"github.com/vandad1901/p3s/apps/api/internal/app"
+	"github.com/vandad1901/p3s/apps/api/internal/config"
 	"github.com/vandad1901/p3s/apps/api/internal/post/teststeps"
 	"github.com/vandad1901/p3s/apps/api/internal/scenario"
 	"github.com/vandad1901/p3s/packages/go/godogutil"
@@ -36,7 +37,7 @@ func InitializeScenario(t *testing.T, ctx *godog.ScenarioContext) {
 
 	s := &scenario.Scenario{
 		SharedData: godogutil.InitBaseData(t),
-		A:          app.Boot(),
+		A:          app.MustBoot(config.LoadConfig()),
 	}
 
 	godogutil.DefineStep(s.SharedData, ctx, "post")
