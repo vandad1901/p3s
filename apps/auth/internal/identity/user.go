@@ -3,7 +3,8 @@ package identity
 import "time"
 
 type User struct {
-	ID           int64
+	ID int64
+
 	Username     string
 	Email        string
 	Salt         string

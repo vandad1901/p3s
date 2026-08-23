@@ -50,17 +50,6 @@ func CreateUserTx(ctx context.Context, tx *gorm.DB, user *User) (*commonpb.IDVer
 	return idv, nil
 }
 
-// func (s *Service) GetUserByUsername(ctx context.Context, username string) (*User, error) {
-// 	db := s.db.WithContext(ctx)
-
-// 	res, err := GetUserByUsernameTx(ctx, db, username)
-// 	if err != nil {
-// 		return nil, err
-// 	}
-
-// 	return res, nil
-// }
-
 func GetUserByUsernameTx(ctx context.Context, tx *gorm.DB, username string) (*User, error) {
 	res, err := dbGetUserByUsername(tx, username)
 	if err != nil {

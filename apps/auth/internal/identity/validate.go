@@ -2,22 +2,21 @@ package identity
 
 import (
 	"context"
-	"errors"
 	"net/mail"
 )
 
 func ValidateUser(ctx context.Context, user *User) error {
 	if user.Username == "" {
-		return errors.New("identity.MandatoryUsername")
+		return errEmptyUsername
 	}
 
 	if user.Email == "" {
-		return errors.New("identity.MandatoryEmail")
+		return errEmptyEmail
 	}
 
 	_, err := mail.ParseAddress(user.Email)
 	if err != nil {
-		return errors.New("identity.InvalidEmail")
+		return errInvalidEmail
 	}
 
 	return nil

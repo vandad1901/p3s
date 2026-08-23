@@ -11,8 +11,8 @@ import (
 	"gorm.io/gorm"
 )
 
-func (_ *User) TableName() string {
-	return "users"
+func (*User) TableName() string {
+	return "user_t"
 }
 
 func dbCreateUser(tx *gorm.DB, user *User) (*commonpb.IDVersion, error) {
@@ -39,9 +39,19 @@ func dbCreateUser(tx *gorm.DB, user *User) (*commonpb.IDVersion, error) {
 func dbGetUserByUsername(tx *gorm.DB, username string) (*User, error) {
 	user := new(User)
 
-	err := tx.Table("users").
+	err := tx.
 		Where("username = ?", username).
-		Select("*").
+		Select(`
+			id,
+
+			username,
+			email,
+			salt,
+			password_hash,
+
+			created_at,
+			updated_at
+		`).
 		Take(user).Error
 	if err != nil {
 		return nil, err

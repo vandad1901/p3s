@@ -2,6 +2,7 @@ package rpc
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/vandad1901/p3s/apps/auth/internal/auth"
 	"github.com/vandad1901/p3s/apps/auth/internal/identity"
@@ -28,14 +29,29 @@ func Register(s *grpc.Server,
 }
 
 func (s *UserRPCServer) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.RegisterResponse, error) {
-	return s.authService.Register(ctx, req)
+	res, err := s.authService.Register(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("error while registering user: %w", err)
+	}
+
+	return res, nil
 }
 
 func (s *UserRPCServer) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
-	return s.authService.Login(ctx, req)
+	res, err := s.authService.Login(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("error while logging in user: %w", err)
+	}
+
+	return res, nil
 }
 
 func (s *UserRPCServer) RefreshJWT(ctx context.Context, req *userpb.RefreshJWTRequest,
 ) (*userpb.RefreshJWTResponse, error) {
-	return s.sessionService.RefreshJWT(ctx, req)
+	res, err := s.sessionService.RefreshJWT(ctx, req)
+	if err != nil {
+		return nil, fmt.Errorf("error while refreshing JWT token user: %w", err)
+	}
+
+	return res, nil
 }
