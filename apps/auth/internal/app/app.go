@@ -27,11 +27,11 @@ import (
 const shutdownTimeoutSecs = 10
 
 type App struct {
-	tokenService    *token.Service
-	identityService *identity.Service
-	sessionService  *session.Service
-	authService     *auth.Service
-	jwksService     *jwks.Service
+	TokenService    *token.Service
+	IdentityService *identity.Service
+	SessionService  *session.Service
+	AuthService     *auth.Service
+	JWKSService     *jwks.Service
 
 	db *gorm.DB
 
@@ -92,17 +92,17 @@ func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, 
 	jwksServiceV1 := jwks.NewService(jwtConfig.PrivateKey, "p3s-auth") //TODO
 
 	return &App{
-		tokenService:    tokenServiceV1,
-		identityService: identityServiceV1,
-		sessionService:  sessionServiceV1,
-		authService:     authServiceV1,
-		jwksService:     jwksServiceV1,
+		TokenService:    tokenServiceV1,
+		IdentityService: identityServiceV1,
+		SessionService:  sessionServiceV1,
+		AuthService:     authServiceV1,
+		JWKSService:     jwksServiceV1,
 	}
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 	userrpc.Register(grpcServer,
-		a.identityService, a.authService, a.sessionService)
+		a.IdentityService, a.AuthService, a.SessionService)
 
 	if cfg.Environment == config.Development {
 		reflection.Register(grpcServer)
@@ -110,7 +110,7 @@ func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 }
 
 func registerHTTPHandlers(a *App, httpServer *echo.Echo) {
-	httpServer.GET("/jwks.json", a.jwksService.Handle)
+	httpServer.GET("/jwks.json", a.JWKSService.Handle)
 }
 
 const RUNNER_COUNT = 2
