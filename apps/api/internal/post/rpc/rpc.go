@@ -5,8 +5,8 @@ import (
 	"fmt"
 
 	"github.com/vandad1901/p3s/apps/api/internal/post"
+	"github.com/vandad1901/p3s/packages/go/gen/protobuf/api/postpb/v1"
 	"github.com/vandad1901/p3s/packages/go/gen/protobuf/commonpb/v1"
-	"github.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1"
 	"github.com/vandad1901/p3s/packages/go/idv"
 	"google.golang.org/grpc"
 	"google.golang.org/protobuf/types/known/emptypb"

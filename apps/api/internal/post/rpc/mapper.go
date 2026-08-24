@@ -2,7 +2,7 @@ package rpc
 
 import (
 	"github.com/vandad1901/p3s/apps/api/internal/post"
-	"github.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1"
+	"github.com/vandad1901/p3s/packages/go/gen/protobuf/api/postpb/v1"
 )
 
 func mapToPost(in *postpb.Post) *post.Post {
