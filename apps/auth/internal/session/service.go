@@ -9,7 +9,7 @@ import (
 
 	"github.com/vandad1901/p3s/apps/auth/internal/token"
 	"github.com/vandad1901/p3s/packages/go/apperror"
-	"github.com/vandad1901/p3s/packages/go/gen/protobuf/userpb/v1"
+	"github.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1"
 	"google.golang.org/grpc/metadata"
 	"gorm.io/gorm"
 )
@@ -38,6 +38,7 @@ func (s *Service) CreateSessionForUserTx(ctx context.Context, tx *gorm.DB, userI
 	}
 
 	var ipAddress net.IP
+
 	xff := md.Get("x-forwarded-for")
 	if len(xff) > 0 {
 		ipAddress = net.ParseIP(strings.TrimSpace(
@@ -46,6 +47,7 @@ func (s *Service) CreateSessionForUserTx(ctx context.Context, tx *gorm.DB, userI
 	}
 
 	var userAgent string
+
 	userAgents := md.Get("user-agent")
 	if len(userAgents) > 0 {
 		userAgent = userAgents[0]
@@ -88,7 +90,7 @@ func (s *Service) CreateSessionForUserTx(ctx context.Context, tx *gorm.DB, userI
 		ExpiresAt:    expiresAt}, nil
 }
 
-func (s *Service) RefreshJWT(ctx context.Context, in *userpb.RefreshJWTRequest) (*userpb.RefreshJWTResponse, error) {
+func (s *Service) RefreshJWT(ctx context.Context, in *authnpb.RefreshJWTRequest) (*authnpb.RefreshJWTResponse, error) {
 	db := s.db.WithContext(ctx)
 
 	refreshTokenHash := token.HashRefreshToken(in.GetRefreshToken())
@@ -107,7 +109,7 @@ func (s *Service) RefreshJWT(ctx context.Context, in *userpb.RefreshJWTRequest) 
 		return nil, err
 	}
 
-	return &userpb.RefreshJWTResponse{
+	return &authnpb.RefreshJWTResponse{
 		Jwt: jwt,
 	}, nil
 }

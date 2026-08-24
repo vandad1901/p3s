@@ -11,10 +11,10 @@ import (
 	"time"
 
 	"github.com/labstack/echo/v4"
-	"github.com/vandad1901/p3s/apps/auth/internal/auth"
+	"github.com/vandad1901/p3s/apps/auth/internal/authn"
+	authrpc "github.com/vandad1901/p3s/apps/auth/internal/authn/rpc"
 	"github.com/vandad1901/p3s/apps/auth/internal/config"
 	"github.com/vandad1901/p3s/apps/auth/internal/identity"
-	userrpc "github.com/vandad1901/p3s/apps/auth/internal/identity/rpc"
 	"github.com/vandad1901/p3s/apps/auth/internal/jwks"
 	"github.com/vandad1901/p3s/apps/auth/internal/session"
 	"github.com/vandad1901/p3s/apps/auth/internal/token"
@@ -30,7 +30,7 @@ type App struct {
 	TokenService    *token.Service
 	IdentityService *identity.Service
 	SessionService  *session.Service
-	AuthService     *auth.Service
+	AuthService     *authn.Service
 	JWKSService     *jwks.Service
 
 	db *gorm.DB
@@ -87,7 +87,7 @@ func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, 
 	tokenServiceV1 := token.NewService(signer)
 	identityServiceV1 := identity.NewService(db)
 	sessionServiceV1 := session.NewService(db, tokenServiceV1)
-	authServiceV1 := auth.NewAuthService(db, identityServiceV1, sessionServiceV1)
+	authServiceV1 := authn.NewAuthService(db, identityServiceV1, sessionServiceV1)
 
 	jwksServiceV1 := jwks.NewService(jwtConfig.PrivateKey, "p3s-auth") //TODO
 
@@ -101,7 +101,7 @@ func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, 
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
-	userrpc.Register(grpcServer,
+	authrpc.Register(grpcServer,
 		a.IdentityService, a.AuthService, a.SessionService)
 
 	if cfg.Environment == config.Development {

@@ -1,4 +1,4 @@
-package auth
+package authn
 
 import (
 	"context"
@@ -11,7 +11,6 @@ import (
 	"github.com/vandad1901/p3s/apps/auth/internal/session"
 	"github.com/vandad1901/p3s/packages/go/apperror"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
-	userpb "github.com/vandad1901/p3s/packages/go/gen/protobuf/userpb/v1"
 	"gorm.io/gorm"
 )
 
@@ -32,20 +31,16 @@ func NewAuthService(db *gorm.DB,
 	}
 }
 
-func (s *Service) Register(ctx context.Context, req *userpb.RegisterRequest) (*userpb.RegisterResponse, error) {
+func (s *Service) Register(ctx context.Context, user *identity.User, password string,
+) (*session.SessionResponse, error) {
 	db := s.db.WithContext(ctx)
 
-	user, err := identity.MapToUser(req.GetUser())
+	err := identity.ValidateUser(ctx, user)
 	if err != nil {
 		return nil, err
 	}
 
-	err = identity.ValidateUser(ctx, user)
-	if err != nil {
-		return nil, err
-	}
-
-	err = credential.ValidatePassword(req.GetPassword())
+	err = credential.ValidatePassword(password)
 	if err != nil {
 		return nil, err
 	}
@@ -55,12 +50,12 @@ func (s *Service) Register(ctx context.Context, req *userpb.RegisterRequest) (*u
 		return nil, err
 	}
 
-	passwordHash := credential.HashPasswordArgon2(req.GetPassword(), saltBytes)
+	passwordHash := credential.HashPasswordArgon2(password, saltBytes)
 
 	user.Salt = saltStr
 	user.PasswordHash = passwordHash
 
-	sessionResponse := new(userpb.AuthSessionResponse)
+	var res *session.SessionResponse
 
 	err = dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		_, err = identity.CreateUserTx(ctx, tx, user)
@@ -68,12 +63,10 @@ func (s *Service) Register(ctx context.Context, req *userpb.RegisterRequest) (*u
 			return err
 		}
 
-		res, err := s.sessionService.CreateSessionForUserTx(ctx, tx, user.ID)
+		res, err = s.sessionService.CreateSessionForUserTx(ctx, tx, user.ID)
 		if err != nil {
 			return err
 		}
-
-		sessionResponse = mapToSessionResponsePB(res)
 
 		return nil
 	})
@@ -81,18 +74,16 @@ func (s *Service) Register(ctx context.Context, req *userpb.RegisterRequest) (*u
 		return nil, err
 	}
 
-	return &userpb.RegisterResponse{
-		Session: sessionResponse,
-	}, nil
+	return res, nil
 }
 
-func (s *Service) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.LoginResponse, error) {
+func (s *Service) Login(ctx context.Context, username string, password string) (*session.SessionResponse, error) {
 	db := s.db.WithContext(ctx)
 
-	sessionResponse := new(userpb.AuthSessionResponse)
+	var res *session.SessionResponse
 
 	err := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
-		user, err := identity.GetUserByUsernameTx(ctx, tx, req.Username)
+		user, err := identity.GetUserByUsernameTx(ctx, tx, username)
 		if err != nil {
 			return err
 		}
@@ -102,18 +93,16 @@ func (s *Service) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.
 			return fmt.Errorf("error decoding salt: %s", user.Salt)
 		}
 
-		passwordHash := credential.HashPasswordArgon2(req.Password, salt)
+		passwordHash := credential.HashPasswordArgon2(password, salt)
 
 		if subtle.ConstantTimeCompare([]byte(user.PasswordHash), []byte(passwordHash)) != 1 {
 			return apperror.Unauthenticated("auth.InvalidLogin")
 		}
 
-		res, err := s.sessionService.CreateSessionForUserTx(ctx, tx, user.ID)
+		res, err = s.sessionService.CreateSessionForUserTx(ctx, tx, user.ID)
 		if err != nil {
 			return err
 		}
-
-		sessionResponse = mapToSessionResponsePB(res)
 
 		return nil
 	})
@@ -121,5 +110,5 @@ func (s *Service) Login(ctx context.Context, req *userpb.LoginRequest) (*userpb.
 		return nil, err
 	}
 
-	return &userpb.LoginResponse{Session: sessionResponse}, nil
+	return res, nil
 }

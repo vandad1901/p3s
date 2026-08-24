@@ -4,12 +4,13 @@ import (
 	"gorm.io/gorm"
 )
 
-func (_ *Session) TableName() string {
+func (*Session) TableName() string {
 	return "sessions"
 }
 
 func dbCreateSession(tx *gorm.DB, session *Session) error {
-	if err := tx.Create(session).Error; err != nil {
+	err := tx.Create(session).Error
+	if err != nil {
 		return err
 	}
 
@@ -17,10 +18,10 @@ func dbCreateSession(tx *gorm.DB, session *Session) error {
 }
 
 func dbCheckRefreshTokenHash(tx *gorm.DB,
-	SessionID, userID int64,
+	sessionID, userID int64,
 	refreshTokenHash string) (bool, error) {
-	q := tx.Table("sessions").
-		Where("id = ?", SessionID).
+	q := tx.Model(Session{}).
+		Where("id = ?", sessionID).
 		Where("user_id = ?", userID).
 		Where("refresh_token_hash = ?", refreshTokenHash)
 
