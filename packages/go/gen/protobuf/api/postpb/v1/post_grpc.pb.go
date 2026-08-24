@@ -2,7 +2,7 @@
 // versions:
 // - protoc-gen-go-grpc v1.6.2
 // - protoc             (unknown)
-// source: postpb/v1/post.proto
+// source: api/postpb/v1/post.proto
 
 package postpb
 
@@ -233,5 +233,5 @@ var PostService_ServiceDesc = grpc.ServiceDesc{
 		},
 	},
 	Streams:  []grpc.StreamDesc{},
-	Metadata: "postpb/v1/post.proto",
+	Metadata: "api/postpb/v1/post.proto",
 }

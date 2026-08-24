@@ -20,4 +20,7 @@
     "go.lintFlags": [
         "--path-mode=abs",
     ],
+    "protobuf.externalLinter.enabled": true,
+    "protobuf.externalLinter.linter": "buf",
+    "protobuf.externalLinter.bufPath": "buf",
 }

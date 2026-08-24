@@ -2,13 +2,14 @@
 // versions:
 //   protoc-gen-ts_proto  v2.12.1
 //   protoc               unknown
-// source: commonpb/v1/common.proto
+// source: auth/userpb/v1/user.proto
 
 /* eslint-disable */
 
-export const protobufPackage = "commonpb.v1";
+export const protobufPackage = "auth.userpb.v1";
 
-export interface IDVersion {
+export interface User {
   id: number;
-  updatedAt: Date | undefined;
+  username: string;
+  email: string;
 }
