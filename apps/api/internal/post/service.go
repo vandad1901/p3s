@@ -32,7 +32,7 @@ func (s *Service) CreatePost(ctx context.Context, post *Post, postBlocks []*Post
 		addedIDs []int64
 	)
 
-	err = dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		res, err = dbCreatePost(ctx, tx, post)
 		if err != nil {
 			return err
@@ -45,8 +45,8 @@ func (s *Service) CreatePost(ctx context.Context, post *Post, postBlocks []*Post
 
 		return nil
 	})
-	if err != nil {
-		return nil, nil, err
+	if txErr != nil {
+		return nil, nil, txErr
 	}
 
 	return res, addedIDs, nil
@@ -61,7 +61,7 @@ func (s *Service) GetPost(ctx context.Context, postID int64) (*Post, []*PostBloc
 		err        error
 	)
 
-	err = dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		post, postBlocks, err = GetTx(ctx, tx, postID)
 		if err != nil {
 			return err
@@ -69,8 +69,8 @@ func (s *Service) GetPost(ctx context.Context, postID int64) (*Post, []*PostBloc
 
 		return nil
 	})
-	if err != nil {
-		return nil, nil, err
+	if txErr != nil {
+		return nil, nil, txErr
 	}
 
 	return post, postBlocks, nil
@@ -104,7 +104,7 @@ func (s *Service) UpdatePost(ctx context.Context, post *Post, mutateRequest *Pos
 		addedIDs []int64
 	)
 
-	err = dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		res, addedIDs, err = updatePostTx(ctx, tx, post, mutateRequest)
 		if err != nil {
 			return err
@@ -113,7 +113,7 @@ func (s *Service) UpdatePost(ctx context.Context, post *Post, mutateRequest *Pos
 		return nil
 	})
 	if err != nil {
-		return nil, nil, err
+		return nil, nil, txErr
 	}
 
 	return res, addedIDs, nil
@@ -147,7 +147,7 @@ func updatePostTx(ctx context.Context, tx *gorm.DB, post *Post, mutateRequest *P
 func (s *Service) DeletePost(ctx context.Context, postIDV *idv.IDV) error {
 	db := s.db.WithContext(ctx)
 
-	err := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		err := dbDeletePost(ctx, tx, postIDV)
 		if err != nil {
 			return err
@@ -155,8 +155,8 @@ func (s *Service) DeletePost(ctx context.Context, postIDV *idv.IDV) error {
 
 		return nil
 	})
-	if err != nil {
-		return err
+	if txErr != nil {
+		return txErr
 	}
 
 	return nil
