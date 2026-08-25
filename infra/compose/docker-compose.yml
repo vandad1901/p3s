@@ -8,9 +8,16 @@ services:
     restart: unless-stopped
     env_file:
       - ../../apps/auth/.env
-    environment:
-      - AUTH_PG_HOST=auth-pg
     volumes:
       - ../../apps/auth/jwt_private_key.pem:/app/jwt_private_key.pem
     depends_on:
-      - auth-pg
+      - pg
+  api:
+    build:
+      context: ../..
+      dockerfile: ./apps/api/dockerfile
+    restart: unless-stopped
+    env_file:
+      - ../../apps/api/.env
+    depends_on:
+      - pg
