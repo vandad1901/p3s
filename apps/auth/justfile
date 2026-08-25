@@ -25,13 +25,6 @@ AUTH_DATABASE_URL := "postgres://" + PGUser + ":" + PGPassword + "@" + PGHost + 
 @dev:
     go run ./cmd/server/
 
-@debug:
-    dlv debug ./cmd/server \
-      --headless \
-      --listen=:38697 \
-      --api-version=2 \
-      --accept-multiclient
-
 @db-reset: && db-up
     echo "{{ YELLOW }}[i] {{ RED }}Dropping{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
     PGPASSWORD="{{ PGPassword }}" dropdb --force --if-exists -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"

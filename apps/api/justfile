@@ -20,24 +20,17 @@ PGDatabase := env_var(PREFIX + "PG_DATABASE")
 
 ###
 
-AUTH_DATABASE_URL := "postgres://" + PGUser + ":" + PGPassword + "@" + PGHost + ":" + PGPort + "/" + PGDatabase + "?sslmode=disable"
+API_DATABASE_URL := "postgres://" + PGUser + ":" + PGPassword + "@" + PGHost + ":" + PGPort + "/" + PGDatabase + "?sslmode=disable"
 
 @dev:
     go run ./cmd/server/
 
-@debug:
-    dlv debug ./cmd/server \
-      --headless \
-      --listen=:38697 \
-      --api-version=2 \
-      --accept-multiclient
-
 @db-reset: && db-up
-    echo "{{ YELLOW }}[i] {{ RED }}Dropping{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
+    echo "{{ YELLOW }}[i] {{ RED }}Dropping{{ NORMAL }} database: {{ BLUE }}API{{ NORMAL }}"
     PGPASSWORD="{{ PGPassword }}" dropdb --force --if-exists -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
-    echo "{{ YELLOW }}[i] {{ GREEN }}Creating{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
+    echo "{{ YELLOW }}[i] {{ GREEN }}Creating{{ NORMAL }} database: {{ BLUE }}API{{ NORMAL }}"
     PGPASSWORD="{{ PGPassword }}" createdb -h "{{ PGHost }}" -p "{{ PGPort }}" -U "{{ PGUser }}" "{{ PGDatabase }}"
 
 @db-up:
-    echo "{{ YELLOW }}[i]{{ NORMAL }} Applying migrations to database: {{ BLUE }}auth{{ NORMAL }}"
-    migrate -database "{{ AUTH_DATABASE_URL }}" -path ./migrations up
+    echo "{{ YELLOW }}[i]{{ NORMAL }} Applying migrations to database: {{ BLUE }}API{{ NORMAL }}"
+    migrate -database "{{ API_DATABASE_URL }}" -path ./migrations up
