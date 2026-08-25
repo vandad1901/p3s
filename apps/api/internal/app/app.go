@@ -105,7 +105,7 @@ func serveGRPC(cfg *config.Config, grpcServer *grpc.Server) error {
 		return fmt.Errorf("grpc listen on %s: %w", cfg.GRPCListenAddress, err)
 	}
 
-	log.Printf("[i] Auth gRPC Listening on %s", cfg.GRPCListenAddress)
+	log.Printf("[i] API gRPC Listening on %s", cfg.GRPCListenAddress)
 
 	err = grpcServer.Serve(lis)
 	if err != nil && !errors.Is(err, grpc.ErrServerStopped) {

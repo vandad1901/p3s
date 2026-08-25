@@ -11,48 +11,48 @@ import (
 	"google.golang.org/grpc"
 )
 
-type AuthRPCServer struct {
+type AuthnRPCServer struct {
 	authnpb.UnsafeAuthnServiceServer
 
+	authnService    *authn.Service
 	identityService *identity.Service
-	authService     *authn.Service
 	sessionService  *session.Service
 }
 
 func Register(s *grpc.Server,
-	identityService *identity.Service, authService *authn.Service, sessionService *session.Service) {
-	authnpb.RegisterAuthnServiceServer(s, &AuthRPCServer{
+	authnService *authn.Service, identityService *identity.Service, sessionService *session.Service) {
+	authnpb.RegisterAuthnServiceServer(s, &AuthnRPCServer{
+		authnService:    authnService,
 		identityService: identityService,
-		authService:     authService,
 		sessionService:  sessionService,
 	})
 }
 
-func (s *AuthRPCServer) Register(ctx context.Context, req *authnpb.RegisterRequest) (*authnpb.RegisterResponse, error) {
+func (s *AuthnRPCServer) Register(ctx context.Context, req *authnpb.RegisterRequest) (*authnpb.RegisterResponse, error) {
 	user := mapToUser(req.GetUser())
 
-	res, err := s.authService.Register(ctx, user, req.GetPassword())
+	res, err := s.authnService.Register(ctx, user, req.GetPassword())
 	if err != nil {
-		return nil, fmt.Errorf("error while registering user: %w", err)
+		return nil, fmt.Errorf("authn register: %w", err)
 	}
 
 	return &authnpb.RegisterResponse{Session: mapToSessionResponsePB(res)}, nil
 }
 
-func (s *AuthRPCServer) Login(ctx context.Context, req *authnpb.LoginRequest) (*authnpb.LoginResponse, error) {
-	res, err := s.authService.Login(ctx, req.GetUsername(), req.GetPassword())
+func (s *AuthnRPCServer) Login(ctx context.Context, req *authnpb.LoginRequest) (*authnpb.LoginResponse, error) {
+	res, err := s.authnService.Login(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
-		return nil, fmt.Errorf("error while logging in user: %w", err)
+		return nil, fmt.Errorf("authn login: %w", err)
 	}
 
 	return &authnpb.LoginResponse{Session: mapToSessionResponsePB(res)}, nil
 }
 
-func (s *AuthRPCServer) RefreshJWT(ctx context.Context, req *authnpb.RefreshJWTRequest,
+func (s *AuthnRPCServer) RefreshJWT(ctx context.Context, req *authnpb.RefreshJWTRequest,
 ) (*authnpb.RefreshJWTResponse, error) {
-	res, err := s.sessionService.RefreshJWT(ctx, req)
+	res, err := s.authnService.RefreshJWT(ctx, req)
 	if err != nil {
-		return nil, fmt.Errorf("error while refreshing JWT token user: %w", err)
+		return nil, fmt.Errorf("authn refresh jwt: %w", err)
 	}
 
 	return res, nil

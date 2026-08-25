@@ -33,7 +33,7 @@ func (s *Service) Create(ctx context.Context, challenge *Challenge, secret []byt
 
 	var res int64
 
-	err = dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		res, err = dbCreate(ctx, tx, challenge)
 		if err != nil {
 			return err
@@ -41,8 +41,8 @@ func (s *Service) Create(ctx context.Context, challenge *Challenge, secret []byt
 
 		return nil
 	})
-	if err != nil {
-		return 0, err
+	if txErr != nil {
+		return 0, txErr
 	}
 
 	return res, nil
@@ -53,7 +53,7 @@ func (s *Service) Consume(ctx context.Context, challengeID int64, challengeType 
 
 	secretHash := sha512.Sum512(secret)
 
-	err := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		currentTime := time.Now()
 
 		challenge, err := dbGetByID(ctx, tx, challengeID, challengeType)
@@ -75,8 +75,8 @@ func (s *Service) Consume(ctx context.Context, challengeID int64, challengeType 
 
 		return nil
 	})
-	if err != nil {
-		return err
+	if txErr != nil {
+		return txErr
 	}
 
 	return nil

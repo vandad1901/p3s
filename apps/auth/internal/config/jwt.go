@@ -12,9 +12,20 @@ import (
 
 type JWTConfig struct {
 	PrivateKey *ecdsa.PrivateKey
+	KeyID      string
 }
 
 func LoadJWTConfig() *JWTConfig {
+	ecKey := MustGetECKey()
+	KeyID := envutil.MustGetString("KEYSET_KEY_ID")
+
+	return &JWTConfig{
+		PrivateKey: ecKey,
+		KeyID:      KeyID,
+	}
+}
+
+func MustGetECKey() *ecdsa.PrivateKey {
 	privateKeyPath := envutil.MustGetString("JWT_PRIVATE_KEY_PATH")
 
 	privateKeyPEM, err := os.ReadFile(privateKeyPath)
@@ -22,7 +33,7 @@ func LoadJWTConfig() *JWTConfig {
 		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Unable to read file: %s", err)
 	}
 
-	block, _ := pem.Decode([]byte(privateKeyPEM))
+	block, _ := pem.Decode(privateKeyPEM)
 	if block == nil {
 		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Private key must be in PEM format")
 	}
@@ -37,7 +48,5 @@ func LoadJWTConfig() *JWTConfig {
 		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Not an ECDSA private key")
 	}
 
-	return &JWTConfig{
-		PrivateKey: ecKey,
-	}
+	return ecKey
 }

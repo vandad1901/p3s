@@ -26,7 +26,7 @@ func (s *Service) CreateUser(ctx context.Context, user *User) (*commonpb.IDVersi
 
 	var idv *commonpb.IDVersion
 
-	err = dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		idv, err = CreateUserTx(ctx, tx, user)
 		if err != nil {
 			return err
@@ -34,8 +34,8 @@ func (s *Service) CreateUser(ctx context.Context, user *User) (*commonpb.IDVersi
 
 		return nil
 	})
-	if err != nil {
-		return nil, err
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	return idv, nil

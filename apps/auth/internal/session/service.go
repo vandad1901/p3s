@@ -2,14 +2,12 @@ package session
 
 import (
 	"context"
-	"errors"
+	"fmt"
 	"net"
 	"strings"
 	"time"
 
 	"github.com/vandad1901/p3s/apps/auth/internal/token"
-	"github.com/vandad1901/p3s/packages/go/apperror"
-	"github.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1"
 	"google.golang.org/grpc/metadata"
 	"gorm.io/gorm"
 )
@@ -34,7 +32,7 @@ func (s *Service) CreateSessionForUserTx(ctx context.Context, tx *gorm.DB, userI
 
 	md, ok := metadata.FromIncomingContext(ctx)
 	if !ok {
-		return nil, errors.New("session.MissingMetadata")
+		return nil, errMissingMetadata
 	}
 
 	var ipAddress net.IP
@@ -55,12 +53,12 @@ func (s *Service) CreateSessionForUserTx(ctx context.Context, tx *gorm.DB, userI
 
 	jwt, err := s.tokenService.GenerateJWT(userID)
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("issuing jwt: %w", err)
 	}
 
 	refreshToken, err := token.GenerateRefreshToken()
 	if err != nil {
-		return nil, err
+		return nil, fmt.Errorf("generating refresh token: %w", err)
 	}
 
 	refreshTokenHash := token.HashRefreshToken(refreshToken)
@@ -90,26 +88,14 @@ func (s *Service) CreateSessionForUserTx(ctx context.Context, tx *gorm.DB, userI
 		ExpiresAt:    expiresAt}, nil
 }
 
-func (s *Service) RefreshJWT(ctx context.Context, in *authnpb.RefreshJWTRequest) (*authnpb.RefreshJWTResponse, error) {
-	db := s.db.WithContext(ctx)
-
-	refreshTokenHash := token.HashRefreshToken(in.GetRefreshToken())
-
-	valid, err := dbCheckRefreshTokenHash(db, in.GetSessionId(), in.GetUserId(), refreshTokenHash)
+func (s *Service) CheckRefreshTokenTx(ctx context.Context, tx *gorm.DB,
+	sessionID, userID int64,
+	refreshTokenHash string,
+) (bool, error) {
+	valid, err := dbCheckRefreshTokenHash(tx, sessionID, userID, refreshTokenHash)
 	if err != nil {
-		return nil, err
+		return false, err
 	}
 
-	if !valid {
-		return nil, apperror.NotFound("session.InvalidSession")
-	}
-
-	jwt, err := s.tokenService.GenerateJWT(in.GetUserId())
-	if err != nil {
-		return nil, err
-	}
-
-	return &authnpb.RefreshJWTResponse{
-		Jwt: jwt,
-	}, nil
+	return valid, nil
 }

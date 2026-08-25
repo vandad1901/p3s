@@ -12,7 +12,7 @@ import (
 
 	"github.com/labstack/echo/v4"
 	"github.com/vandad1901/p3s/apps/auth/internal/authn"
-	authrpc "github.com/vandad1901/p3s/apps/auth/internal/authn/rpc"
+	authnrpc "github.com/vandad1901/p3s/apps/auth/internal/authn/rpc"
 	"github.com/vandad1901/p3s/apps/auth/internal/config"
 	"github.com/vandad1901/p3s/apps/auth/internal/identity"
 	"github.com/vandad1901/p3s/apps/auth/internal/jwks"
@@ -30,7 +30,7 @@ type App struct {
 	TokenService    *token.Service
 	IdentityService *identity.Service
 	SessionService  *session.Service
-	AuthService     *authn.Service
+	AuthnService    *authn.Service
 	JWKSService     *jwks.Service
 
 	db *gorm.DB
@@ -59,7 +59,7 @@ func Boot(cfg *config.Config) (*App, error) {
 
 	signer := token.NewECDSASigner(jwtConfig.PrivateKey)
 
-	a := initializeServices(jwtConfig, signer, db)
+	a := initializeV1Services(jwtConfig, signer, db)
 
 	a.db = db
 
@@ -83,26 +83,26 @@ func ForceBoot(cfg *config.Config) *App {
 	return a
 }
 
-func initializeServices(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, db *gorm.DB) *App {
+func initializeV1Services(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, db *gorm.DB) *App {
 	tokenServiceV1 := token.NewService(signer)
 	identityServiceV1 := identity.NewService(db)
 	sessionServiceV1 := session.NewService(db, tokenServiceV1)
-	authServiceV1 := authn.NewAuthService(db, identityServiceV1, sessionServiceV1)
+	authnServiceV1 := authn.NewAuthNService(db, identityServiceV1, sessionServiceV1, tokenServiceV1)
 
-	jwksServiceV1 := jwks.NewService(jwtConfig.PrivateKey, "p3s-auth") //TODO
+	jwksServiceV1 := jwks.NewService(jwtConfig.PrivateKey, jwtConfig.KeyID)
 
 	return &App{
 		TokenService:    tokenServiceV1,
 		IdentityService: identityServiceV1,
 		SessionService:  sessionServiceV1,
-		AuthService:     authServiceV1,
+		AuthnService:    authnServiceV1,
 		JWKSService:     jwksServiceV1,
 	}
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
-	authrpc.Register(grpcServer,
-		a.IdentityService, a.AuthService, a.SessionService)
+	authnrpc.Register(grpcServer,
+		a.AuthnService, a.IdentityService, a.SessionService)
 
 	if cfg.Environment == config.Development {
 		reflection.Register(grpcServer)
