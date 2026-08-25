@@ -1,0 +1,29 @@
+{
+	"folders": [
+		{
+			"path": ".."
+		},
+		{
+			"path": "../apps/auth"
+		},
+		{
+			"path": "../apps/api"
+		}
+	],
+	"settings": {
+		"protobuf.includes": [
+			"${workspaceFolder}/protobuf"
+		],
+		"protobuf.protoc.options": [
+			"--plugin=${workspaceFolder}/node_modules/.bin/protoc-gen-ts_proto",
+			"--proto_path=${workspaceFolder}",
+			"--ts_proto_opt=onlyTypes=true",
+			"--ts_proto_out=${workspaceFolder}/frontend/gen",
+			"--go_out=${workspaceFolder}/backend/gen"
+		],
+		"go.testExplorer.enable": true,
+		"protobuf.externalLinter.enabled": true,
+		"protobuf.externalLinter.linter": "buf",
+		"protobuf.externalLinter.bufPath": "buf"
+	}
+}

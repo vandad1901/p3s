@@ -11,7 +11,7 @@
         "--go_out=${workspaceFolder}/backend/gen"
     ],
     "go.buildTags": "test",
-    "go.testEnvFile": "${workspaceFolder}/apps/api/.env.test",
+    "go.testEnvFile": "${workspaceFolder}/.env.test",
     "go.testExplorer.enable": true,
     "go.testExplorer.showDynamicSubtestsInEditor": true,
     "go.testTags": "test",
