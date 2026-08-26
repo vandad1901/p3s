@@ -28,7 +28,7 @@ func LoadConfig() *Config {
 	switch Environment(environment) {
 	case Development, Test, Production:
 	default:
-		log.Fatalf("Invalid APP_env: %s", environment)
+		log.Fatalf("Invalid APP_ENV: %s", environment)
 	}
 
 	return &Config{
