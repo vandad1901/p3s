@@ -4,6 +4,7 @@ import (
 	"crypto/rand"
 	"crypto/sha256"
 	"encoding/base64"
+	"fmt"
 	"strconv"
 	"time"
 
@@ -27,27 +28,29 @@ func NewService(signer Signer) *Service {
 
 type Claims struct {
 	jwt.RegisteredClaims
-
-	UserID int64 `json:"user_id"`
 }
 
 func (s *Service) GenerateJWT(userID int64) (string, error) {
 	const ttl = time.Minute * 15
+
 	currentTime := time.Now()
 
 	claims := &Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
-			Issuer:  "auth-service",
 			Subject: strconv.FormatInt(userID, 10),
 
 			IssuedAt:  jwt.NewNumericDate(currentTime),
 			ExpiresAt: jwt.NewNumericDate(currentTime.Add(ttl)),
 			ID:        uuid.New().String(),
 		},
-		UserID: userID,
 	}
 
-	return s.signer.SignedString(claims)
+	jwt, err := s.signer.SignedString(claims)
+	if err != nil {
+		return "", fmt.Errorf("signing jwt: %w", err)
+	}
+
+	return jwt, nil
 }
 
 func GenerateRefreshToken() (string, error) {
@@ -55,8 +58,9 @@ func GenerateRefreshToken() (string, error) {
 
 	b := make([]byte, refreshTokenLength)
 
-	if _, err := rand.Read(b); err != nil {
-		return "", err
+	_, err := rand.Read(b)
+	if err != nil {
+		return "", fmt.Errorf("generating random bits: %w", err)
 	}
 
 	return base64.RawURLEncoding.EncodeToString(b), nil

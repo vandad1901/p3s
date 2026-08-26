@@ -2,6 +2,7 @@ package token
 
 import (
 	"crypto/ecdsa"
+	"fmt"
 
 	"github.com/golang-jwt/jwt/v5"
 )
@@ -17,5 +18,10 @@ func NewECDSASigner(priv *ecdsa.PrivateKey) *ECDSASigner {
 }
 
 func (s *ECDSASigner) SignedString(claims *Claims) (string, error) {
-	return jwt.NewWithClaims(jwt.SigningMethodES256, claims).SignedString(s.priv)
+	res, err := jwt.NewWithClaims(jwt.SigningMethodES256, claims).SignedString(s.priv)
+	if err != nil {
+		return "", fmt.Errorf("signing token: %w", err)
+	}
+
+	return res, nil
 }
