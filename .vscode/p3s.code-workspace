@@ -11,6 +11,7 @@
 		}
 	],
 	"settings": {
+		"git.addAICoAuthor": "off",
 		"protobuf.includes": [
 			"${workspaceFolder}/protobuf"
 		],
@@ -21,7 +22,15 @@
 			"--ts_proto_out=${workspaceFolder}/frontend/gen",
 			"--go_out=${workspaceFolder}/backend/gen"
 		],
+		"go.buildTags": "test",
+		"go.testEnvFile": "${workspaceFolder}/.env.test",
 		"go.testExplorer.enable": true,
+		"go.testExplorer.showDynamicSubtestsInEditor": true,
+		"go.testTags": "test",
+		"go.lintTool": "golangci-lint-v2",
+		"go.lintFlags": [
+			"--path-mode=abs",
+		],
 		"protobuf.externalLinter.enabled": true,
 		"protobuf.externalLinter.linter": "buf",
 		"protobuf.externalLinter.bufPath": "buf"
