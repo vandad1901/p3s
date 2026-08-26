@@ -5,7 +5,7 @@ import (
 )
 
 func (*Session) TableName() string {
-	return "sessions"
+	return "session"
 }
 
 func dbCreateSession(tx *gorm.DB, session *Session) error {
