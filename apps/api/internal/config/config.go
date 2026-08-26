@@ -29,7 +29,7 @@ func LoadConfig() *Config {
 		gRPCListenAddress = envutil.MustGetString("GRPC_LISTEN_ADDRESS")
 	case Test:
 	default:
-		log.Fatalf("Invalid APP_env: %s", environment)
+		log.Fatalf("Invalid APP_ENV: %s", environment)
 	}
 
 	return &Config{
