@@ -25,8 +25,6 @@ import (
 	"gorm.io/gorm"
 )
 
-const shutdownTimeoutSecs = 10
-
 type App struct {
 	db     *gorm.DB
 	signer token.Signer
@@ -57,7 +55,7 @@ func Boot(cfg *config.Config) (*App, error) {
 	return a, nil
 }
 
-func ForceBoot(cfg *config.Config) *App {
+func MustBoot(cfg *config.Config) *App {
 	a, err := Boot(cfg)
 	if err != nil {
 		log.Fatalf("[!] Failed to boot the application: %v", err)
@@ -183,6 +181,8 @@ func serveHTTP(cfg *config.Config, e *echo.Echo) error {
 
 	return nil
 }
+
+const shutdownTimeoutSecs = 10
 
 func (a *App) Close() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
