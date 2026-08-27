@@ -27,7 +27,7 @@ func dbCheckRefreshTokenHash(tx *gorm.DB,
 
 	var valid bool
 
-	err := q.Raw("SELECT EXISTS (?)", q).
+	err := tx.Raw("SELECT EXISTS (?)", q).
 		Scan(&valid).Error
 	if err != nil {
 		return false, err
