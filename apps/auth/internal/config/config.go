@@ -38,6 +38,6 @@ func LoadConfig() *Config {
 		Environment:       Environment(environment),
 
 		JWTConfig: loadJWTConfig(),
-		DSN:       GetDSN(),
+		DSN:       getDSN(),
 	}
 }

@@ -7,7 +7,7 @@ import (
 	gnrconfig "github.com/vandad1901/p3s/packages/go/envutil"
 )
 
-func GetDSN() string {
+func getDSN() string {
 	host := gnrconfig.MustGetString("AUTH_PG_HOST")
 	port := gnrconfig.MustGetString("AUTH_PG_PORT")
 	user := gnrconfig.MustGetString("AUTH_PG_USER")
