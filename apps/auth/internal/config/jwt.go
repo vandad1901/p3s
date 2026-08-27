@@ -15,7 +15,7 @@ type JWTConfig struct {
 	KeyID      string
 }
 
-func LoadJWTConfig() *JWTConfig {
+func loadJWTConfig() *JWTConfig {
 	ecKey := MustGetECKey()
 	KeyID := envutil.MustGetString("KEYSET_KEY_ID")
 

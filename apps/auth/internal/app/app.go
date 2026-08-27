@@ -30,7 +30,7 @@ const shutdownTimeoutSecs = 10
 type App struct {
 	db     *gorm.DB
 	signer token.Signer
-	keySet *jwkset.MemoryJWKSet
+	KeySet *jwkset.MemoryJWKSet
 
 	TokenService    *token.Service
 	IdentityService *identity.Service
@@ -84,7 +84,7 @@ func initializeResources(cfg *config.Config) (*App, error) {
 	return &App{
 		db:     db,
 		signer: signer,
-		keySet: jwkset.NewMemoryStorage(),
+		KeySet: jwkset.NewMemoryStorage(),
 	}, nil
 }
 
@@ -94,7 +94,7 @@ func initializeV1Services(a *App, jwtConfig *config.JWTConfig) {
 	a.SessionService = session.NewService(a.db, a.TokenService)
 	a.AuthnService = authn.NewAuthNService(a.db, a.IdentityService, a.SessionService, a.TokenService)
 
-	a.JWKSService = jwks.NewService(a.keySet, jwtConfig.PrivateKey, jwtConfig.KeyID)
+	a.JWKSService = jwks.NewService(a.KeySet, jwtConfig.PrivateKey, jwtConfig.KeyID)
 }
 
 func initializeServers(a *App, cfg *config.Config) {

@@ -17,9 +17,9 @@ type Service struct {
 	keyID      string
 }
 
-func NewService(privateKey *ecdsa.PrivateKey, keyID string) *Service {
+func NewService(keyset *jwkset.MemoryJWKSet, privateKey *ecdsa.PrivateKey, keyID string) *Service {
 	s := &Service{
-		keySet: jwkset.NewMemoryStorage(),
+		keySet: keyset,
 
 		privateKey: privateKey,
 		keyID:      keyID,
