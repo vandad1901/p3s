@@ -10,6 +10,7 @@ import (
 	"sync"
 	"time"
 
+	"github.com/MicahParks/jwkset"
 	"github.com/labstack/echo/v4"
 	"github.com/vandad1901/p3s/apps/auth/internal/authn"
 	authnrpc "github.com/vandad1901/p3s/apps/auth/internal/authn/rpc"
@@ -27,48 +28,30 @@ import (
 const shutdownTimeoutSecs = 10
 
 type App struct {
+	db     *gorm.DB
+	signer token.Signer
+	keySet *jwkset.MemoryJWKSet
+
 	TokenService    *token.Service
 	IdentityService *identity.Service
 	SessionService  *session.Service
 	AuthnService    *authn.Service
 	JWKSService     *jwks.Service
 
-	db *gorm.DB
-
 	grpcServer *grpc.Server
 	httpServer *echo.Echo
 }
 
 func Boot(cfg *config.Config) (*App, error) {
-	var (
-		dsn       = config.GetDSN()
-		jwtConfig = config.LoadJWTConfig()
-	)
-
-	db := dbpattern.OpenDatabaseConnection(dsn)
-
-	sqlDB, err := db.DB()
+	a, err := initializeResources(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("get sql db: %w", err)
+		return nil, fmt.Errorf("initialize resources: %w", err)
 	}
 
-	err = sqlDB.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("ping database: %w", err)
-	}
-
-	signer := token.NewECDSASigner(jwtConfig.PrivateKey)
-
-	a := initializeV1Services(jwtConfig, signer, db)
-
-	a.db = db
+	initializeV1Services(a, cfg.JWTConfig)
 
 	if cfg.Environment != config.Test {
-		a.grpcServer = grpc.NewServer()
-		registerGRPCServers(a, a.grpcServer, cfg)
-
-		a.httpServer = echo.New()
-		registerHTTPHandlers(a, a.httpServer)
+		initializeServers(a, cfg)
 	}
 
 	return a, nil
@@ -83,21 +66,43 @@ func ForceBoot(cfg *config.Config) *App {
 	return a
 }
 
-func initializeV1Services(jwtConfig *config.JWTConfig, signer *token.ECDSASigner, db *gorm.DB) *App {
-	tokenServiceV1 := token.NewService(signer)
-	identityServiceV1 := identity.NewService(db)
-	sessionServiceV1 := session.NewService(db, tokenServiceV1)
-	authnServiceV1 := authn.NewAuthNService(db, identityServiceV1, sessionServiceV1, tokenServiceV1)
+func initializeResources(cfg *config.Config) (*App, error) {
+	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
 
-	jwksServiceV1 := jwks.NewService(jwtConfig.PrivateKey, jwtConfig.KeyID)
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("get sql db: %w", err)
+	}
+
+	err = sqlDB.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("ping database: %w", err)
+	}
+
+	signer := token.NewECDSASigner(cfg.JWTConfig.PrivateKey)
 
 	return &App{
-		TokenService:    tokenServiceV1,
-		IdentityService: identityServiceV1,
-		SessionService:  sessionServiceV1,
-		AuthnService:    authnServiceV1,
-		JWKSService:     jwksServiceV1,
-	}
+		db:     db,
+		signer: signer,
+		keySet: jwkset.NewMemoryStorage(),
+	}, nil
+}
+
+func initializeV1Services(a *App, jwtConfig *config.JWTConfig) {
+	a.TokenService = token.NewService(a.signer)
+	a.IdentityService = identity.NewService(a.db)
+	a.SessionService = session.NewService(a.db, a.TokenService)
+	a.AuthnService = authn.NewAuthNService(a.db, a.IdentityService, a.SessionService, a.TokenService)
+
+	a.JWKSService = jwks.NewService(a.keySet, jwtConfig.PrivateKey, jwtConfig.KeyID)
+}
+
+func initializeServers(a *App, cfg *config.Config) {
+	a.grpcServer = grpc.NewServer()
+	registerGRPCServers(a, a.grpcServer, cfg)
+
+	a.httpServer = echo.New()
+	registerHTTPHandlers(a, a.httpServer)
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
