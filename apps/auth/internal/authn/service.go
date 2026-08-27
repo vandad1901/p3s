@@ -4,6 +4,7 @@ import (
 	"context"
 	"crypto/subtle"
 	"encoding/base64"
+	"errors"
 	"fmt"
 
 	"github.com/vandad1901/p3s/apps/auth/internal/credential"
@@ -88,7 +89,11 @@ func (s *Service) Login(ctx context.Context, username string, password string) (
 	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
 		user, err := identity.GetUserByUsernameTx(ctx, tx, username)
 		if err != nil {
-			return fmt.Errorf("getting user: %w", err)
+			if errors.Is(err, gorm.ErrRecordNotFound) {
+				user = &identity.User{}
+			} else {
+				return fmt.Errorf("getting user: %w", err)
+			}
 		}
 
 		salt, err := base64.RawStdEncoding.DecodeString(user.Salt)
