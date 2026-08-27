@@ -21,7 +21,7 @@ services:
     ports:
       - "${AUTH_PG_PORT}:5432"
     volumes:
-      - db_data:/var/lib/postgresql/data
+      - pg_data:/var/lib/postgresql/data
 
   envoy:
     image: envoyproxy/envoy:v1.31-latest
@@ -35,6 +35,6 @@ services:
     #   - auth
 
 volumes:
-  db_data:
+  pg_data:
   pgadmin_data:
 
