@@ -16,12 +16,28 @@ services:
     image: docker.io/library/postgres:15
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${AUTH_PG_USER}
-      POSTGRES_PASSWORD: ${AUTH_PG_PASSWORD}
+      POSTGRES_USER: ${AUTH_PG_USER} # shared with api service
+      POSTGRES_PASSWORD: ${AUTH_PG_PASSWORD} # shared with api service
     ports:
-      - "${AUTH_PG_PORT}:5432"
+      - "${AUTH_PG_PORT}:5432" # shared with api service
     volumes:
       - pg_data:/var/lib/postgresql/data
+
+  silo:
+    image: pgsty/silo:latest
+    restart: unless-stopped
+    environment:
+      MINIO_ROOT_USER: ${UPLOAD_MINIO_ROOT_USER}
+      MINIO_ROOT_PASSWORD: ${UPLOAD_MINIO_ROOT_PASSWORD}
+    ports:
+      - "${UPLOAD_MINIO_PORT}:9000"
+      - "9001:9001"
+    volumes:
+      - silo_data:/data
+    command: server /data --console-address ":9001"
+    healthcheck:
+      test: [ "CMD", "silo", "healthcheck", "ready" ]
+      interval: 30s
 
   envoy:
     image: envoyproxy/envoy:v1.31-latest
@@ -36,5 +52,6 @@ services:
 
 volumes:
   pg_data:
+  silo_data:
   pgadmin_data:
 
