@@ -1,42 +1,30 @@
 package config
 
 import (
-	"log"
-
 	"github.com/vandad1901/p3s/packages/go/envutil"
-)
-
-type Environment string
-
-const (
-	Development Environment = "development"
-	Test        Environment = "test"
-	Production  Environment = "production"
 )
 
 type Config struct {
 	GRPCListenAddress string
-	Environment       Environment
+	Environment       envutil.Environment
 
 	DSN string
 }
 
 func LoadConfig() *Config {
-	environment := envutil.MustGetString("APP_ENV")
+	environment := envutil.MustGetEnvironment("APP_ENV")
 
 	var gRPCListenAddress string
 
-	switch Environment(environment) {
-	case Development, Production:
+	switch environment {
+	case envutil.Development, envutil.Production:
 		gRPCListenAddress = envutil.MustGetString("GRPC_LISTEN_ADDRESS")
-	case Test:
-	default:
-		log.Fatalf("Invalid APP_ENV: %s", environment)
+	case envutil.Test:
 	}
 
 	return &Config{
 		GRPCListenAddress: gRPCListenAddress,
-		Environment:       Environment(environment),
+		Environment:       environment,
 
 		DSN: getDSN(),
 	}

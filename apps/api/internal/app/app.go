@@ -13,6 +13,7 @@ import (
 	"github.com/vandad1901/p3s/apps/api/internal/post"
 	postrpc "github.com/vandad1901/p3s/apps/api/internal/post/rpc"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
+	"github.com/vandad1901/p3s/packages/go/envutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/reflection"
 	"gorm.io/gorm"
@@ -34,7 +35,7 @@ func Boot(cfg *config.Config) (*App, error) {
 
 	initializeV1Services(a)
 
-	if cfg.Environment != config.Test {
+	if cfg.Environment != envutil.Test {
 		initializeServers(a, cfg)
 	}
 
@@ -80,7 +81,7 @@ func initializeServers(a *App, cfg *config.Config) {
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 	postrpc.Register(grpcServer, a.PostService)
 
-	if cfg.Environment == config.Development {
+	if cfg.Environment == envutil.Development {
 		reflection.Register(grpcServer)
 	}
 }
