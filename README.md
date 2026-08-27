@@ -1,50 +1,63 @@
 # Blog Platform
-A simple blogging platform built with Go and Angular. It allows users to create and manage blog content with support for media uploads and external integrations, focusing on a clean service-oriented backend architecture.
 
-## Features
-✅ User authentication and authorization via dedicated auth service (JWT + refresh tokens)
-🚧 Rich text editor for creating and editing blog posts
-🚧 Media uploads (images, video, audio) with asynchronous processing
-🚧 Cross-posting integration with external platforms (e.g. Telegram channels)
-🚧 Responsive design for mobile and desktop
-🚧 RESTful API for managing blog posts, media, and user accounts
-✅ Dockerized for easy deployment
+Go microservices + Angular frontend. A blogging platform where posts are composed from blocks of text and media. Media is handled by a dedicated pipeline: uploads land in MinIO (S3-compatible), and RabbitMQ-driven workers process them asynchronously (thumbnails, normalization).
 
 ## Architecture
-This system uses protobuf as the single source of truth for all service-level contracts. Each service exposes explicitly defined protobuf message types as its outputs, including multiple “view” types when different representations of the same domain data are needed. The REST API and internal service calls both act as consumers of these shared contracts, ensuring consistency across all system boundaries while keeping domain models strictly internal. We effectively elevate contracts to first-class citizens in our architecture.
 
-In addition to contract-driven service boundaries, the system is designed as a distributed, event-driven architecture:
+Protobuf contracts in `contracts/` are the single source of truth (generated into `packages/go/gen` + `packages/web/gen`). Services are independent gRPC apps that validate access tokens locally against the auth JWKS and coordinate asynchronously over an event bus:
 
-A dedicated Auth Service is responsible for identity management, authentication, and session control using JWT access tokens and rotating refresh tokens.
-Core application services (Blog, Media, Integrations) operate as independent services and validate access tokens locally without coupling to the auth service at request time.
-An event bus (Kafka/RabbitMQ) is used for asynchronous workflows such as media processing, cross-posting, and downstream integrations.
-Media processing is handled by worker services consuming events from the queue, enabling scalable and fault-tolerant processing of uploads.
-External integrations (e.g. Telegram) are implemented as isolated consumer services reacting to domain events.
+```
+web ──▶ Envoy ──▶ auth (identity, JWT, sessions)
+            └────▶ api (post CRUD, postgres)
+            └────▶ upload-service ──▶ MinIO
+                          │
+                          │ publish
+                          ▼
+                     RabbitMQ ──▶ media-ingest (thumbnails, normalize)
+```
 
-This separation of concerns enables horizontal scalability, independent deployment of services, and clear ownership boundaries across the system.
+## Status
+
+| Component                                                                  | Status        |
+| -------------------------------------------------------------------------- | ------------- |
+| Auth service (JWT + refresh tokens, JWKS, sessions)                        | 🟢 done       |
+| API service (post CRUD, gRPC + Envoy REST, media-ready `post_block` model) | 🟢 done       |
+| Proto contracts + codegen pipeline                                         | 🟢 done       |
+| Compose environment (`auth`, `api`, `pg`, `envoy`)                         | 🟢 done       |
+| Upload service + MinIO                                                     | 🔨 scaffolded |
+| RabbitMQ bus + media-ingest worker                                         | ⬜ planned    |
+| Web editor (pending-upload gating)                                         | ⬜ planned    |
+| Public post routes + cross-posting                                         | ⬜ planned    |
+
+## Roadmap
+
+1. **Upload service** — authenticated multipart upload to MinIO; client-defined object keys (`userID/uuidv7`) prevent cross-user collisions. Add MinIO to Compose.
+2. **Event bus** — RabbitMQ in Compose; upload service publishes upload events after object + record are durable.
+3. **Media-ingest worker** — consumes upload events, generates thumbnails (optionally strips EXIF / normalizes formats), stores artifacts back in MinIO; DLQ + ack-after-durable for at-least-once delivery.
+4. **API/web integration** — wire media blocks into post create/read; public post pages; gate draft/publish until all uploads succeed.
+5. **Extras** — cross-posting consumers (e.g. Telegram), scaling, observability.
 
 ## Getting Started
-To get started with the Blog Platform, follow these steps:
-1. Clone the repository:
-   ```bash
-   git clone
-    ```
-2. Navigate to the project directory:
-   ```bash
-   cd blog-platform
-   ```
-3. run the setup script to initialize the environment and dependencies:
-   ```bash
-   just dev-setup
-   ```
-4. Build and run the application using Docker Compose:
-   ```bash
-   just compose-up
-   ``` 
-4. Access the application at `http://localhost:4200` and start creating your blog posts!
+
+1. Clone, then generate secrets once: `just generate-secrets`
+2. Regenerate contracts after proto changes: `just generate`
+3. Run the environment: `just build` (or `just dev`); API at `http://localhost:8080` (Envoy), web at `http://localhost:4200`.
+4. Per-service commands: `just auth dev`, `just api dev`, etc. (each app has its own `justfile`).
+
+## Repository layout
+
+```
+contracts/       protobuf contracts (auth/, api/)
+packages/go/     shared packages (dbpattern, envutil, idv, usercontext, …)
+packages/web/    generated TypeScript types
+apps/            auth · api · upload-service · envoy
+infra/compose/   Docker Compose environment
+```
 
 ## Contributing
-Contributions to Blog As A Service are welcome! If you have an idea for a new feature or have found a bug, please open an issue or submit a pull request on GitHub.
+
+Contributions are welcome! Open an issue or pull request on GitHub.
 
 ## License
-Blog As A Service is licensed under the MIT License. See the [LICENSE](LICENSE) file for more information.
+
+MIT - see [LICENSE](LICENSE).
