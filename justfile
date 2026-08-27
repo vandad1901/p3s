@@ -11,6 +11,8 @@ set shell := ["sh", "-cu"]
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
         --env-file apps/auth/.env \
+        --env-file apps/api/.env \
+        --env-file apps/upload/.env \
         up -d --remove-orphans
 
 @build:
@@ -18,6 +20,8 @@ set shell := ["sh", "-cu"]
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
         --env-file apps/auth/.env \
+        --env-file apps/api/.env \
+        --env-file apps/upload/.env \
         up -d --build --remove-orphans
 
 @stop:
@@ -25,12 +29,16 @@ set shell := ["sh", "-cu"]
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
         --env-file apps/auth/.env \
+        --env-file apps/api/.env \
+        --env-file apps/upload/.env \
         down
 
 @dev:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         --env-file apps/auth/.env \
+        --env-file apps/api/.env \
+        --env-file apps/upload/.env \
         up -d --build --remove-orphans
 
 @compose-exec *ARGS:
@@ -38,6 +46,8 @@ set shell := ["sh", "-cu"]
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
         --env-file apps/auth/.env \
+        --env-file apps/api/.env \
+        --env-file apps/upload/.env \
         exec {{ ARGS }}
 
 @db:
