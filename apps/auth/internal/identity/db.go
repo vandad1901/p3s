@@ -1,10 +1,10 @@
 package identity
 
 import (
-	"errors"
 	"time"
 
 	"github.com/vandad1901/p3s/packages/go/apperror"
+	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	commonpb "github.com/vandad1901/p3s/packages/go/gen/protobuf/commonpb/v1"
 
 	"google.golang.org/protobuf/types/known/timestamppb"
@@ -24,7 +24,7 @@ func dbCreateUser(tx *gorm.DB, user *User) (*commonpb.IDVersion, error) {
 
 	err := tx.Create(user).Error
 	if err != nil {
-		if errors.Is(err, gorm.ErrDuplicatedKey) {
+		if dbpattern.IsConstraintViolation(err, "user_t_username_key") {
 			return nil, apperror.InvalidArgument("identity.DuplicateUsername")
 		}
 
