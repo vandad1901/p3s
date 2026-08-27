@@ -37,6 +37,7 @@ func (s *Service) GenerateJWT(userID int64) (string, error) {
 
 	claims := &Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
+			Issuer:  "auth-service",
 			Subject: strconv.FormatInt(userID, 10),
 
 			IssuedAt:  jwt.NewNumericDate(currentTime),
