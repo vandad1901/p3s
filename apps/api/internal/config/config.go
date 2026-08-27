@@ -17,6 +17,8 @@ const (
 type Config struct {
 	GRPCListenAddress string
 	Environment       Environment
+
+	DSN string
 }
 
 func LoadConfig() *Config {
@@ -35,5 +37,7 @@ func LoadConfig() *Config {
 	return &Config{
 		GRPCListenAddress: gRPCListenAddress,
 		Environment:       Environment(environment),
+
+		DSN: getDSN(),
 	}
 }

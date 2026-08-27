@@ -18,40 +18,24 @@ import (
 	"gorm.io/gorm"
 )
 
-const shutdownTimeoutSecs = 10
-
 type App struct {
-	PostService *post.Service
-
 	db *gorm.DB
+
+	PostService *post.Service
 
 	grpcServer *grpc.Server
 }
 
 func Boot(cfg *config.Config) (*App, error) {
-	var (
-		dsn = config.GetDSN()
-	)
-
-	db := dbpattern.OpenDatabaseConnection(dsn)
-
-	sqlDB, err := db.DB()
+	a, err := initializeResources(cfg)
 	if err != nil {
-		return nil, fmt.Errorf("get sql db: %w", err)
+		return nil, fmt.Errorf("initialize resources: %w", err)
 	}
 
-	err = sqlDB.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("ping database: %w", err)
-	}
-
-	a := initializeServices(db)
-
-	a.db = db
+	initializeV1Services(a)
 
 	if cfg.Environment != config.Test {
-		a.grpcServer = grpc.NewServer()
-		registerGRPCServers(a, a.grpcServer, cfg)
+		initializeServers(a, cfg)
 	}
 
 	return a, nil
@@ -66,12 +50,31 @@ func MustBoot(cfg *config.Config) *App {
 	return a
 }
 
-func initializeServices(db *gorm.DB) *App {
-	postServiceV1 := post.NewService(db)
+func initializeResources(cfg *config.Config) (*App, error) {
+	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("get sql db: %w", err)
+	}
+
+	err = sqlDB.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("ping database: %w", err)
+	}
 
 	return &App{
-		PostService: postServiceV1,
-	}
+		db: db,
+	}, nil
+}
+
+func initializeV1Services(a *App) {
+	a.PostService = post.NewService(a.db)
+}
+
+func initializeServers(a *App, cfg *config.Config) {
+	a.grpcServer = grpc.NewServer()
+	registerGRPCServers(a, a.grpcServer, cfg)
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
@@ -116,6 +119,8 @@ func serveGRPC(cfg *config.Config, grpcServer *grpc.Server) error {
 
 	return nil
 }
+
+const shutdownTimeoutSecs = 10
 
 func (a *App) Close() {
 	ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
