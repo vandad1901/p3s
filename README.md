@@ -9,7 +9,7 @@ Protobuf contracts in `contracts/` are the single source of truth (generated int
 ```
 web ──▶ Envoy ──▶ auth (identity, JWT, sessions)
             └────▶ api (post CRUD, postgres)
-            └────▶ upload-service ──▶ MinIO
+            └────▶ upload ──▶ MinIO
                           │
                           │ publish
                           ▼
@@ -50,7 +50,7 @@ web ──▶ Envoy ──▶ auth (identity, JWT, sessions)
 contracts/       protobuf contracts (auth/, api/)
 packages/go/     shared packages (dbpattern, envutil, idv, usercontext, …)
 packages/web/    generated TypeScript types
-apps/            auth · api · upload-service · envoy
+apps/            auth · api · upload · envoy
 infra/compose/   Docker Compose environment
 ```
 
