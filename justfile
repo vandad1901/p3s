@@ -54,6 +54,14 @@ set shell := ["sh", "-cu"]
     just auth db-reset
     just api db-reset
 
+@run:
+    just auth run
+    just api run
+
+@test:
+    just --dotenv-filename .env.test auth test
+    just --dotenv-filename .env.test api test
+
 @generate:
     buf generate
     buf build contracts \
