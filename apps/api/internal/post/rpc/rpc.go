@@ -15,11 +15,13 @@ import (
 type RPCServer struct {
 	postpb.UnimplementedPostServiceServer
 
-	postService post.Service
+	postService *post.Service
 }
 
 func Register(s *grpc.Server, postService *post.Service) {
-	postpb.RegisterPostServiceServer(s, &RPCServer{})
+	postpb.RegisterPostServiceServer(s, &RPCServer{
+		postService: postService,
+	})
 }
 
 func (s *RPCServer) Create(ctx context.Context, req *postpb.CreateRequest) (*commonpb.IDVersion, error) {
