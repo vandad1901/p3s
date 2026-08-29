@@ -60,6 +60,7 @@ set shell := ["sh", "-cu"]
     just auth run & \
     just api run & \
     just upload run & \
+    wait
 
 @test:
     just --dotenv-filename .env.test auth test
