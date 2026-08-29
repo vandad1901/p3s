@@ -6,6 +6,8 @@ services:
       context: ../..
       dockerfile: ./apps/auth/dockerfile
     restart: unless-stopped
+    environment:
+      - AUTH_PG_HOST=pg
     env_file:
       - ../../apps/auth/.env
     volumes:
@@ -17,7 +19,23 @@ services:
       context: ../..
       dockerfile: ./apps/api/dockerfile
     restart: unless-stopped
+    environment:
+      - API_PG_HOST=pg
     env_file:
       - ../../apps/api/.env
     depends_on:
+      - auth
       - pg
+  upload:
+    build:
+      context: ../..
+      dockerfile: ./apps/upload/dockerfile
+    restart: unless-stopped
+    environment:
+      - UPLOAD_S3_ENDPOINT=http://silo:${UPLOAD_S3_PORT}
+      - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
+    env_file:
+      - ../../apps/upload/.env
+    depends_on:
+      - auth
+      - silo
