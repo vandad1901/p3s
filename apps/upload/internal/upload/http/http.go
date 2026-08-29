@@ -3,9 +3,11 @@ package http
 import (
 	"errors"
 	"fmt"
+	"io"
 	"net/http"
 
 	"github.com/labstack/echo/v4"
+	"github.com/labstack/echo/v4/middleware"
 	"github.com/vandad1901/p3s/apps/upload/internal/upload"
 )
 
@@ -13,12 +15,14 @@ type UploadHandler struct {
 	uploadService *upload.Service
 }
 
+const maxFileSize = 20 << 20
+
 func Register(e *echo.Group, uploadService *upload.Service) {
 	handler := &UploadHandler{
 		uploadService: uploadService,
 	}
 
-	e.POST("/", handler.UploadFile)
+	e.POST("/", handler.UploadFile, middleware.BodyLimit("20M"))
 }
 
 func (h *UploadHandler) UploadFile(c echo.Context) error {
@@ -38,19 +42,14 @@ func (h *UploadHandler) UploadFile(c echo.Context) error {
 		}
 	}()
 
-	fileBytes := make([]byte, file.Size)
-
-	_, err = src.Read(fileBytes)
-	if err != nil {
-		return fmt.Errorf("reading file: %w", err)
-	}
-
 	key := c.FormValue("key")
 	if key == "" {
 		return errors.New("key required") //nolint:err113
 	}
 
-	err = h.uploadService.UploadFile(c.Request().Context(), key, fileBytes)
+	limitedReader := io.LimitReader(src, maxFileSize+1)
+
+	err = h.uploadService.UploadFile(c.Request().Context(), key, limitedReader, file.Size)
 	if err != nil {
 		return fmt.Errorf("uploading file: %w", err)
 	}

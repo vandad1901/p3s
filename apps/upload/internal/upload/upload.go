@@ -1,9 +1,9 @@
 package upload
 
 import (
-	"bytes"
 	"context"
 	"fmt"
+	"io"
 	"strconv"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -24,7 +24,8 @@ func NewService(client *s3.Client, bucketName string) *Service {
 	}
 }
 
-func (s *Service) UploadFile(ctx context.Context, key string, file []byte) error {
+func (s *Service) UploadFile(ctx context.Context, key string,
+	fileReader io.Reader, fileSize int64) error {
 	userID, err := usercontext.CtxUser(ctx)
 	if err != nil {
 		return err
@@ -33,10 +34,11 @@ func (s *Service) UploadFile(ctx context.Context, key string, file []byte) error
 	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
 
 	_, err = s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:      &s.bucketName,
-		Key:         &uniqueKey,
-		Body:        bytes.NewReader(file),
-		IfNoneMatch: aws.String("*"),
+		Bucket:        &s.bucketName,
+		Key:           &uniqueKey,
+		Body:          fileReader,
+		ContentLength: &fileSize,
+		IfNoneMatch:   aws.String("*"),
 		Metadata: map[string]string{
 			"uploaded-by": strconv.FormatInt(userID, 10),
 		},
