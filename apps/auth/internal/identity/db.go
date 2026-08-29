@@ -3,7 +3,6 @@ package identity
 import (
 	"time"
 
-	"github.com/vandad1901/p3s/packages/go/apperror"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	commonpb "github.com/vandad1901/p3s/packages/go/gen/protobuf/commonpb/v1"
 
@@ -25,7 +24,11 @@ func dbCreateUser(tx *gorm.DB, user *User) (*commonpb.IDVersion, error) {
 	err := tx.Create(user).Error
 	if err != nil {
 		if dbpattern.IsConstraintViolation(err, "user_t_username_key") {
-			return nil, apperror.InvalidArgument("identity.DuplicateUsername")
+			return nil, ErrDuplicateUsername
+		}
+
+		if dbpattern.IsConstraintViolation(err, "user_t_email_key") {
+			return nil, ErrDuplicateEmail
 		}
 
 		return nil, err
