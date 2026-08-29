@@ -9,7 +9,7 @@ import (
 	"github.com/cucumber/godog"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/auth/internal/scenario"
-	"github.com/vandad1901/p3s/apps/auth/internal/token"
+	"github.com/vandad1901/p3s/packages/go/authguard"
 	"github.com/vandad1901/p3s/packages/go/godogutil"
 )
 
@@ -47,11 +47,11 @@ func AssertJWTStep(s *scenario.Scenario) func(context.Context, *godog.Table) {
 			s.Require.NoError(err)
 
 			parsedJWT, err := jwt.ParseWithClaims(godogutil.ResolveString(s.SharedData, row, "JWT"),
-				&token.Claims{}, k.Keyfunc, jwt.WithValidMethods([]string{"ES256"}))
+				&authguard.Claims{}, k.Keyfunc, jwt.WithValidMethods([]string{"ES256"}))
 			s.Require.NoError(err)
 			s.Require.True(parsedJWT.Valid)
 
-			internalClaims, ok := parsedJWT.Claims.(*token.Claims)
+			internalClaims, ok := parsedJWT.Claims.(*authguard.Claims)
 			s.Require.True(ok)
 
 			s.Require.NotEmpty(internalClaims.Issuer)

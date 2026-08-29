@@ -10,10 +10,11 @@ import (
 
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/google/uuid"
+	"github.com/vandad1901/p3s/packages/go/authguard"
 )
 
 type Signer interface {
-	SignedString(claims *Claims) (string, error)
+	SignedString(claims *authguard.Claims) (string, error)
 }
 
 type Service struct {
@@ -26,16 +27,12 @@ func NewService(signer Signer) *Service {
 	}
 }
 
-type Claims struct {
-	jwt.RegisteredClaims
-}
-
 func (s *Service) GenerateJWT(userID int64) (string, error) {
 	const ttl = time.Minute * 15
 
 	currentTime := time.Now()
 
-	claims := &Claims{
+	claims := &authguard.Claims{
 		RegisteredClaims: jwt.RegisteredClaims{
 			Issuer:  "auth-service",
 			Subject: strconv.FormatInt(userID, 10),
