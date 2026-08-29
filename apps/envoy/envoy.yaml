@@ -30,7 +30,7 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
                       proto_descriptor: /etc/envoy/descriptor.pb
                       services:
-                        - userpb.v1.UserService
+                        - auth.authn.v1.AuthnService
 
                   - name: envoy.filters.http.router
                     typed_config:
