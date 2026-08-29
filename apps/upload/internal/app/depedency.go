@@ -15,7 +15,7 @@ import (
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
 )
 
-func initializeResources(cfg *config.Config) (*App, error) {
+func initializeDependencies(cfg *config.Config) (*App, error) {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	s3Client, err := initializeS3(cfg)

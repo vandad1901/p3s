@@ -32,7 +32,7 @@ type App struct {
 }
 
 func Boot(cfg *config.Config) (*App, error) {
-	a, err := initializeResources(cfg)
+	a, err := initializeDependencies(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("initialize resources: %w", err)
 	}
