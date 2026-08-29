@@ -3,6 +3,7 @@ package apperror
 import (
 	"context"
 	"errors"
+	"log/slog"
 	"net/http"
 
 	"github.com/google/uuid"
@@ -17,7 +18,7 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
-func GRPCMiddleware() func(
+func GRPCMiddleware(logger *slog.Logger) func(
 	ctx context.Context,
 	req any,
 	info *grpc.UnaryServerInfo,
@@ -34,24 +35,35 @@ func GRPCMiddleware() func(
 			return resp, nil
 		}
 
+		var (
+			code = codes.Internal
+			msg  string
+		)
+
 		if appErr, ok := errors.AsType[Error](err); ok {
+			msg = appErr.Error()
+
 			switch appErr.Category {
 			case CategoryUnauthenticated:
-				return nil, status.Error(codes.Unauthenticated, appErr.Error())
+				code = codes.Unauthenticated
 			case CategoryNotFound:
-				return nil, status.Error(codes.NotFound, appErr.Error())
+				code = codes.NotFound
 			case CategoryInvalidArgument:
-				return nil, status.Error(codes.InvalidArgument, appErr.Error())
+				code = codes.InvalidArgument
 			case CategoryConflict:
-				return nil, status.Error(codes.AlreadyExists, appErr.Error())
+				code = codes.AlreadyExists
 			}
+		} else {
+			logger.ErrorContext(ctx, "internal error", "error", err)
+
+			msg = uuid.NewString()
 		}
 
-		return nil, status.Error(codes.Internal, uuid.New().String())
+		return nil, status.Error(code, msg)
 	}
 }
 
-func EchoMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
+func EchoMiddleware(logger *slog.Logger) func(next echo.HandlerFunc) echo.HandlerFunc {
 	return func(next echo.HandlerFunc) echo.HandlerFunc {
 		return func(c echo.Context) error {
 			err := next(c)
@@ -59,32 +71,32 @@ func EchoMiddleware() func(next echo.HandlerFunc) echo.HandlerFunc {
 				return nil
 			}
 
+			var (
+				code = http.StatusInternalServerError
+				msg  string
+			)
+
 			if appErr, ok := errors.AsType[Error](err); ok {
+				msg = appErr.Error()
+
 				switch appErr.Category {
 				case CategoryUnauthenticated:
-					return c.JSON(http.StatusUnauthorized, ErrorResponse{
-						Message: appErr.Error(),
-					})
-
+					code = http.StatusUnauthorized
 				case CategoryNotFound:
-					return c.JSON(http.StatusNotFound, ErrorResponse{
-						Message: appErr.Error(),
-					})
-
+					code = http.StatusNotFound
 				case CategoryInvalidArgument:
-					return c.JSON(http.StatusBadRequest, ErrorResponse{
-						Message: appErr.Error(),
-					})
-
+					code = http.StatusBadRequest
 				case CategoryConflict:
-					return c.JSON(http.StatusConflict, ErrorResponse{
-						Message: appErr.Error(),
-					})
+					code = http.StatusConflict
 				}
+			} else {
+				logger.ErrorContext(c.Request().Context(), "internal error", "error", err)
+
+				msg = uuid.NewString()
 			}
 
-			return c.JSON(http.StatusInternalServerError, ErrorResponse{
-				Message: uuid.New().String(),
+			return c.JSON(code, ErrorResponse{
+				Message: msg,
 			})
 		}
 	}

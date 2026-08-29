@@ -10,9 +10,10 @@ import (
 
 func initializeServers(a *App, cfg *config.Config) {
 	a.httpServer = echo.New()
-	a.httpServer.Debug = true
 
-	g := a.httpServer.Group("/v1", apperror.EchoMiddleware(), authguard.EchoAuthGuard(a.logger, a.parser, a.keyfunc))
+	g := a.httpServer.Group("/v1",
+		apperror.EchoMiddleware(a.logger),
+		authguard.EchoAuthGuard(a.logger, a.parser, a.keyfunc))
 
 	registerHTTPHandlers(a, g)
 }
