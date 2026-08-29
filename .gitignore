@@ -44,6 +44,7 @@ coverage/
 # ------------------------------
 bin/
 *.exe
+__debug_bin*
 *.dll
 *.so
 *.dylib
