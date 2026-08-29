@@ -3,11 +3,11 @@ package jwks
 import (
 	"context"
 	"crypto/ecdsa"
+	"encoding/json"
+	"fmt"
 	"log"
-	"net/http"
 
 	"github.com/MicahParks/jwkset"
-	"github.com/labstack/echo/v4"
 )
 
 type Service struct {
@@ -33,18 +33,13 @@ func NewService(keyset *jwkset.MemoryJWKSet, privateKey *ecdsa.PrivateKey, keyID
 	return s
 }
 
-func (s *Service) Handle(c echo.Context) error {
-	response, err := s.keySet.JSONPublic(context.Background())
+func (s *Service) Handle(ctx context.Context) (json.RawMessage, error) {
+	response, err := s.keySet.JSONPublic(ctx)
 	if err != nil {
-		log.Printf("Failed to get JWK Set JSON: %s", err)
-		c.NoContent(http.StatusInternalServerError)
-
-		return nil
+		return nil, fmt.Errorf("getting public keyset: %w", err)
 	}
 
-	c.JSON(http.StatusOK, response)
-
-	return nil
+	return response, nil
 }
 
 func (s *Service) refresh() error {
@@ -53,10 +48,13 @@ func (s *Service) refresh() error {
 		Metadata: jwkset.JWKMetadataOptions{KID: s.keyID},
 	})
 	if err != nil {
-		return err
+		return fmt.Errorf("creating JWK from private key: %w", err)
 	}
 
-	s.keySet.KeyWrite(context.Background(), jwkKey)
+	err = s.keySet.KeyWrite(context.Background(), jwkKey)
+	if err != nil {
+		return fmt.Errorf("writing JWK to keyset: %w", err)
+	}
 
 	return nil
 }
