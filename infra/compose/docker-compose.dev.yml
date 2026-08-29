@@ -13,7 +13,7 @@ services:
       - pgadmin_data:/var/lib/pgadmin
 
   pg:
-    image: docker.io/library/postgres:15
+    image: docker.io/library/postgres:17
     restart: unless-stopped
     environment:
       POSTGRES_USER: ${AUTH_PG_USER} # shared with api service
