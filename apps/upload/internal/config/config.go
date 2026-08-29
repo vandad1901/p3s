@@ -10,6 +10,7 @@ type Config struct {
 	S3Endpoint     string
 	S3RootUsername string
 	S3RootPassword string
+	S3BucketName   string
 
 	AuthServiceAddress string
 
@@ -33,6 +34,7 @@ func LoadConfig() *Config {
 		S3Endpoint:     envutil.MustGetString("UPLOAD_S3_ENDPOINT"),
 		S3RootUsername: envutil.MustGetString("UPLOAD_S3_ROOT_USERNAME"),
 		S3RootPassword: envutil.MustGetString("UPLOAD_S3_ROOT_PASSWORD"),
+		S3BucketName:   envutil.MustGetString("UPLOAD_S3_BUCKET_NAME"),
 
 		AuthServiceAddress: envutil.MustGetString("AUTH_JWKS_ADDRESS"),
 

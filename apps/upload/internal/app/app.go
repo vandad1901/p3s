@@ -37,7 +37,7 @@ func Boot(cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("initialize resources: %w", err)
 	}
 
-	initializeV1Services(a)
+	initializeV1Services(a, cfg)
 
 	if cfg.Environment != envutil.Test {
 		initializeServers(a, cfg)
