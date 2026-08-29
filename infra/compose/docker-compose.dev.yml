@@ -27,10 +27,10 @@ services:
     image: pgsty/silo:latest
     restart: unless-stopped
     environment:
-      MINIO_ROOT_USER: ${UPLOAD_MINIO_ROOT_USER}
-      MINIO_ROOT_PASSWORD: ${UPLOAD_MINIO_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${UPLOAD_S3_ROOT_USERNAME}
+      MINIO_ROOT_PASSWORD: ${UPLOAD_S3_ROOT_PASSWORD}
     ports:
-      - "${UPLOAD_MINIO_PORT}:9000"
+      - "${UPLOAD_S3_PORT}:9000"
       - "9001:9001"
     volumes:
       - silo_data:/data

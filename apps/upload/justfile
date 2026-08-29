@@ -1,7 +1,7 @@
 set shell := ["sh", "-cu"]
 set dotenv-load
 
-###Style
+### Style
 
 RED := '\033[0;31m'
 GREEN := '\033[0;32m'
@@ -9,6 +9,26 @@ YELLOW := '\033[1;33m'
 BLUE := '\033[0;34m'
 NORMAL := '\033[0m'
 
-
-@dev:
+@run:
     go run ./cmd/server/
+
+@test:
+    go test -tags test ./...
+
+@db-reset:
+    echo "{{ YELLOW }}[i] {{ RED }}Removing{{ NORMAL }} S3 bucket: {{ BLUE }}media upload{{ NORMAL }}"
+    AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
+    AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
+    AWS_PAGER="" \
+    aws s3api delete-bucket \
+        --bucket "$UPLOAD_S3_MEDIA_BUCKET" \
+        --endpoint-url "$UPLOAD_S3_ENDPOINT" \
+        2>/dev/null || true
+
+    echo "{{ YELLOW }}[i] {{ GREEN }}Creating{{ NORMAL }} S3 bucket: {{ BLUE }}media upload{{ NORMAL }}"
+    AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
+    AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
+    AWS_PAGER="" \
+    aws s3api create-bucket \
+        --bucket "$UPLOAD_S3_MEDIA_BUCKET" \
+        --endpoint-url "$UPLOAD_S3_ENDPOINT"

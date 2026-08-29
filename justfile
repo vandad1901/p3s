@@ -1,5 +1,6 @@
 mod auth "apps/auth"
 mod api "apps/api"
+mod upload "apps/upload"
 
 set shell := ["sh", "-cu"]
 
@@ -53,14 +54,17 @@ set shell := ["sh", "-cu"]
 @db:
     just auth db-reset
     just api db-reset
+    just upload db-reset
 
 @run:
-    just auth run
-    just api run
+    just auth run & \
+    just api run & \
+    just upload run & \
 
 @test:
     just --dotenv-filename .env.test auth test
     just --dotenv-filename .env.test api test
+    just --dotenv-filename .env.test upload test
 
 @generate:
     buf generate
