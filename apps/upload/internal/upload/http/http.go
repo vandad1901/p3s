@@ -1,7 +1,6 @@
 package http
 
 import (
-	"errors"
 	"fmt"
 	"io"
 	"net/http"
@@ -44,7 +43,7 @@ func (h *UploadHandler) UploadFile(c echo.Context) error {
 
 	key := c.FormValue("key")
 	if key == "" {
-		return errors.New("key required") //nolint:err113
+		return errMissingKey
 	}
 
 	limitedReader := io.LimitReader(src, maxFileSize+1)
