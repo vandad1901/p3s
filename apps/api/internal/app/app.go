@@ -11,11 +11,8 @@ import (
 
 	"github.com/vandad1901/p3s/apps/api/internal/config"
 	"github.com/vandad1901/p3s/apps/api/internal/post"
-	postrpc "github.com/vandad1901/p3s/apps/api/internal/post/rpc"
-	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"google.golang.org/grpc"
-	"google.golang.org/grpc/reflection"
 	"gorm.io/gorm"
 )
 
@@ -28,12 +25,12 @@ type App struct {
 }
 
 func Boot(cfg *config.Config) (*App, error) {
-	a, err := initializeResources(cfg)
+	a, err := initializeDependency(cfg)
 	if err != nil {
 		return nil, fmt.Errorf("initialize resources: %w", err)
 	}
 
-	initializeV1Services(a)
+	initializeServices(a)
 
 	if cfg.Environment != envutil.Test {
 		initializeServers(a, cfg)
@@ -49,41 +46,6 @@ func MustBoot(cfg *config.Config) *App {
 	}
 
 	return a
-}
-
-func initializeResources(cfg *config.Config) (*App, error) {
-	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
-
-	sqlDB, err := db.DB()
-	if err != nil {
-		return nil, fmt.Errorf("get sql db: %w", err)
-	}
-
-	err = sqlDB.Ping()
-	if err != nil {
-		return nil, fmt.Errorf("ping database: %w", err)
-	}
-
-	return &App{
-		db: db,
-	}, nil
-}
-
-func initializeV1Services(a *App) {
-	a.PostService = post.NewService(a.db)
-}
-
-func initializeServers(a *App, cfg *config.Config) {
-	a.grpcServer = grpc.NewServer()
-	registerGRPCServers(a, a.grpcServer, cfg)
-}
-
-func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
-	postrpc.Register(grpcServer, a.PostService)
-
-	if cfg.Environment == envutil.Development {
-		reflection.Register(grpcServer)
-	}
 }
 
 const RUNNER_COUNT = 1
