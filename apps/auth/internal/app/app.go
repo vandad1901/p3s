@@ -31,8 +31,8 @@ type App struct {
 	signer token.Signer
 	KeySet *jwkset.MemoryJWKSet
 
-	TokenService    *token.Service
-	IdentityService *identity.Service
+	tokenService    *token.Service
+	identityService *identity.Service
 	SessionService  *session.Service
 	AuthnService    *authn.Service
 	JWKSService     *jwks.Service
@@ -88,10 +88,10 @@ func initializeResources(cfg *config.Config) (*App, error) {
 }
 
 func initializeV1Services(a *App, jwtConfig *config.JWTConfig) {
-	a.TokenService = token.NewService(a.signer)
-	a.IdentityService = identity.NewService(a.db)
-	a.SessionService = session.NewService(a.db, a.TokenService)
-	a.AuthnService = authn.NewAuthNService(a.db, a.IdentityService, a.SessionService, a.TokenService)
+	a.tokenService = token.NewService(a.signer)
+	a.identityService = identity.NewService(a.db)
+	a.SessionService = session.NewService(a.db, a.tokenService)
+	a.AuthnService = authn.NewAuthNService(a.db, a.identityService, a.SessionService, a.tokenService)
 
 	a.JWKSService = jwks.NewService(a.KeySet, jwtConfig.PrivateKey, jwtConfig.KeyID)
 }
@@ -106,7 +106,7 @@ func initializeServers(a *App, cfg *config.Config) {
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 	authnrpc.Register(grpcServer,
-		a.AuthnService, a.IdentityService, a.SessionService)
+		a.AuthnService, a.identityService, a.SessionService)
 
 	if cfg.Environment == envutil.Development {
 		reflection.Register(grpcServer)

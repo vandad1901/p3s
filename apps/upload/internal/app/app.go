@@ -37,7 +37,7 @@ func Boot(cfg *config.Config) (*App, error) {
 		return nil, fmt.Errorf("initialize resources: %w", err)
 	}
 
-	initializeV1Services(a, cfg)
+	initializeServices(a, cfg)
 
 	if cfg.Environment != envutil.Test {
 		initializeServers(a, cfg)
@@ -115,8 +115,6 @@ func (a *App) Close() {
 
 	go func() {
 		stoppers.Wait()
-
-		// close s3 connections
 
 		close(done)
 	}()
