@@ -50,3 +50,41 @@ func (s *Service) UploadFile(ctx context.Context, key string,
 
 	return nil
 }
+
+func (s *Service) GetFile(ctx context.Context, key string) (io.ReadCloser, error) {
+	userID, err := usercontext.CtxUser(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
+
+	resp, err := s.client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &uniqueKey,
+	})
+	if err != nil {
+		return nil, fmt.Errorf("get from S3: %w", err)
+	}
+
+	return resp.Body, nil
+}
+
+func (s *Service) DeleteFile(ctx context.Context, key string) error {
+	userID, err := usercontext.CtxUser(ctx)
+	if err != nil {
+		return err
+	}
+
+	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
+
+	_, err = s.client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: &s.bucketName,
+		Key:    &uniqueKey,
+	})
+	if err != nil {
+		return fmt.Errorf("delete from S3: %w", err)
+	}
+
+	return nil
+}

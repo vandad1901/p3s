@@ -22,6 +22,7 @@ func Register(e *echo.Group, uploadService *upload.Service) {
 	}
 
 	e.POST("/", handler.UploadFile, middleware.BodyLimit("20M"))
+	e.GET("/:key", handler.GetFile)
 }
 
 func (h *UploadHandler) UploadFile(c echo.Context) error {
@@ -56,6 +57,31 @@ func (h *UploadHandler) UploadFile(c echo.Context) error {
 	err = c.NoContent(http.StatusOK)
 	if err != nil {
 		return fmt.Errorf("sending response: %w", err)
+	}
+
+	return nil
+}
+
+func (h *UploadHandler) GetFile(c echo.Context) error {
+	key := c.Param("key")
+	if key == "" {
+		return errMissingKey
+	}
+
+	fileReader, err := h.uploadService.GetFile(c.Request().Context(), key)
+	if err != nil {
+		return fmt.Errorf("getting file: %w", err)
+	}
+	defer func() {
+		err := fileReader.Close()
+		if err != nil {
+			c.Logger().Error("failed to close file reader")
+		}
+	}()
+
+	err = c.Stream(http.StatusOK, "application/octet-stream", fileReader)
+	if err != nil {
+		return fmt.Errorf("streaming file: %w", err)
 	}
 
 	return nil
