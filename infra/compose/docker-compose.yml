@@ -34,6 +34,8 @@ services:
     environment:
       - UPLOAD_S3_ENDPOINT=http://silo:${UPLOAD_S3_PORT}
       - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
+    ports:
+      - "${UPLOAD_HTTP_LISTEN_PORT}:${UPLOAD_HTTP_LISTEN_PORT}"
     env_file:
       - ../../apps/upload/.env
     depends_on:
