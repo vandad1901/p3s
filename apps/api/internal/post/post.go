@@ -59,7 +59,3 @@ type PostBlockMutateRequest = mutatelist.MutateList[*PostBlock, int64]
 func (pb *PostBlock) GetID() int64 {
 	return pb.ID
 }
-
-func (pb *PostBlock) GetPosition() int {
-	return int(pb.Position)
-}
