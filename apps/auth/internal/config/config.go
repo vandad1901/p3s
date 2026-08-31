@@ -5,12 +5,14 @@ import (
 )
 
 type Config struct {
-	GRPCListenAddress string
-	HTTPListenAddress string
-	Environment       envutil.Environment
+	Environment envutil.Environment
 
 	JWTConfig *JWTConfig
-	DSN       string
+
+	DSN string
+
+	GRPCListenAddress string
+	HTTPListenAddress string
 }
 
 func LoadConfig() *Config {
@@ -29,11 +31,13 @@ func LoadConfig() *Config {
 	}
 
 	return &Config{
-		GRPCListenAddress: gRPCListenAddress,
-		HTTPListenAddress: HTTPListenAddress,
-		Environment:       environment,
+		Environment: environment,
 
 		JWTConfig: loadJWTConfig(),
-		DSN:       getDSN(),
+
+		DSN: getDSN(),
+
+		GRPCListenAddress: gRPCListenAddress,
+		HTTPListenAddress: HTTPListenAddress,
 	}
 }

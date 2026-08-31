@@ -28,7 +28,7 @@ func loadJWTConfig() *JWTConfig {
 func MustGetECKey() *ecdsa.PrivateKey {
 	privateKeyPath := envutil.MustGetString("JWT_PRIVATE_KEY_PATH")
 
-	privateKeyPEM, err := os.ReadFile(privateKeyPath)
+	privateKeyPEM, err := os.ReadFile(privateKeyPath) //nolint:gosec
 	if err != nil {
 		log.Fatalf("Invalid JWT_PRIVATE_KEY_PATH. Unable to read file: %s", err)
 	}
