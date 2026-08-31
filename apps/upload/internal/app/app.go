@@ -16,8 +16,10 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
+	"github.com/vandad1901/p3s/apps/upload/internal/mediaupload"
 	"github.com/vandad1901/p3s/apps/upload/internal/upload"
 	"github.com/vandad1901/p3s/packages/go/envutil"
+	"gorm.io/gorm"
 )
 
 type App struct {
@@ -27,7 +29,8 @@ type App struct {
 	keyfunc  keyfunc.Keyfunc
 	parser   *jwt.Parser
 
-	uploadService *upload.Service
+	mediaUploadService *mediaupload.Service
+	uploadService      *upload.Service
 
 	httpServer *echo.Echo
 }

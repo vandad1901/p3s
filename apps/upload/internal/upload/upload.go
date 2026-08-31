@@ -8,19 +8,23 @@ import (
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/vandad1901/p3s/apps/upload/internal/mediaupload"
 	"github.com/vandad1901/p3s/packages/go/usercontext"
 )
 
 type Service struct {
-	client *s3.Client
-
+	client     *s3.Client
 	bucketName string
+
+	mediaUploadService *mediaupload.Service
 }
 
-func NewService(client *s3.Client, bucketName string) *Service {
+func NewService(client *s3.Client, bucketName string, mediaUploadService *mediaupload.Service) *Service {
 	return &Service{
 		client:     client,
 		bucketName: bucketName,
+
+		mediaUploadService: mediaUploadService,
 	}
 }
 
@@ -32,6 +36,11 @@ func (s *Service) UploadFile(ctx context.Context, key string,
 	}
 
 	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
+
+	idv, err := s.mediaUploadService.CreateMedia(ctx, uniqueKey)
+	if err != nil {
+		return fmt.Errorf("creating upload record: %w", err)
+	}
 
 	_, err = s.client.PutObject(ctx, &s3.PutObjectInput{
 		Bucket:        &s.bucketName,
@@ -46,6 +55,11 @@ func (s *Service) UploadFile(ctx context.Context, key string,
 	)
 	if err != nil {
 		return fmt.Errorf("upload to S3: %w", err)
+	}
+
+	_, err = s.mediaUploadService.ChangeStatus(ctx, idv, mediaupload.MediaUploadStatusUploading)
+	if err != nil {
+		return fmt.Errorf("changing upload record status: %w", err)
 	}
 
 	return nil
