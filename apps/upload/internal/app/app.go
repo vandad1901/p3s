@@ -23,6 +23,7 @@ import (
 type App struct {
 	logger   *slog.Logger
 	s3Client *s3.Client
+	db       *gorm.DB
 	keyfunc  keyfunc.Keyfunc
 	parser   *jwt.Parser
 

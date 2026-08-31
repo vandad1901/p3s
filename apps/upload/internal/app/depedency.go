@@ -13,12 +13,19 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
+	"github.com/vandad1901/p3s/packages/go/dbpattern"
+	"gorm.io/gorm"
 )
 
 func initializeDependencies(cfg *config.Config) (*App, error) {
 	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
 	s3Client, err := initializeS3(cfg)
+	if err != nil {
+		return nil, err
+	}
+
+	db, err := initializeDatabase(cfg)
 	if err != nil {
 		return nil, err
 	}
@@ -37,6 +44,7 @@ func initializeDependencies(cfg *config.Config) (*App, error) {
 	return &App{
 		logger:   logger,
 		s3Client: s3Client,
+		db:       db,
 		keyfunc:  k,
 		parser:   parser,
 	}, nil
@@ -69,4 +77,20 @@ func initializeS3(cfg *config.Config) (*s3.Client, error) {
 	}
 
 	return s3Client, nil
+}
+
+func initializeDatabase(cfg *config.Config) (*gorm.DB, error) {
+	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
+
+	sqlDB, err := db.DB()
+	if err != nil {
+		return nil, fmt.Errorf("get sql db: %w", err)
+	}
+
+	err = sqlDB.Ping()
+	if err != nil {
+		return nil, fmt.Errorf("ping database: %w", err)
+	}
+
+	return db, nil
 }
