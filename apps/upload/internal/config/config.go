@@ -7,6 +7,8 @@ import (
 type Config struct {
 	Environment envutil.Environment
 
+	RabbitMQAddress string
+
 	S3Endpoint     string
 	S3RootUsername string
 	S3RootPassword string
@@ -32,6 +34,8 @@ func LoadConfig() *Config {
 
 	return &Config{
 		Environment: environment,
+
+		RabbitMQAddress: envutil.MustGetString("UPLOAD_RMQ_ENDPOINT"),
 
 		S3Endpoint:     envutil.MustGetString("UPLOAD_S3_ENDPOINT"),
 		S3RootUsername: envutil.MustGetString("UPLOAD_S3_ROOT_USERNAME"),

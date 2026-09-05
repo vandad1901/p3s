@@ -14,43 +14,37 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
-	"gorm.io/gorm"
+	"github.com/wagslane/go-rabbitmq"
 )
 
 func initializeDependencies(cfg *config.Config) (*App, error) {
-	logger := slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	a := new(App)
+	a.logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
 
-	s3Client, err := initializeS3(cfg)
+	err := initializeS3(a, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	db, err := initializeDatabase(cfg)
+	err = initializeDatabase(a, cfg)
 	if err != nil {
 		return nil, err
 	}
 
-	k, err := keyfunc.NewDefault([]string{cfg.AuthServiceAddress})
+	err = initializeJWT(a, cfg)
 	if err != nil {
-		return nil, fmt.Errorf("failed to create keyfunc: %w", err)
+		return nil, err
 	}
 
-	parser := jwt.NewParser(
-		jwt.WithValidMethods([]string{"ES256"}),
-		jwt.WithIssuer("auth-service"),
-		jwt.WithExpirationRequired(),
-	)
+	err = initializeRabbitMQ(a, cfg)
+	if err != nil {
+		return nil, err
+	}
 
-	return &App{
-		logger:   logger,
-		s3Client: s3Client,
-		db:       db,
-		keyfunc:  k,
-		parser:   parser,
-	}, nil
+	return a, nil
 }
 
-func initializeS3(cfg *config.Config) (*s3.Client, error) {
+func initializeS3(a *App, cfg *config.Config) error {
 	awsCfg, err := awsconfig.LoadDefaultConfig(
 		context.Background(),
 		awsconfig.WithRegion("us-east-1"),
@@ -63,7 +57,7 @@ func initializeS3(cfg *config.Config) (*s3.Client, error) {
 		),
 	)
 	if err != nil {
-		return nil, fmt.Errorf("load AWS config: %w", err)
+		return fmt.Errorf("load AWS config: %w", err)
 	}
 
 	s3Client := s3.NewFromConfig(awsCfg, func(o *s3.Options) {
@@ -73,24 +67,59 @@ func initializeS3(cfg *config.Config) (*s3.Client, error) {
 
 	_, err = s3Client.ListBuckets(context.Background(), &s3.ListBucketsInput{})
 	if err != nil {
-		return nil, fmt.Errorf("connect to S3: %w", err)
+		return fmt.Errorf("connect to S3: %w", err)
 	}
 
-	return s3Client, nil
+	a.s3Client = s3Client
+
+	return nil
 }
 
-func initializeDatabase(cfg *config.Config) (*gorm.DB, error) {
+func initializeDatabase(a *App, cfg *config.Config) error {
 	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
 
 	sqlDB, err := db.DB()
 	if err != nil {
-		return nil, fmt.Errorf("get sql db: %w", err)
+		return fmt.Errorf("get sql db: %w", err)
 	}
 
 	err = sqlDB.Ping()
 	if err != nil {
-		return nil, fmt.Errorf("ping database: %w", err)
+		return fmt.Errorf("ping database: %w", err)
 	}
 
-	return db, nil
+	a.db = db
+
+	return nil
+}
+
+func initializeJWT(a *App, cfg *config.Config) error {
+	var err error
+
+	a.keyfunc, err = keyfunc.NewDefault([]string{cfg.AuthServiceAddress})
+	if err != nil {
+		return fmt.Errorf("failed to create keyfunc: %w", err)
+	}
+
+	a.parser = jwt.NewParser(
+		jwt.WithValidMethods([]string{"ES256"}),
+		jwt.WithIssuer("auth-service"),
+		jwt.WithExpirationRequired(),
+	)
+
+	return nil
+}
+
+func initializeRabbitMQ(a *App, cfg *config.Config) error {
+	rmqConn, err := rabbitmq.NewConn(cfg.RabbitMQAddress)
+	if err != nil {
+		return fmt.Errorf("connect to RabbitMQ: %w", err)
+	}
+
+	a.publisher, err = rabbitmq.NewPublisher(rmqConn, rabbitmq.WithPublisherOptionsExchangeDurable)
+	if err != nil {
+		return fmt.Errorf("create publisher: %w", err)
+	}
+
+	return nil
 }

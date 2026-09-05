@@ -19,15 +19,17 @@ import (
 	"github.com/vandad1901/p3s/apps/upload/internal/mediaupload"
 	"github.com/vandad1901/p3s/apps/upload/internal/upload"
 	"github.com/vandad1901/p3s/packages/go/envutil"
+	"github.com/wagslane/go-rabbitmq"
 	"gorm.io/gorm"
 )
 
 type App struct {
-	logger   *slog.Logger
-	s3Client *s3.Client
-	db       *gorm.DB
-	keyfunc  keyfunc.Keyfunc
-	parser   *jwt.Parser
+	logger    *slog.Logger
+	s3Client  *s3.Client
+	db        *gorm.DB
+	keyfunc   keyfunc.Keyfunc
+	parser    *jwt.Parser
+	publisher *rabbitmq.Publisher
 
 	mediaUploadService *mediaupload.Service
 	uploadService      *upload.Service
