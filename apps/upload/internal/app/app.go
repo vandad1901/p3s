@@ -16,7 +16,6 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
-	"github.com/vandad1901/p3s/apps/upload/internal/mediaupload"
 	"github.com/vandad1901/p3s/apps/upload/internal/upload"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"github.com/wagslane/go-rabbitmq"
@@ -31,8 +30,7 @@ type App struct {
 	parser    *jwt.Parser
 	publisher *rabbitmq.Publisher
 
-	mediaUploadService *mediaupload.Service
-	uploadService      *upload.Service
+	uploadService *upload.Service
 
 	httpServer *echo.Echo
 }
