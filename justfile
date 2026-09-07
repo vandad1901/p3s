@@ -1,6 +1,7 @@
 mod auth "apps/auth"
 mod api "apps/api"
 mod upload "apps/upload"
+mod media "apps/media"
 
 set shell := ["sh", "-cu"]
 
@@ -14,6 +15,7 @@ set shell := ["sh", "-cu"]
         --env-file apps/auth/.env \
         --env-file apps/api/.env \
         --env-file apps/upload/.env \
+        --env-file apps/media/.env \
         up -d --remove-orphans
 
 @build:
@@ -32,6 +34,7 @@ set shell := ["sh", "-cu"]
         --env-file apps/auth/.env \
         --env-file apps/api/.env \
         --env-file apps/upload/.env \
+        --env-file apps/media/.env \
         down
 
 @dev:
@@ -40,6 +43,7 @@ set shell := ["sh", "-cu"]
         --env-file apps/auth/.env \
         --env-file apps/api/.env \
         --env-file apps/upload/.env \
+        --env-file apps/media/.env \
         up -d --build --remove-orphans
 
 @compose-exec *ARGS:
@@ -49,6 +53,7 @@ set shell := ["sh", "-cu"]
         --env-file apps/auth/.env \
         --env-file apps/api/.env \
         --env-file apps/upload/.env \
+        --env-file apps/media/.env \
         exec {{ ARGS }}
 
 @db:
@@ -60,12 +65,14 @@ set shell := ["sh", "-cu"]
     just auth run & \
     just api run & \
     just upload run & \
+    just media run & \
     wait
 
 @test:
     just --dotenv-filename .env.test auth test
     just --dotenv-filename .env.test api test
     just --dotenv-filename .env.test upload test
+    just --dotenv-filename .env.test media test
 
 @generate:
     buf generate

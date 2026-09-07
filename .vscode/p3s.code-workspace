@@ -11,6 +11,9 @@
 		},
 		{
 			"path": "../apps/upload"
+		},
+		{
+			"path": "../apps/media"
 		}
 	],
 	"extensions": {
@@ -42,7 +45,6 @@
 		"mise.configureExtensionsAutomatically": true,
 		"mise.configureExtensionsUseShims": false,
 		"mise.configureExtensionsUseSymLinks": true,
-		
 		"go.alternateTools": {
 			"go": "${workspaceFolder}/.vscode/mise-tools/go",
 			"dlv": "${workspaceFolder}/.vscode/mise-tools/dlv",

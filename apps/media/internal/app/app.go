@@ -1,0 +1,128 @@
+package app
+
+import (
+	"context"
+	"fmt"
+	"log/slog"
+	"sync"
+	"time"
+
+	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/vandad1901/p3s/apps/media/internal/config"
+	"github.com/vandad1901/p3s/apps/media/internal/media"
+	"github.com/wagslane/go-rabbitmq"
+	"gorm.io/gorm"
+)
+
+type App struct {
+	logger        *slog.Logger
+	s3Client      *s3.Client
+	db            *gorm.DB
+	rmqConn       *rabbitmq.Conn
+	mediaConsumer *rabbitmq.Consumer
+
+	mediaService *media.Service
+
+	closeOnce sync.Once
+}
+
+func Boot(cfg *config.Config, logger *slog.Logger) (*App, error) {
+	a := &App{
+		logger: logger,
+	}
+
+	err := initializeDependencies(a, cfg)
+	if err != nil {
+		a.closeConnections()
+
+		return nil, fmt.Errorf("initialize dependencies: %w", err)
+	}
+
+	initializeServices(a, cfg)
+
+	return a, nil
+}
+
+func (a *App) Serve(ctx context.Context) chan error {
+	errChan := make(chan error, 1)
+
+	go func() {
+		err := a.mediaService.RunLoop(ctx)
+		if err != nil {
+			errChan <- fmt.Errorf("running media service loop: %w", err)
+		}
+
+		close(errChan)
+	}()
+
+	return errChan
+}
+
+const shutdownTimeoutSecs = 10
+
+func (a *App) Shutdown() {
+	a.closeOnce.Do(func() {
+		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
+		defer cancel()
+
+		var shutdownWG sync.WaitGroup
+
+		shutdownWG.Go(func() {
+			if a.mediaConsumer != nil {
+				a.logger.Info("Shutting down consumer")
+				a.mediaConsumer.CloseWithContext(shutdownCtx)
+			}
+		})
+
+		done := make(chan struct{})
+
+		go func() {
+			shutdownWG.Wait()
+
+			close(done)
+		}()
+
+		select {
+		case <-done:
+			a.logger.Info("Graceful shutdown; Releasing resources")
+			a.closeConnections()
+
+		case <-shutdownCtx.Done():
+			a.logger.Error("Graceful shutdown timed out; Giving up")
+		}
+	})
+}
+
+func (a *App) closeConnections() {
+	if a.rmqConn != nil {
+		a.logger.Info("closing RabbitMQ connection")
+
+		err := a.rmqConn.Close()
+		if err != nil {
+			a.logger.Error(
+				"failed to stop rabbitMQ connection",
+				"error", err,
+			)
+		}
+	}
+
+	if a.db != nil {
+		a.logger.Info("closing database")
+
+		sqlDB, err := a.db.DB()
+		if err != nil {
+			a.logger.Error(
+				"failed to get SQL database during shutdown",
+				"error", err,
+			)
+		} else {
+			err = sqlDB.Close()
+			if err != nil {
+				a.logger.Error(
+					"failed to close database",
+					"error", err,
+				)
+			}
+		}
+	}
+}
