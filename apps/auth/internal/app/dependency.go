@@ -7,36 +7,38 @@ import (
 	"github.com/vandad1901/p3s/apps/auth/internal/config"
 	"github.com/vandad1901/p3s/apps/auth/internal/token"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
-	"gorm.io/gorm"
+	"github.com/vandad1901/p3s/packages/go/gormslog"
 )
 
-func initializeDependencies(cfg *config.Config) (*App, error) {
-	db, err := initializeDatabase(cfg)
+func initializeDependencies(a *App, cfg *config.Config) error {
+	err := initializeDatabase(a, cfg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	signer := token.NewECDSASigner(cfg.JWTConfig.PrivateKey)
+	a.signer = token.NewECDSASigner(cfg.JWTConfig.PrivateKey)
+	a.KeySet = jwkset.NewMemoryStorage()
 
-	return &App{
-		db:     db,
-		signer: signer,
-		KeySet: jwkset.NewMemoryStorage(),
-	}, nil
+	return nil
 }
 
-func initializeDatabase(cfg *config.Config) (*gorm.DB, error) {
-	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
+func initializeDatabase(a *App, cfg *config.Config) error {
+	var err error
 
-	sqlDB, err := db.DB()
+	a.db, err = dbpattern.OpenDatabaseConnection(cfg.DSN, gormslog.New(a.logger))
 	if err != nil {
-		return nil, fmt.Errorf("get sql db: %w", err)
+		return fmt.Errorf("initialize database: %w", err)
+	}
+
+	sqlDB, err := a.db.DB()
+	if err != nil {
+		return fmt.Errorf("get sql db: %w", err)
 	}
 
 	err = sqlDB.Ping()
 	if err != nil {
-		return nil, fmt.Errorf("ping database: %w", err)
+		return fmt.Errorf("ping database: %w", err)
 	}
 
-	return db, nil
+	return nil
 }

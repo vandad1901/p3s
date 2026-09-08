@@ -1,7 +1,8 @@
 package main
 
 import (
-	"log"
+	"context"
+	"log/slog"
 	"os"
 	"os/signal"
 	"syscall"
@@ -11,24 +12,47 @@ import (
 )
 
 func main() {
-	cfg := config.LoadConfig()
+	ok := run()
+	if !ok {
+		os.Exit(1)
+	}
+}
 
-	a, err := app.Boot(cfg)
+func run() bool {
+	var (
+		cfg    = config.LoadConfig()
+		logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
+	)
+
+	a, err := app.Boot(cfg, logger)
 	if err != nil {
-		log.Fatalf("[!] Failed to boot the application: %v", err)
+		logger.Error("Failed to boot the application", "error", err)
+
+		return false
 	}
 
-	runErrChan := a.Run(cfg)
+	ctx, cancel := context.WithCancel(context.Background())
+	defer cancel()
 
 	sigChan := make(chan os.Signal, 1)
-	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
 
-	select {
-	case err := <-runErrChan:
-		log.Printf("[!] Error occurred while running the application: %v", err)
-		a.Close()
-	case sig := <-sigChan:
-		log.Printf("[i] Received signal %v, shutting down gracefully...", sig)
-		a.Close()
+	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
+	defer signal.Stop(sigChan)
+
+	go func() {
+		sig := <-sigChan
+		logger.Info("received termination signal", "signal", sig.String())
+
+		cancel()
+		a.Shutdown(ctx)
+	}()
+
+	err = a.Serve(ctx, cfg)
+	if err != nil {
+		logger.Error("failed to serve", "error", err)
+
+		return false
 	}
+
+	return true
 }

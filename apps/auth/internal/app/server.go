@@ -11,12 +11,13 @@ import (
 )
 
 func initializeServers(a *App, cfg *config.Config) {
-	a.grpcServer = grpc.NewServer()
-	// TODO: Add gRPC middleware here
-	registerGRPCServers(a, a.grpcServer, cfg)
+	initializeGRPC(a, cfg)
+	initializeHTTP(a)
+}
 
-	a.httpServer = echo.New()
-	registerHTTPHandlers(a, a.httpServer)
+func initializeGRPC(a *App, cfg *config.Config) {
+	a.grpcServer = grpc.NewServer()
+	registerGRPCServers(a, a.grpcServer, cfg)
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
@@ -26,6 +27,11 @@ func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 	if cfg.Environment == envutil.Development {
 		reflection.Register(grpcServer)
 	}
+}
+
+func initializeHTTP(a *App) {
+	a.echo = echo.New()
+	registerHTTPHandlers(a, a.echo)
 }
 
 func registerHTTPHandlers(a *App, e *echo.Echo) {
