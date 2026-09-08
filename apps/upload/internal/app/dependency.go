@@ -3,8 +3,6 @@ package app
 import (
 	"context"
 	"fmt"
-	"log/slog"
-	"os"
 
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/aws/aws-sdk-go-v2/aws"
@@ -14,34 +12,32 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
+	"github.com/vandad1901/p3s/packages/go/gormslog"
 	"github.com/wagslane/go-rabbitmq"
 )
 
-func initializeDependencies(cfg *config.Config) (*App, error) {
-	a := new(App)
-	a.logger = slog.New(slog.NewJSONHandler(os.Stdout, nil))
-
+func initializeDependencies(a *App, cfg *config.Config) error {
 	err := initializeS3(a, cfg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = initializeDatabase(a, cfg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = initializeJWT(a, cfg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
 	err = initializeRabbitMQ(a, cfg)
 	if err != nil {
-		return nil, err
+		return err
 	}
 
-	return a, nil
+	return nil
 }
 
 func initializeS3(a *App, cfg *config.Config) error {
@@ -76,9 +72,14 @@ func initializeS3(a *App, cfg *config.Config) error {
 }
 
 func initializeDatabase(a *App, cfg *config.Config) error {
-	db := dbpattern.OpenDatabaseConnection(cfg.DSN)
+	var err error
 
-	sqlDB, err := db.DB()
+	a.db, err = dbpattern.OpenDatabaseConnection(cfg.DSN, gormslog.New(a.logger))
+	if err != nil {
+		return fmt.Errorf("initialize database: %w", err)
+	}
+
+	sqlDB, err := a.db.DB()
 	if err != nil {
 		return fmt.Errorf("get sql db: %w", err)
 	}
@@ -87,8 +88,6 @@ func initializeDatabase(a *App, cfg *config.Config) error {
 	if err != nil {
 		return fmt.Errorf("ping database: %w", err)
 	}
-
-	a.db = db
 
 	return nil
 }
@@ -111,12 +110,14 @@ func initializeJWT(a *App, cfg *config.Config) error {
 }
 
 func initializeRabbitMQ(a *App, cfg *config.Config) error {
-	rmqConn, err := rabbitmq.NewConn(cfg.RabbitMQAddress)
+	var err error
+
+	a.rmqConn, err = rabbitmq.NewConn(cfg.RabbitMQAddress)
 	if err != nil {
 		return fmt.Errorf("connect to RabbitMQ: %w", err)
 	}
 
-	a.publisher, err = rabbitmq.NewPublisher(rmqConn, rabbitmq.WithPublisherOptionsExchangeDurable)
+	a.publisher, err = rabbitmq.NewPublisher(a.rmqConn, rabbitmq.WithPublisherOptionsExchangeDurable)
 	if err != nil {
 		return fmt.Errorf("create publisher: %w", err)
 	}

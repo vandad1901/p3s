@@ -9,12 +9,12 @@ import (
 	"github.com/vandad1901/p3s/packages/go/authguard"
 )
 
-func initializeServers(a *App, cfg *config.Config) {
-	a.httpServer = echo.New()
+func initializeServers(a *App, _ *config.Config) {
+	a.echo = echo.New()
 
-	a.httpServer.Pre(middleware.AddTrailingSlash())
+	a.echo.Pre(middleware.AddTrailingSlash())
 
-	g := a.httpServer.Group("/v1",
+	g := a.echo.Group("/v1",
 		apperror.EchoMiddleware(a.logger),
 		authguard.EchoAuthGuard(a.logger, a.parser, a.keyfunc),
 	)
