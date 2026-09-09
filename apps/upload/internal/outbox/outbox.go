@@ -19,3 +19,7 @@ type Message struct {
 	Attempts    int32
 	InTransit   bool
 }
+
+func (m *Message) TableName() string {
+	return "mq_message"
+}

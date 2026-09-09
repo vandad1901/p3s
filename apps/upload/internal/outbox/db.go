@@ -13,6 +13,19 @@ const (
 	attemptsLimit = 3
 )
 
+func dbEnqueue(db *gorm.DB, msg *Message) error {
+	currentTime := time.Now()
+
+	msg.QueuedAt = currentTime
+
+	err := db.Create(msg).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}
+
 func dbGetOutgoing(db *gorm.DB) ([]Message, error) {
 	var outgoing []Message
 

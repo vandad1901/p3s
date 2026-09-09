@@ -9,6 +9,6 @@ CREATE TABLE IF NOT EXISTS mq_message(
     queued_at timestamptz NOT NULL,
     last_tried_at timestamptz NOT NULL,
     attempts int NOT NULL,
-    in_transit boolean NOT NULL,
+    in_transit boolean NOT NULL
 );
 

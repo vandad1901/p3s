@@ -5,7 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"log/slog"
-	"time"
+	"sync"
 
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	"github.com/wagslane/go-rabbitmq"
@@ -16,53 +16,59 @@ type Service struct {
 	logger    *slog.Logger
 	db        *gorm.DB
 	publisher *rabbitmq.Publisher
+
+	workerStop   chan struct{}
+	workerDone   chan struct{}
+	workerCancel context.CancelFunc
+	workerOnce   sync.Once
 }
 
-func NewService(db *gorm.DB) *Service {
+func NewService(logger *slog.Logger, db *gorm.DB, publisher *rabbitmq.Publisher) *Service {
 	return &Service{
-		db: db,
+		logger:    logger,
+		db:        db,
+		publisher: publisher,
 	}
 }
 
-// MUST BE PASSED CONTEXT TIED TO SYSTEM SIGNALS
-func (s *Service) StartWorker(ctx context.Context) {
-	ticker := time.NewTicker(time.Second)
-	defer ticker.Stop()
+func (s *Service) Enqueue(ctx context.Context, msg *Message) error {
+	db := s.db.WithContext(ctx)
 
-	for {
-		select {
-		case <-ctx.Done():
-			return
-
-		case <-ticker.C:
-			err := s.QueueOutbox(ctx)
-			if err != nil {
-				s.logger.Error("outbox poll failed", "error", err)
-			}
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		err := dbEnqueue(db, msg)
+		if err != nil {
+			return err
 		}
+
+		return nil
+	})
+	if txErr != nil {
+		return txErr
 	}
+
+	return nil
 }
 
-func (s *Service) QueueOutbox(ctx context.Context) error {
+func (s *Service) ProcessQueue(ctx context.Context) (int, int, error) {
 	db := s.db.WithContext(ctx)
 
 	outgoing, claimID, err := getOutgoing(db)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
 	if len(outgoing) == 0 {
-		return nil
+		return 0, 0, nil
 	}
 
-	err = send(ctx, db, s.logger,
+	successCount, failCount, err := send(ctx, db, s.logger,
 		s.publisher,
 		outgoing, claimID)
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
-	return nil
+	return successCount, failCount, nil
 }
 
 func getOutgoing(db *gorm.DB) ([]Message, string, error) {
@@ -94,7 +100,7 @@ func getOutgoing(db *gorm.DB) ([]Message, string, error) {
 
 func send(ctx context.Context, db *gorm.DB, logger *slog.Logger,
 	publisher *rabbitmq.Publisher,
-	outgoing []Message, claimID string) error {
+	outgoing []Message, claimID string) (int, int, error) {
 	var (
 		failed = make([]int64, 0)
 	)
@@ -110,7 +116,7 @@ func send(ctx context.Context, db *gorm.DB, logger *slog.Logger,
 			failed = append(failed, msg.ID)
 
 			if errors.Is(err, rabbitmq.ErrPublishFlowPaused) || errors.Is(err, rabbitmq.ErrPublishBlocked) {
-				return fmt.Errorf("queueing message: %w", err)
+				return 0, 0, fmt.Errorf("queueing message: %w", err)
 			}
 
 			continue
@@ -121,7 +127,7 @@ func send(ctx context.Context, db *gorm.DB, logger *slog.Logger,
 			Where("claim_id = ?", claimID).
 			Delete(&Message{}).Error
 		if err != nil {
-			return err
+			return 0, 0, err
 		}
 	}
 
@@ -134,8 +140,8 @@ func send(ctx context.Context, db *gorm.DB, logger *slog.Logger,
 			"attempts":   gorm.Expr("attempts + 1"),
 		}).Error
 	if err != nil {
-		return err
+		return 0, 0, err
 	}
 
-	return nil
+	return len(outgoing), len(failed), nil
 }

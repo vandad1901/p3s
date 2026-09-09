@@ -16,6 +16,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/labstack/echo/v4"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
+	"github.com/vandad1901/p3s/apps/upload/internal/outbox"
 	"github.com/vandad1901/p3s/apps/upload/internal/upload"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"github.com/wagslane/go-rabbitmq"
@@ -31,6 +32,7 @@ type App struct {
 	rmqConn   *rabbitmq.Conn
 	publisher *rabbitmq.Publisher
 
+	outboxService *outbox.Service
 	uploadService *upload.Service
 
 	echo *echo.Echo
@@ -50,7 +52,7 @@ func Boot(cfg *config.Config, logger *slog.Logger) (*App, error) {
 		return nil, fmt.Errorf("initialize dependencies: %w", err)
 	}
 
-	initializeServices(a, cfg)
+	initializeServices(a)
 
 	if cfg.Environment != envutil.Test {
 		initializeServers(a, cfg)
@@ -71,6 +73,7 @@ func MustBoot(cfg *config.Config) *App {
 func (a *App) Serve(cfg *config.Config) error {
 	servers := []func() error{
 		func() error { return serveHTTP(a, cfg) },
+		func() error { return startOutboxWorker(a) },
 	}
 
 	var runnerWG sync.WaitGroup
@@ -127,6 +130,17 @@ func serveHTTP(a *App, cfg *config.Config) error {
 	return nil
 }
 
+func startOutboxWorker(a *App) error {
+	a.logger.Info("Starting outbox worker")
+
+	err := a.outboxService.StartWorker()
+	if err != nil {
+		return fmt.Errorf("start outbox worker: %w", err)
+	}
+
+	return nil
+}
+
 const shutdownTimeoutSecs = 10
 
 func (a *App) Shutdown() {
@@ -143,6 +157,11 @@ func (a *App) Shutdown() {
 			if err != nil {
 				a.logger.Error("Failed to shutdown HTTP server gracefully", "error", err)
 			}
+		})
+		shutdownWG.Go(func() {
+			a.logger.Info("Shutting down outbox worker")
+
+			a.outboxService.GracefulShutdown()
 		})
 
 		done := make(chan struct{})
@@ -165,6 +184,8 @@ func (a *App) Shutdown() {
 			if err != nil {
 				a.logger.Error("Failed to close HTTP server", "error", err)
 			}
+
+			a.outboxService.ForceShutdown()
 		}
 	})
 }
