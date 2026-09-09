@@ -58,9 +58,9 @@ func MustBoot(cfg *config.Config) *App {
 	return a
 }
 
-func (a *App) Serve(ctx context.Context, cfg *config.Config) error {
+func (a *App) Serve(cfg *config.Config) error {
 	servers := []func() error{
-		func() error { return serveGRPC(ctx, a, cfg) },
+		func() error { return serveGRPC(a, cfg) },
 	}
 
 	var runnerWG sync.WaitGroup
@@ -75,7 +75,7 @@ func (a *App) Serve(ctx context.Context, cfg *config.Config) error {
 
 	firstErr := <-errChan
 
-	a.Shutdown(ctx)
+	a.Shutdown()
 
 	runnerWG.Wait()
 	close(errChan)
@@ -93,10 +93,10 @@ func (a *App) Serve(ctx context.Context, cfg *config.Config) error {
 	return nil
 }
 
-func serveGRPC(ctx context.Context, a *App, cfg *config.Config) error {
+func serveGRPC(a *App, cfg *config.Config) error {
 	lc := net.ListenConfig{}
 
-	lis, err := lc.Listen(ctx, "tcp", cfg.GRPCListenAddress)
+	lis, err := lc.Listen(context.Background(), "tcp", cfg.GRPCListenAddress)
 	if err != nil {
 		return fmt.Errorf("grpc listen on %s: %w", cfg.GRPCListenAddress, err)
 	}
@@ -115,9 +115,9 @@ func serveGRPC(ctx context.Context, a *App, cfg *config.Config) error {
 
 const shutdownTimeoutSecs = 10
 
-func (a *App) Shutdown(ctx context.Context) {
+func (a *App) Shutdown() {
 	a.shutdownOnce.Do(func() {
-		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), shutdownTimeoutSecs*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
 		defer cancel()
 
 		var shutdownWG sync.WaitGroup

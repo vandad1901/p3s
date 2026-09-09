@@ -1,7 +1,6 @@
 package main
 
 import (
-	"context"
 	"log/slog"
 	"os"
 	"os/signal"
@@ -31,9 +30,6 @@ func run() bool {
 		return false
 	}
 
-	ctx, cancel := context.WithCancel(context.Background())
-	defer cancel()
-
 	sigChan := make(chan os.Signal, 1)
 
 	signal.Notify(sigChan, syscall.SIGINT, syscall.SIGTERM)
@@ -43,11 +39,10 @@ func run() bool {
 		sig := <-sigChan
 		logger.Info("received termination signal", "signal", sig.String())
 
-		cancel()
-		a.Shutdown(ctx)
+		a.Shutdown()
 	}()
 
-	err = a.Serve(ctx, cfg)
+	err = a.Serve(cfg)
 	if err != nil {
 		logger.Error("failed to serve", "error", err)
 
