@@ -3,6 +3,7 @@ package app
 import (
 	"context"
 	"fmt"
+	"log"
 	"log/slog"
 	"sync"
 	"time"
@@ -23,7 +24,7 @@ type App struct {
 
 	mediaService *media.Service
 
-	closeOnce sync.Once
+	shutdownOnce sync.Once
 }
 
 func Boot(cfg *config.Config, logger *slog.Logger) (*App, error) {
@@ -38,31 +39,60 @@ func Boot(cfg *config.Config, logger *slog.Logger) (*App, error) {
 		return nil, fmt.Errorf("initialize dependencies: %w", err)
 	}
 
-	initializeServices(a, cfg)
+	initializeServices(a)
 
 	return a, nil
 }
 
-func (a *App) Serve(ctx context.Context) chan error {
-	errChan := make(chan error, 1)
+func MustBoot(cfg *config.Config) *App {
+	a, err := Boot(cfg, slog.Default())
+	if err != nil {
+		log.Fatalf("[!] Failed to boot the application: %v", err)
+	}
 
-	go func() {
-		err := a.mediaService.RunLoop(ctx)
+	return a
+}
+
+func (a *App) Serve(_ *config.Config) error {
+	servers := []func() error{
+		func() error { return a.mediaService.RunLoop() },
+	}
+
+	var runnerWG sync.WaitGroup
+
+	errChan := make(chan error, len(servers))
+
+	for _, srv := range servers {
+		runnerWG.Go(func() {
+			errChan <- srv()
+		})
+	}
+
+	firstErr := <-errChan
+
+	a.Shutdown()
+
+	runnerWG.Wait()
+	close(errChan)
+
+	if firstErr != nil {
+		return firstErr
+	}
+
+	for err := range errChan {
 		if err != nil {
-			errChan <- fmt.Errorf("running media service loop: %w", err)
+			return err
 		}
+	}
 
-		close(errChan)
-	}()
-
-	return errChan
+	return nil
 }
 
 const shutdownTimeoutSecs = 10
 
 func (a *App) Shutdown() {
-	a.closeOnce.Do(func() {
-		shutdownCtx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
+	a.shutdownOnce.Do(func() {
+		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
 		defer cancel()
 
 		var shutdownWG sync.WaitGroup
@@ -70,7 +100,7 @@ func (a *App) Shutdown() {
 		shutdownWG.Go(func() {
 			if a.mediaConsumer != nil {
 				a.logger.Info("Shutting down consumer")
-				a.mediaConsumer.CloseWithContext(shutdownCtx)
+				a.mediaConsumer.CloseWithContext(ctx)
 			}
 		})
 
@@ -87,7 +117,7 @@ func (a *App) Shutdown() {
 			a.logger.Info("Graceful shutdown; Releasing resources")
 			a.closeConnections()
 
-		case <-shutdownCtx.Done():
+		case <-ctx.Done():
 			a.logger.Error("Graceful shutdown timed out; Giving up")
 		}
 	})
@@ -99,10 +129,7 @@ func (a *App) closeConnections() {
 
 		err := a.rmqConn.Close()
 		if err != nil {
-			a.logger.Error(
-				"failed to stop rabbitMQ connection",
-				"error", err,
-			)
+			a.logger.Error("failed to stop rabbitMQ connection", "error", err)
 		}
 	}
 
@@ -111,17 +138,11 @@ func (a *App) closeConnections() {
 
 		sqlDB, err := a.db.DB()
 		if err != nil {
-			a.logger.Error(
-				"failed to get SQL database during shutdown",
-				"error", err,
-			)
+			a.logger.Error("failed to get SQL database during shutdown", "error", err)
 		} else {
 			err = sqlDB.Close()
 			if err != nil {
-				a.logger.Error(
-					"failed to close database",
-					"error", err,
-				)
+				a.logger.Error("failed to close database", "error", err)
 			}
 		}
 	}

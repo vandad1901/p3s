@@ -10,6 +10,7 @@ import (
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/vandad1901/p3s/apps/media/internal/config"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
+	"github.com/vandad1901/p3s/packages/go/gormslog"
 	"github.com/wagslane/go-rabbitmq"
 )
 
@@ -64,7 +65,12 @@ func initializeS3(a *App, cfg *config.Config) error {
 }
 
 func initializeDatabase(a *App, cfg *config.Config) error {
-	a.db = dbpattern.OpenDatabaseConnection(cfg.DSN)
+	var err error
+
+	a.db, err = dbpattern.OpenDatabaseConnection(cfg.DSN, gormslog.New(a.logger))
+	if err != nil {
+		return fmt.Errorf("initialize database: %w", err)
+	}
 
 	sqlDB, err := a.db.DB()
 	if err != nil {
