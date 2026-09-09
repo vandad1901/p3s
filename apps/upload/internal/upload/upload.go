@@ -3,87 +3,90 @@ package upload
 import (
 	"context"
 	"fmt"
-	"io"
-	"strconv"
+	"time"
 
 	"github.com/aws/aws-sdk-go-v2/aws"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/vandad1901/p3s/apps/upload/internal/outbox"
+	"github.com/vandad1901/p3s/packages/go/apperror"
 	"github.com/vandad1901/p3s/packages/go/usercontext"
 )
 
 type Service struct {
-	client     *s3.Client
-	bucketName string
+	s3Client        *s3.Client
+	s3PresignClient *s3.PresignClient
+
+	outboxService *outbox.Service
 }
 
-func NewService(client *s3.Client, bucketName string) *Service {
+const (
+	bucketName          = "p3s-upload-bucket"
+	maxFileSize         = 20 << 20
+	fileUploadTimeLimit = 5 * time.Minute
+)
+
+func NewService(s3Client *s3.Client, s3PresignClient *s3.PresignClient,
+	outboxService *outbox.Service) *Service {
 	return &Service{
-		client:     client,
-		bucketName: bucketName,
+		s3Client:        s3Client,
+		s3PresignClient: s3PresignClient,
+
+		outboxService: outboxService,
 	}
 }
 
-func (s *Service) UploadFile(ctx context.Context, key string,
-	fileReader io.Reader, fileSize int64) error {
-	userID, err := usercontext.CtxUser(ctx)
-	if err != nil {
-		return err
-	}
-
-	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
-
-	_, err = s.client.PutObject(ctx, &s3.PutObjectInput{
-		Bucket:        &s.bucketName,
-		Key:           &uniqueKey,
-		Body:          fileReader,
-		ContentLength: &fileSize,
-		IfNoneMatch:   aws.String("*"),
-		Metadata: map[string]string{
-			"uploaded-by": strconv.FormatInt(userID, 10),
-		},
-	},
-	)
-	if err != nil {
-		return fmt.Errorf("upload to S3: %w", err)
-	}
-
-	return nil
-}
-
-func (s *Service) GetFile(ctx context.Context, key string) (io.ReadCloser, error) {
+func (s *Service) GenerateURL(ctx context.Context, pKey string) (map[string]any, error) {
 	userID, err := usercontext.CtxUser(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
+	key := fmt.Sprintf("%d/%s", userID, pKey)
 
-	resp, err := s.client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: &s.bucketName,
-		Key:    &uniqueKey,
-	})
-	if err != nil {
-		return nil, fmt.Errorf("get from S3: %w", err)
+	params := &s3.PutObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    &key,
 	}
 
-	return resp.Body, nil
+	resp, err := s.s3PresignClient.PresignPostObject(ctx, params, func(o *s3.PresignPostOptions) {
+		o.Expires = fileUploadTimeLimit
+		o.Conditions = []any{
+			[]any{"content-length-range", 0, maxFileSize},
+		}
+	})
+	if err != nil {
+		return nil, fmt.Errorf("generating upload URL: %w", err)
+	}
+
+	return map[string]any{
+		"url":    resp.URL,
+		"fields": resp.Values,
+	}, nil
 }
 
-func (s *Service) DeleteFile(ctx context.Context, key string) error {
+func (s *Service) FinalizeUpload(ctx context.Context, pKey string) error {
 	userID, err := usercontext.CtxUser(ctx)
 	if err != nil {
 		return err
 	}
 
-	uniqueKey := fmt.Sprintf("%d/%s", userID, key)
+	key := fmt.Sprintf("%d/%s", userID, pKey)
 
-	_, err = s.client.DeleteObject(ctx, &s3.DeleteObjectInput{
-		Bucket: &s.bucketName,
-		Key:    &uniqueKey,
-	})
-	if err != nil {
-		return fmt.Errorf("delete from S3: %w", err)
+	params := &s3.HeadObjectInput{
+		Bucket: aws.String(bucketName),
+		Key:    &key,
 	}
+
+	res, err := s.s3Client.HeadObject(ctx, params)
+	if err != nil {
+		return fmt.Errorf("checking if file exists: %w", err)
+	}
+
+	if *res.ContentLength > 0 {
+		return apperror.NotFound("upload.finalize.mediaNotFound")
+	}
+
+	// TODO: enqueue in outbox
 
 	return nil
 }
