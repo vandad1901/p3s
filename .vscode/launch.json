@@ -1,0 +1,27 @@
+{
+    "version": "0.2.0",
+    "compounds": [
+        {
+            "name": "Debug Everything",
+            "configurations": [
+                {
+                    "folder": "auth",
+                    "name": "Debug"
+                },
+                {
+                    "folder": "api",
+                    "name": "Debug"
+                },
+                {
+                    "folder": "upload",
+                    "name": "Debug"
+                },
+                {
+                    "folder": "media",
+                    "name": "Debug"
+                }
+            ],
+            "stopAll": true
+        }
+    ]
+}
