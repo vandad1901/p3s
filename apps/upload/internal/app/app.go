@@ -68,9 +68,9 @@ func MustBoot(cfg *config.Config) *App {
 	return a
 }
 
-func (a *App) Serve(ctx context.Context, cfg *config.Config) error {
+func (a *App) Serve(cfg *config.Config) error {
 	servers := []func() error{
-		func() error { return serveHTTP(ctx, a, cfg) },
+		func() error { return serveHTTP(a, cfg) },
 	}
 
 	var runnerWG sync.WaitGroup
@@ -85,7 +85,7 @@ func (a *App) Serve(ctx context.Context, cfg *config.Config) error {
 
 	firstErr := <-errChan
 
-	a.Shutdown(ctx)
+	a.Shutdown()
 
 	runnerWG.Wait()
 	close(errChan)
@@ -103,10 +103,10 @@ func (a *App) Serve(ctx context.Context, cfg *config.Config) error {
 	return nil
 }
 
-func serveHTTP(ctx context.Context, a *App, cfg *config.Config) error {
+func serveHTTP(a *App, cfg *config.Config) error {
 	lc := net.ListenConfig{}
 
-	lis, err := lc.Listen(ctx, "tcp", cfg.HTTPListenAddress)
+	lis, err := lc.Listen(context.Background(), "tcp", cfg.HTTPListenAddress)
 	if err != nil {
 		return fmt.Errorf("http listen on %s: %w", cfg.HTTPListenAddress, err)
 	}
@@ -129,9 +129,9 @@ func serveHTTP(ctx context.Context, a *App, cfg *config.Config) error {
 
 const shutdownTimeoutSecs = 10
 
-func (a *App) Shutdown(ctx context.Context) {
+func (a *App) Shutdown() {
 	a.shutdownOnce.Do(func() {
-		ctx, cancel := context.WithTimeout(context.WithoutCancel(ctx), shutdownTimeoutSecs*time.Second)
+		ctx, cancel := context.WithTimeout(context.Background(), shutdownTimeoutSecs*time.Second)
 		defer cancel()
 
 		var shutdownWG sync.WaitGroup
