@@ -25,6 +25,7 @@ set shell := ["sh", "-cu"]
         --env-file apps/auth/.env \
         --env-file apps/api/.env \
         --env-file apps/upload/.env \
+        --env-file apps/media/.env \
         up -d --build --remove-orphans
 
 @stop:

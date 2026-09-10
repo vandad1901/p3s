@@ -32,12 +32,29 @@ services:
       dockerfile: ./apps/upload/dockerfile
     restart: unless-stopped
     environment:
+      - UPLOAD_PG_HOST=pg
       - UPLOAD_S3_ENDPOINT=http://silo:${UPLOAD_S3_PORT}
+      - UPLOAD_RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
       - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
-    ports:
-      - "${UPLOAD_HTTP_LISTEN_PORT}:${UPLOAD_HTTP_LISTEN_PORT}"
     env_file:
       - ../../apps/upload/.env
     depends_on:
       - auth
       - silo
+      - rmq
+  media:
+    build:
+      context: ../..
+      dockerfile: ./apps/media/dockerfile
+    restart: unless-stopped
+    environment:
+      - MEDIA_PG_HOST=pg
+      - MEDIA_S3_ENDPOINT=http://silo:${MEDIA_S3_PORT}
+      - MEDIA_RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
+    env_file:
+      - ../../apps/media/.env
+    depends_on:
+      - pg
+      - silo
+      - rmq
+      - auth

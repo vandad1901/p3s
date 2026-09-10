@@ -20,9 +20,24 @@ static_resources:
                       domains: ["*"]
                       routes:
                         - match:
-                            prefix: "/"
+                            path: "/.well-known/jwks.json"
                           route:
-                            cluster: auth
+                            cluster: auth_jwks
+
+                        - match:
+                            prefix: "/auth/"
+                          route:
+                            cluster: auth_grpc
+
+                        - match:
+                            prefix: "/api/"
+                          route:
+                            cluster: api_grpc
+
+                        - match:
+                            prefix: "/upload/"
+                          route:
+                            cluster: upload_http
 
                 http_filters:
                   - name: envoy.filters.http.grpc_json_transcoder
@@ -30,19 +45,22 @@ static_resources:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.grpc_json_transcoder.v3.GrpcJsonTranscoder
                       proto_descriptor: /etc/envoy/descriptor.pb
                       services:
-                        - auth.authn.v1.AuthnService
+                        - auth.authnpb.v1.AuthnService
+                        - api.postpb.v1.PostService
+                      match_incoming_request_route: true
+                      convert_grpc_status: true
 
                   - name: envoy.filters.http.router
                     typed_config:
                       "@type": type.googleapis.com/envoy.extensions.filters.http.router.v3.Router
 
   clusters:
-    - name: auth
+    - name: auth_grpc
       connect_timeout: 1s
       type: logical_dns
       http2_protocol_options: {}
       load_assignment:
-        cluster_name: auth
+        cluster_name: auth_grpc
         endpoints:
           - lb_endpoints:
               - endpoint:
@@ -50,3 +68,41 @@ static_resources:
                     socket_address:
                       address: auth
                       port_value: 50051
+    - name: auth_jwks
+      connect_timeout: 1s
+      type: logical_dns
+      http2_protocol_options: {}
+      load_assignment:
+        cluster_name: auth_jwks
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: auth
+                      port_value: 50151
+    - name: api_grpc
+      connect_timeout: 1s
+      type: logical_dns
+      http2_protocol_options: {}
+      load_assignment:
+        cluster_name: api_grpc
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: api
+                      port_value: 50052
+    - name: upload_http
+      connect_timeout: 1s
+      type: logical_dns
+      load_assignment:
+        cluster_name: upload_http
+        endpoints:
+          - lb_endpoints:
+              - endpoint:
+                  address:
+                    socket_address:
+                      address: upload
+                      port_value: 50153
