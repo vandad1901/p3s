@@ -18,6 +18,25 @@ type ErrorResponse struct {
 	Message string `json:"message"`
 }
 
+func getErrorInfoGRPC(err error) (codes.Code, string) {
+	if appErr, ok := errors.AsType[Error](err); ok {
+		msg := appErr.Error()
+
+		switch appErr.Category {
+		case CategoryUnauthenticated:
+			return codes.Unauthenticated, msg
+		case CategoryNotFound:
+			return codes.NotFound, msg
+		case CategoryInvalidArgument:
+			return codes.InvalidArgument, msg
+		case CategoryConflict:
+			return codes.AlreadyExists, msg
+		}
+	}
+
+	return codes.Internal, uuid.NewString()
+}
+
 func GRPCMiddleware(logger *slog.Logger) func(
 	ctx context.Context,
 	req any,
@@ -35,32 +54,37 @@ func GRPCMiddleware(logger *slog.Logger) func(
 			return resp, nil
 		}
 
-		var (
-			code = codes.Internal
-			msg  string
-		)
+		code, msg := getErrorInfoGRPC(err)
 
-		if appErr, ok := errors.AsType[Error](err); ok {
-			msg = appErr.Error()
-
-			switch appErr.Category {
-			case CategoryUnauthenticated:
-				code = codes.Unauthenticated
-			case CategoryNotFound:
-				code = codes.NotFound
-			case CategoryInvalidArgument:
-				code = codes.InvalidArgument
-			case CategoryConflict:
-				code = codes.AlreadyExists
-			}
-		} else {
-			logger.ErrorContext(ctx, "internal error", "error", err)
-
-			msg = uuid.NewString()
-		}
+		logger.ErrorContext(ctx, "internal error", "error", err, "message", msg)
 
 		return nil, status.Error(code, msg)
 	}
+}
+
+func getErrorInfoHTTP(err error) (int, string) {
+	if appErr, ok := errors.AsType[Error](err); ok {
+		msg := appErr.Error()
+
+		switch appErr.Category {
+		case CategoryUnauthenticated:
+			return http.StatusUnauthorized, msg
+		case CategoryNotFound:
+			return http.StatusNotFound, msg
+		case CategoryInvalidArgument:
+			return http.StatusBadRequest, msg
+		case CategoryConflict:
+			return http.StatusConflict, msg
+		}
+	}
+
+	if httpErr, ok := errors.AsType[*echo.HTTPError](err); ok {
+		if httpErr.Code == http.StatusNotFound {
+			return httpErr.Code, "Not Found"
+		}
+	}
+
+	return http.StatusInternalServerError, uuid.NewString()
 }
 
 func EchoMiddleware(logger *slog.Logger) func(next echo.HandlerFunc) echo.HandlerFunc {
@@ -71,29 +95,9 @@ func EchoMiddleware(logger *slog.Logger) func(next echo.HandlerFunc) echo.Handle
 				return nil
 			}
 
-			var (
-				code = http.StatusInternalServerError
-				msg  string
-			)
+			code, msg := getErrorInfoHTTP(err)
 
-			if appErr, ok := errors.AsType[Error](err); ok {
-				msg = appErr.Error()
-
-				switch appErr.Category {
-				case CategoryUnauthenticated:
-					code = http.StatusUnauthorized
-				case CategoryNotFound:
-					code = http.StatusNotFound
-				case CategoryInvalidArgument:
-					code = http.StatusBadRequest
-				case CategoryConflict:
-					code = http.StatusConflict
-				}
-			} else {
-				logger.ErrorContext(c.Request().Context(), "internal error", "error", err)
-
-				msg = uuid.NewString()
-			}
+			logger.ErrorContext(c.Request().Context(), "internal error", "error", err, "message", msg)
 
 			return c.JSON(code, ErrorResponse{
 				Message: msg,
