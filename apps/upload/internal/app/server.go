@@ -14,7 +14,7 @@ func initializeServers(a *App, _ *config.Config) {
 
 	a.echo.Pre(middleware.AddTrailingSlash())
 
-	g := a.echo.Group("/v1",
+	g := a.echo.Group("/upload/v1",
 		apperror.EchoMiddleware(a.logger),
 		authguard.EchoAuthGuard(a.logger, a.parser, a.keyfunc),
 	)

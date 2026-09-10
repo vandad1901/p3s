@@ -17,8 +17,8 @@ func Register(e *echo.Group, uploadService *upload.Service) {
 		uploadService: uploadService,
 	}
 
-	e.POST("/init", handler.UploadFile)
-	e.POST("/finalize", handler.FinalizeUpload)
+	e.POST("/init/", handler.UploadFile)
+	e.POST("/finalize/", handler.FinalizeUpload)
 }
 
 func (h *UploadHandler) UploadFile(c echo.Context) error {
