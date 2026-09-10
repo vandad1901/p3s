@@ -392,7 +392,7 @@ var File_auth_authnpb_v1_authn_proto protoreflect.FileDescriptor
 
 const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
 	"\n" +
-	"\x1bauth/authnpb/v1/authn.proto\x12\rauth.authn.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x19auth/userpb/v1/user.proto\"W\n" +
+	"\x1bauth/authnpb/v1/authn.proto\x12\x0fauth.authnpb.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x19auth/userpb/v1/user.proto\"W\n" +
 	"\x0fRegisterRequest\x12(\n" +
 	"\x04user\x18\x01 \x01(\v2\x14.auth.userpb.v1.UserR\x04user\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"\xb3\x01\n" +
@@ -401,26 +401,26 @@ const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
 	"session_id\x18\x01 \x01(\x03R\tsessionId\x12\x10\n" +
 	"\x03jwt\x18\x02 \x01(\tR\x03jwt\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12F\n" +
-	"\x11access_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x0faccessExpiresAt\"P\n" +
-	"\x10RegisterResponse\x12<\n" +
-	"\asession\x18\x01 \x01(\v2\".auth.authn.v1.AuthSessionResponseR\asession\"F\n" +
+	"\x11access_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x0faccessExpiresAt\"R\n" +
+	"\x10RegisterResponse\x12>\n" +
+	"\asession\x18\x01 \x01(\v2$.auth.authnpb.v1.AuthSessionResponseR\asession\"F\n" +
 	"\fLoginRequest\x12\x1a\n" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"M\n" +
-	"\rLoginResponse\x12<\n" +
-	"\asession\x18\x01 \x01(\v2\".auth.authn.v1.AuthSessionResponseR\asession\"p\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"O\n" +
+	"\rLoginResponse\x12>\n" +
+	"\asession\x18\x01 \x01(\v2$.auth.authnpb.v1.AuthSessionResponseR\asession\"p\n" +
 	"\x11RefreshJWTRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x02 \x01(\x03R\tsessionId\x12#\n" +
 	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"&\n" +
 	"\x12RefreshJWTResponse\x12\x10\n" +
-	"\x03jwt\x18\x01 \x01(\tR\x03jwt2\xc8\x02\n" +
-	"\fAuthnService\x12i\n" +
-	"\bRegister\x12\x1e.auth.authn.v1.RegisterRequest\x1a\x1f.auth.authn.v1.RegisterResponse\"\x1c\x82\xd3\xe4\x93\x02\x16:\x01*\"\x11/v1/auth/register\x12]\n" +
-	"\x05Login\x12\x1b.auth.authn.v1.LoginRequest\x1a\x1c.auth.authn.v1.LoginResponse\"\x19\x82\xd3\xe4\x93\x02\x13:\x01*\"\x0e/v1/auth/login\x12n\n" +
+	"\x03jwt\x18\x01 \x01(\tR\x03jwt2\xe6\x02\n" +
+	"\fAuthnService\x12s\n" +
+	"\bRegister\x12 .auth.authnpb.v1.RegisterRequest\x1a!.auth.authnpb.v1.RegisterResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/auth/v1/authn/register\x12g\n" +
+	"\x05Login\x12\x1d.auth.authnpb.v1.LoginRequest\x1a\x1e.auth.authnpb.v1.LoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/auth/v1/authn/login\x12x\n" +
 	"\n" +
-	"RefreshJWT\x12 .auth.authn.v1.RefreshJWTRequest\x1a!.auth.authn.v1.RefreshJWTResponse\"\x1b\x82\xd3\xe4\x93\x02\x15:\x01*\"\x10/v1/auth/refreshBGZEgithub.com/vandad1901/p3s/packages/go/gen/protobuf/authnpb/v1;authnpbb\x06proto3"
+	"RefreshJWT\x12\".auth.authnpb.v1.RefreshJWTRequest\x1a#.auth.authnpb.v1.RefreshJWTResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/auth/v1/authn/refreshBGZEgithub.com/vandad1901/p3s/packages/go/gen/protobuf/authnpb/v1;authnpbb\x06proto3"
 
 var (
 	file_auth_authnpb_v1_authn_proto_rawDescOnce sync.Once
@@ -436,27 +436,27 @@ func file_auth_authnpb_v1_authn_proto_rawDescGZIP() []byte {
 
 var file_auth_authnpb_v1_authn_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
 var file_auth_authnpb_v1_authn_proto_goTypes = []any{
-	(*RegisterRequest)(nil),       // 0: auth.authn.v1.RegisterRequest
-	(*AuthSessionResponse)(nil),   // 1: auth.authn.v1.AuthSessionResponse
-	(*RegisterResponse)(nil),      // 2: auth.authn.v1.RegisterResponse
-	(*LoginRequest)(nil),          // 3: auth.authn.v1.LoginRequest
-	(*LoginResponse)(nil),         // 4: auth.authn.v1.LoginResponse
-	(*RefreshJWTRequest)(nil),     // 5: auth.authn.v1.RefreshJWTRequest
-	(*RefreshJWTResponse)(nil),    // 6: auth.authn.v1.RefreshJWTResponse
+	(*RegisterRequest)(nil),       // 0: auth.authnpb.v1.RegisterRequest
+	(*AuthSessionResponse)(nil),   // 1: auth.authnpb.v1.AuthSessionResponse
+	(*RegisterResponse)(nil),      // 2: auth.authnpb.v1.RegisterResponse
+	(*LoginRequest)(nil),          // 3: auth.authnpb.v1.LoginRequest
+	(*LoginResponse)(nil),         // 4: auth.authnpb.v1.LoginResponse
+	(*RefreshJWTRequest)(nil),     // 5: auth.authnpb.v1.RefreshJWTRequest
+	(*RefreshJWTResponse)(nil),    // 6: auth.authnpb.v1.RefreshJWTResponse
 	(*v1.User)(nil),               // 7: auth.userpb.v1.User
 	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
 }
 var file_auth_authnpb_v1_authn_proto_depIdxs = []int32{
-	7, // 0: auth.authn.v1.RegisterRequest.user:type_name -> auth.userpb.v1.User
-	8, // 1: auth.authn.v1.AuthSessionResponse.access_expires_at:type_name -> google.protobuf.Timestamp
-	1, // 2: auth.authn.v1.RegisterResponse.session:type_name -> auth.authn.v1.AuthSessionResponse
-	1, // 3: auth.authn.v1.LoginResponse.session:type_name -> auth.authn.v1.AuthSessionResponse
-	0, // 4: auth.authn.v1.AuthnService.Register:input_type -> auth.authn.v1.RegisterRequest
-	3, // 5: auth.authn.v1.AuthnService.Login:input_type -> auth.authn.v1.LoginRequest
-	5, // 6: auth.authn.v1.AuthnService.RefreshJWT:input_type -> auth.authn.v1.RefreshJWTRequest
-	2, // 7: auth.authn.v1.AuthnService.Register:output_type -> auth.authn.v1.RegisterResponse
-	4, // 8: auth.authn.v1.AuthnService.Login:output_type -> auth.authn.v1.LoginResponse
-	6, // 9: auth.authn.v1.AuthnService.RefreshJWT:output_type -> auth.authn.v1.RefreshJWTResponse
+	7, // 0: auth.authnpb.v1.RegisterRequest.user:type_name -> auth.userpb.v1.User
+	8, // 1: auth.authnpb.v1.AuthSessionResponse.access_expires_at:type_name -> google.protobuf.Timestamp
+	1, // 2: auth.authnpb.v1.RegisterResponse.session:type_name -> auth.authnpb.v1.AuthSessionResponse
+	1, // 3: auth.authnpb.v1.LoginResponse.session:type_name -> auth.authnpb.v1.AuthSessionResponse
+	0, // 4: auth.authnpb.v1.AuthnService.Register:input_type -> auth.authnpb.v1.RegisterRequest
+	3, // 5: auth.authnpb.v1.AuthnService.Login:input_type -> auth.authnpb.v1.LoginRequest
+	5, // 6: auth.authnpb.v1.AuthnService.RefreshJWT:input_type -> auth.authnpb.v1.RefreshJWTRequest
+	2, // 7: auth.authnpb.v1.AuthnService.Register:output_type -> auth.authnpb.v1.RegisterResponse
+	4, // 8: auth.authnpb.v1.AuthnService.Login:output_type -> auth.authnpb.v1.LoginResponse
+	6, // 9: auth.authnpb.v1.AuthnService.RefreshJWT:output_type -> auth.authnpb.v1.RefreshJWTResponse
 	7, // [7:10] is the sub-list for method output_type
 	4, // [4:7] is the sub-list for method input_type
 	4, // [4:4] is the sub-list for extension type_name

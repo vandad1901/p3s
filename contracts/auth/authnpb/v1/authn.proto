@@ -1,7 +1,7 @@
 syntax = "proto3";
 
 option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/authnpb/v1;authnpb";
-package auth.authn.v1;
+package auth.authnpb.v1;
 
 import "google/protobuf/timestamp.proto";
 
@@ -13,19 +13,19 @@ service AuthnService {
   rpc Register (RegisterRequest) returns (RegisterResponse)
   {
     option (google.api.http) = {
-      post: "/v1/auth/register"
+      post: "/auth/v1/authn/register"
       body: "*"
     };
   };
   rpc Login (LoginRequest) returns (LoginResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/login"
+      post: "/auth/v1/authn/login"
       body: "*"
     };
   };
   rpc RefreshJWT (RefreshJWTRequest) returns (RefreshJWTResponse) {
     option (google.api.http) = {
-      post: "/v1/auth/refresh"
+      post: "/auth/v1/authn/refresh"
       body: "*"
     };
   };

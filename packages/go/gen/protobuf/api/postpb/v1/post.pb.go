@@ -11,7 +11,6 @@ import (
 	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	emptypb "google.golang.org/protobuf/types/known/emptypb"
 	timestamppb "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
@@ -128,7 +127,7 @@ type Post struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	Title         string                 `protobuf:"bytes,2,opt,name=title,proto3" json:"title,omitempty"`
 	Slug          string                 `protobuf:"bytes,3,opt,name=slug,proto3" json:"slug,omitempty"`
-	PostStatus    PostStatus             `protobuf:"varint,4,opt,name=post_status,json=postStatus,proto3,enum=postpb.v1.PostStatus" json:"post_status,omitempty"`
+	PostStatus    PostStatus             `protobuf:"varint,4,opt,name=post_status,json=postStatus,proto3,enum=api.postpb.v1.PostStatus" json:"post_status,omitempty"`
 	CreatedAt     *timestamppb.Timestamp `protobuf:"bytes,5,opt,name=created_at,json=createdAt,proto3" json:"created_at,omitempty"`
 	CreatedBy     int64                  `protobuf:"varint,6,opt,name=created_by,json=createdBy,proto3" json:"created_by,omitempty"`
 	UpdatedAt     *timestamppb.Timestamp `protobuf:"bytes,7,opt,name=updated_at,json=updatedAt,proto3" json:"updated_at,omitempty"`
@@ -228,7 +227,7 @@ type PostBlock struct {
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
 	PostId        int64                  `protobuf:"varint,2,opt,name=post_id,json=postId,proto3" json:"post_id,omitempty"`
 	Position      int32                  `protobuf:"varint,3,opt,name=position,proto3" json:"position,omitempty"`
-	BlockType     BlockType              `protobuf:"varint,4,opt,name=block_type,json=blockType,proto3,enum=postpb.v1.BlockType" json:"block_type,omitempty"`
+	BlockType     BlockType              `protobuf:"varint,4,opt,name=block_type,json=blockType,proto3,enum=api.postpb.v1.BlockType" json:"block_type,omitempty"`
 	Media         string                 `protobuf:"bytes,5,opt,name=media,proto3" json:"media,omitempty"`
 	Text          string                 `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
 	unknownFields protoimpl.UnknownFields
@@ -359,6 +358,50 @@ func (x *CreateRequest) GetPostBlocks() []*PostBlock {
 	return nil
 }
 
+type CreateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IdVersion     *v1.IDVersion          `protobuf:"bytes,1,opt,name=id_version,json=idVersion,proto3" json:"id_version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *CreateResponse) Reset() {
+	*x = CreateResponse{}
+	mi := &file_api_postpb_v1_post_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *CreateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*CreateResponse) ProtoMessage() {}
+
+func (x *CreateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_postpb_v1_post_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use CreateResponse.ProtoReflect.Descriptor instead.
+func (*CreateResponse) Descriptor() ([]byte, []int) {
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *CreateResponse) GetIdVersion() *v1.IDVersion {
+	if x != nil {
+		return x.IdVersion
+	}
+	return nil
+}
+
 type GetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -368,7 +411,7 @@ type GetRequest struct {
 
 func (x *GetRequest) Reset() {
 	*x = GetRequest{}
-	mi := &file_api_postpb_v1_post_proto_msgTypes[3]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[4]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -380,7 +423,7 @@ func (x *GetRequest) String() string {
 func (*GetRequest) ProtoMessage() {}
 
 func (x *GetRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_postpb_v1_post_proto_msgTypes[3]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[4]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -393,7 +436,7 @@ func (x *GetRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetRequest.ProtoReflect.Descriptor instead.
 func (*GetRequest) Descriptor() ([]byte, []int) {
-	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{3}
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{4}
 }
 
 func (x *GetRequest) GetId() int64 {
@@ -413,7 +456,7 @@ type GetResponse struct {
 
 func (x *GetResponse) Reset() {
 	*x = GetResponse{}
-	mi := &file_api_postpb_v1_post_proto_msgTypes[4]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[5]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -425,7 +468,7 @@ func (x *GetResponse) String() string {
 func (*GetResponse) ProtoMessage() {}
 
 func (x *GetResponse) ProtoReflect() protoreflect.Message {
-	mi := &file_api_postpb_v1_post_proto_msgTypes[4]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[5]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -438,7 +481,7 @@ func (x *GetResponse) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use GetResponse.ProtoReflect.Descriptor instead.
 func (*GetResponse) Descriptor() ([]byte, []int) {
-	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{4}
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{5}
 }
 
 func (x *GetResponse) GetPost() *Post {
@@ -466,7 +509,7 @@ type PostBlockUpdateRequest struct {
 
 func (x *PostBlockUpdateRequest) Reset() {
 	*x = PostBlockUpdateRequest{}
-	mi := &file_api_postpb_v1_post_proto_msgTypes[5]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[6]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -478,7 +521,7 @@ func (x *PostBlockUpdateRequest) String() string {
 func (*PostBlockUpdateRequest) ProtoMessage() {}
 
 func (x *PostBlockUpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_postpb_v1_post_proto_msgTypes[5]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[6]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -491,7 +534,7 @@ func (x *PostBlockUpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use PostBlockUpdateRequest.ProtoReflect.Descriptor instead.
 func (*PostBlockUpdateRequest) Descriptor() ([]byte, []int) {
-	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{5}
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{6}
 }
 
 func (x *PostBlockUpdateRequest) GetInserted() []*PostBlock {
@@ -525,7 +568,7 @@ type UpdateRequest struct {
 
 func (x *UpdateRequest) Reset() {
 	*x = UpdateRequest{}
-	mi := &file_api_postpb_v1_post_proto_msgTypes[6]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[7]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -537,7 +580,7 @@ func (x *UpdateRequest) String() string {
 func (*UpdateRequest) ProtoMessage() {}
 
 func (x *UpdateRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_postpb_v1_post_proto_msgTypes[6]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[7]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -550,7 +593,7 @@ func (x *UpdateRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use UpdateRequest.ProtoReflect.Descriptor instead.
 func (*UpdateRequest) Descriptor() ([]byte, []int) {
-	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{6}
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{7}
 }
 
 func (x *UpdateRequest) GetPost() *Post {
@@ -567,6 +610,50 @@ func (x *UpdateRequest) GetPostBlockRequest() *PostBlockUpdateRequest {
 	return nil
 }
 
+type UpdateResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	IdVersion     *v1.IDVersion          `protobuf:"bytes,1,opt,name=id_version,json=idVersion,proto3" json:"id_version,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *UpdateResponse) Reset() {
+	*x = UpdateResponse{}
+	mi := &file_api_postpb_v1_post_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *UpdateResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*UpdateResponse) ProtoMessage() {}
+
+func (x *UpdateResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_postpb_v1_post_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use UpdateResponse.ProtoReflect.Descriptor instead.
+func (*UpdateResponse) Descriptor() ([]byte, []int) {
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{8}
+}
+
+func (x *UpdateResponse) GetIdVersion() *v1.IDVersion {
+	if x != nil {
+		return x.IdVersion
+	}
+	return nil
+}
+
 type DeleteRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
@@ -577,7 +664,7 @@ type DeleteRequest struct {
 
 func (x *DeleteRequest) Reset() {
 	*x = DeleteRequest{}
-	mi := &file_api_postpb_v1_post_proto_msgTypes[7]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[9]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
@@ -589,7 +676,7 @@ func (x *DeleteRequest) String() string {
 func (*DeleteRequest) ProtoMessage() {}
 
 func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
-	mi := &file_api_postpb_v1_post_proto_msgTypes[7]
+	mi := &file_api_postpb_v1_post_proto_msgTypes[9]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 		if ms.LoadMessageInfo() == nil {
@@ -602,7 +689,7 @@ func (x *DeleteRequest) ProtoReflect() protoreflect.Message {
 
 // Deprecated: Use DeleteRequest.ProtoReflect.Descriptor instead.
 func (*DeleteRequest) Descriptor() ([]byte, []int) {
-	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{7}
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{9}
 }
 
 func (x *DeleteRequest) GetId() int64 {
@@ -619,16 +706,52 @@ func (x *DeleteRequest) GetUpdatedAt() *timestamppb.Timestamp {
 	return nil
 }
 
+type DeleteResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *DeleteResponse) Reset() {
+	*x = DeleteResponse{}
+	mi := &file_api_postpb_v1_post_proto_msgTypes[10]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *DeleteResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*DeleteResponse) ProtoMessage() {}
+
+func (x *DeleteResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_api_postpb_v1_post_proto_msgTypes[10]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use DeleteResponse.ProtoReflect.Descriptor instead.
+func (*DeleteResponse) Descriptor() ([]byte, []int) {
+	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{10}
+}
+
 var File_api_postpb_v1_post_proto protoreflect.FileDescriptor
 
 const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\n" +
-	"\x18api/postpb/v1/post.proto\x12\tpostpb.v1\x1a\x1bgoogle/protobuf/empty.proto\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x18commonpb/v1/common.proto\"\xac\x02\n" +
+	"\x18api/postpb/v1/post.proto\x12\rapi.postpb.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x18commonpb/v1/common.proto\"\xb0\x02\n" +
 	"\x04Post\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x14\n" +
 	"\x05title\x18\x02 \x01(\tR\x05title\x12\x12\n" +
-	"\x04slug\x18\x03 \x01(\tR\x04slug\x126\n" +
-	"\vpost_status\x18\x04 \x01(\x0e2\x15.postpb.v1.PostStatusR\n" +
+	"\x04slug\x18\x03 \x01(\tR\x04slug\x12:\n" +
+	"\vpost_status\x18\x04 \x01(\x0e2\x19.api.postpb.v1.PostStatusR\n" +
 	"postStatus\x129\n" +
 	"\n" +
 	"created_at\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\tcreatedAt\x12\x1d\n" +
@@ -637,37 +760,44 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_by\x18\b \x01(\x03R\tupdatedBy\"\xaf\x01\n" +
+	"updated_by\x18\b \x01(\x03R\tupdatedBy\"\xb3\x01\n" +
 	"\tPostBlock\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\apost_id\x18\x02 \x01(\x03R\x06postId\x12\x1a\n" +
-	"\bposition\x18\x03 \x01(\x05R\bposition\x123\n" +
+	"\bposition\x18\x03 \x01(\x05R\bposition\x127\n" +
 	"\n" +
-	"block_type\x18\x04 \x01(\x0e2\x14.postpb.v1.BlockTypeR\tblockType\x12\x14\n" +
+	"block_type\x18\x04 \x01(\x0e2\x18.api.postpb.v1.BlockTypeR\tblockType\x12\x14\n" +
 	"\x05media\x18\x05 \x01(\tR\x05media\x12\x12\n" +
-	"\x04text\x18\x06 \x01(\tR\x04text\"k\n" +
-	"\rCreateRequest\x12#\n" +
-	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\x125\n" +
-	"\vpost_blocks\x18\x02 \x03(\v2\x14.postpb.v1.PostBlockR\n" +
-	"postBlocks\"\x1c\n" +
+	"\x04text\x18\x06 \x01(\tR\x04text\"s\n" +
+	"\rCreateRequest\x12'\n" +
+	"\x04post\x18\x01 \x01(\v2\x13.api.postpb.v1.PostR\x04post\x129\n" +
+	"\vpost_blocks\x18\x02 \x03(\v2\x18.api.postpb.v1.PostBlockR\n" +
+	"postBlocks\"G\n" +
+	"\x0eCreateResponse\x125\n" +
+	"\n" +
+	"id_version\x18\x01 \x01(\v2\x16.commonpb.v1.IDVersionR\tidVersion\"\x1c\n" +
 	"\n" +
 	"GetRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"i\n" +
-	"\vGetResponse\x12#\n" +
-	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\x125\n" +
-	"\vpost_blocks\x18\x02 \x03(\v2\x14.postpb.v1.PostBlockR\n" +
-	"postBlocks\"\x94\x01\n" +
-	"\x16PostBlockUpdateRequest\x120\n" +
-	"\binserted\x18\x01 \x03(\v2\x14.postpb.v1.PostBlockR\binserted\x12.\n" +
-	"\aupdated\x18\x02 \x03(\v2\x14.postpb.v1.PostBlockR\aupdated\x12\x18\n" +
-	"\adeleted\x18\x03 \x03(\x03R\adeleted\"\x85\x01\n" +
-	"\rUpdateRequest\x12#\n" +
-	"\x04post\x18\x01 \x01(\v2\x0f.postpb.v1.PostR\x04post\x12O\n" +
-	"\x12post_block_request\x18\x02 \x01(\v2!.postpb.v1.PostBlockUpdateRequestR\x10postBlockRequest\"Z\n" +
+	"\x02id\x18\x01 \x01(\x03R\x02id\"q\n" +
+	"\vGetResponse\x12'\n" +
+	"\x04post\x18\x01 \x01(\v2\x13.api.postpb.v1.PostR\x04post\x129\n" +
+	"\vpost_blocks\x18\x02 \x03(\v2\x18.api.postpb.v1.PostBlockR\n" +
+	"postBlocks\"\x9c\x01\n" +
+	"\x16PostBlockUpdateRequest\x124\n" +
+	"\binserted\x18\x01 \x03(\v2\x18.api.postpb.v1.PostBlockR\binserted\x122\n" +
+	"\aupdated\x18\x02 \x03(\v2\x18.api.postpb.v1.PostBlockR\aupdated\x12\x18\n" +
+	"\adeleted\x18\x03 \x03(\x03R\adeleted\"\x8d\x01\n" +
+	"\rUpdateRequest\x12'\n" +
+	"\x04post\x18\x01 \x01(\v2\x13.api.postpb.v1.PostR\x04post\x12S\n" +
+	"\x12post_block_request\x18\x02 \x01(\v2%.api.postpb.v1.PostBlockUpdateRequestR\x10postBlockRequest\"G\n" +
+	"\x0eUpdateResponse\x125\n" +
+	"\n" +
+	"id_version\x18\x01 \x01(\v2\x16.commonpb.v1.IDVersionR\tidVersion\"Z\n" +
 	"\rDeleteRequest\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x129\n" +
 	"\n" +
-	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt*[\n" +
+	"updated_at\x18\x02 \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\"\x10\n" +
+	"\x0eDeleteResponse*[\n" +
 	"\n" +
 	"PostStatus\x12\x1b\n" +
 	"\x17POST_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
@@ -676,12 +806,12 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\tBlockType\x12\x1a\n" +
 	"\x16BLOCK_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11BLOCK_TYPE_HEADER\x10\x01\x12\x13\n" +
-	"\x0fBLOCK_TYPE_TEXT\x10\x022\xd7\x02\n" +
-	"\vPostService\x12S\n" +
-	"\x06Create\x12\x18.postpb.v1.CreateRequest\x1a\x16.commonpb.v1.IDVersion\"\x17\x82\xd3\xe4\x93\x02\x11:\x04post\"\t/v1/post/\x12K\n" +
-	"\x03Get\x12\x15.postpb.v1.GetRequest\x1a\x16.postpb.v1.GetResponse\"\x15\x82\xd3\xe4\x93\x02\x0f\x12\r/v1/post/{id}\x12S\n" +
-	"\x06Update\x12\x18.postpb.v1.UpdateRequest\x1a\x16.commonpb.v1.IDVersion\"\x17\x82\xd3\xe4\x93\x02\x11:\x04post2\t/v1/post/\x12Q\n" +
-	"\x06Delete\x12\x18.postpb.v1.DeleteRequest\x1a\x16.google.protobuf.Empty\"\x15\x82\xd3\xe4\x93\x02\x0f*\r/v1/post/{id}BEZCgithub.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1;postpbb\x06proto3"
+	"\x0fBLOCK_TYPE_TEXT\x10\x022\x8e\x03\n" +
+	"\vPostService\x12a\n" +
+	"\x06Create\x12\x1c.api.postpb.v1.CreateRequest\x1a\x1d.api.postpb.v1.CreateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x04post\"\f/api/v1/post\x12W\n" +
+	"\x03Get\x12\x19.api.postpb.v1.GetRequest\x1a\x1a.api.postpb.v1.GetResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/v1/post/{id}\x12a\n" +
+	"\x06Update\x12\x1c.api.postpb.v1.UpdateRequest\x1a\x1d.api.postpb.v1.UpdateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x04post2\f/api/v1/post\x12`\n" +
+	"\x06Delete\x12\x1c.api.postpb.v1.DeleteRequest\x1a\x1d.api.postpb.v1.DeleteResponse\"\x19\x82\xd3\xe4\x93\x02\x13*\x11/api/v1/post/{id}BEZCgithub.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1;postpbb\x06proto3"
 
 var (
 	file_api_postpb_v1_post_proto_rawDescOnce sync.Once
@@ -696,49 +826,53 @@ func file_api_postpb_v1_post_proto_rawDescGZIP() []byte {
 }
 
 var file_api_postpb_v1_post_proto_enumTypes = make([]protoimpl.EnumInfo, 2)
-var file_api_postpb_v1_post_proto_msgTypes = make([]protoimpl.MessageInfo, 8)
+var file_api_postpb_v1_post_proto_msgTypes = make([]protoimpl.MessageInfo, 11)
 var file_api_postpb_v1_post_proto_goTypes = []any{
-	(PostStatus)(0),                // 0: postpb.v1.PostStatus
-	(BlockType)(0),                 // 1: postpb.v1.BlockType
-	(*Post)(nil),                   // 2: postpb.v1.Post
-	(*PostBlock)(nil),              // 3: postpb.v1.PostBlock
-	(*CreateRequest)(nil),          // 4: postpb.v1.CreateRequest
-	(*GetRequest)(nil),             // 5: postpb.v1.GetRequest
-	(*GetResponse)(nil),            // 6: postpb.v1.GetResponse
-	(*PostBlockUpdateRequest)(nil), // 7: postpb.v1.PostBlockUpdateRequest
-	(*UpdateRequest)(nil),          // 8: postpb.v1.UpdateRequest
-	(*DeleteRequest)(nil),          // 9: postpb.v1.DeleteRequest
-	(*timestamppb.Timestamp)(nil),  // 10: google.protobuf.Timestamp
-	(*v1.IDVersion)(nil),           // 11: commonpb.v1.IDVersion
-	(*emptypb.Empty)(nil),          // 12: google.protobuf.Empty
+	(PostStatus)(0),                // 0: api.postpb.v1.PostStatus
+	(BlockType)(0),                 // 1: api.postpb.v1.BlockType
+	(*Post)(nil),                   // 2: api.postpb.v1.Post
+	(*PostBlock)(nil),              // 3: api.postpb.v1.PostBlock
+	(*CreateRequest)(nil),          // 4: api.postpb.v1.CreateRequest
+	(*CreateResponse)(nil),         // 5: api.postpb.v1.CreateResponse
+	(*GetRequest)(nil),             // 6: api.postpb.v1.GetRequest
+	(*GetResponse)(nil),            // 7: api.postpb.v1.GetResponse
+	(*PostBlockUpdateRequest)(nil), // 8: api.postpb.v1.PostBlockUpdateRequest
+	(*UpdateRequest)(nil),          // 9: api.postpb.v1.UpdateRequest
+	(*UpdateResponse)(nil),         // 10: api.postpb.v1.UpdateResponse
+	(*DeleteRequest)(nil),          // 11: api.postpb.v1.DeleteRequest
+	(*DeleteResponse)(nil),         // 12: api.postpb.v1.DeleteResponse
+	(*timestamppb.Timestamp)(nil),  // 13: google.protobuf.Timestamp
+	(*v1.IDVersion)(nil),           // 14: commonpb.v1.IDVersion
 }
 var file_api_postpb_v1_post_proto_depIdxs = []int32{
-	0,  // 0: postpb.v1.Post.post_status:type_name -> postpb.v1.PostStatus
-	10, // 1: postpb.v1.Post.created_at:type_name -> google.protobuf.Timestamp
-	10, // 2: postpb.v1.Post.updated_at:type_name -> google.protobuf.Timestamp
-	1,  // 3: postpb.v1.PostBlock.block_type:type_name -> postpb.v1.BlockType
-	2,  // 4: postpb.v1.CreateRequest.post:type_name -> postpb.v1.Post
-	3,  // 5: postpb.v1.CreateRequest.post_blocks:type_name -> postpb.v1.PostBlock
-	2,  // 6: postpb.v1.GetResponse.post:type_name -> postpb.v1.Post
-	3,  // 7: postpb.v1.GetResponse.post_blocks:type_name -> postpb.v1.PostBlock
-	3,  // 8: postpb.v1.PostBlockUpdateRequest.inserted:type_name -> postpb.v1.PostBlock
-	3,  // 9: postpb.v1.PostBlockUpdateRequest.updated:type_name -> postpb.v1.PostBlock
-	2,  // 10: postpb.v1.UpdateRequest.post:type_name -> postpb.v1.Post
-	7,  // 11: postpb.v1.UpdateRequest.post_block_request:type_name -> postpb.v1.PostBlockUpdateRequest
-	10, // 12: postpb.v1.DeleteRequest.updated_at:type_name -> google.protobuf.Timestamp
-	4,  // 13: postpb.v1.PostService.Create:input_type -> postpb.v1.CreateRequest
-	5,  // 14: postpb.v1.PostService.Get:input_type -> postpb.v1.GetRequest
-	8,  // 15: postpb.v1.PostService.Update:input_type -> postpb.v1.UpdateRequest
-	9,  // 16: postpb.v1.PostService.Delete:input_type -> postpb.v1.DeleteRequest
-	11, // 17: postpb.v1.PostService.Create:output_type -> commonpb.v1.IDVersion
-	6,  // 18: postpb.v1.PostService.Get:output_type -> postpb.v1.GetResponse
-	11, // 19: postpb.v1.PostService.Update:output_type -> commonpb.v1.IDVersion
-	12, // 20: postpb.v1.PostService.Delete:output_type -> google.protobuf.Empty
-	17, // [17:21] is the sub-list for method output_type
-	13, // [13:17] is the sub-list for method input_type
-	13, // [13:13] is the sub-list for extension type_name
-	13, // [13:13] is the sub-list for extension extendee
-	0,  // [0:13] is the sub-list for field type_name
+	0,  // 0: api.postpb.v1.Post.post_status:type_name -> api.postpb.v1.PostStatus
+	13, // 1: api.postpb.v1.Post.created_at:type_name -> google.protobuf.Timestamp
+	13, // 2: api.postpb.v1.Post.updated_at:type_name -> google.protobuf.Timestamp
+	1,  // 3: api.postpb.v1.PostBlock.block_type:type_name -> api.postpb.v1.BlockType
+	2,  // 4: api.postpb.v1.CreateRequest.post:type_name -> api.postpb.v1.Post
+	3,  // 5: api.postpb.v1.CreateRequest.post_blocks:type_name -> api.postpb.v1.PostBlock
+	14, // 6: api.postpb.v1.CreateResponse.id_version:type_name -> commonpb.v1.IDVersion
+	2,  // 7: api.postpb.v1.GetResponse.post:type_name -> api.postpb.v1.Post
+	3,  // 8: api.postpb.v1.GetResponse.post_blocks:type_name -> api.postpb.v1.PostBlock
+	3,  // 9: api.postpb.v1.PostBlockUpdateRequest.inserted:type_name -> api.postpb.v1.PostBlock
+	3,  // 10: api.postpb.v1.PostBlockUpdateRequest.updated:type_name -> api.postpb.v1.PostBlock
+	2,  // 11: api.postpb.v1.UpdateRequest.post:type_name -> api.postpb.v1.Post
+	8,  // 12: api.postpb.v1.UpdateRequest.post_block_request:type_name -> api.postpb.v1.PostBlockUpdateRequest
+	14, // 13: api.postpb.v1.UpdateResponse.id_version:type_name -> commonpb.v1.IDVersion
+	13, // 14: api.postpb.v1.DeleteRequest.updated_at:type_name -> google.protobuf.Timestamp
+	4,  // 15: api.postpb.v1.PostService.Create:input_type -> api.postpb.v1.CreateRequest
+	6,  // 16: api.postpb.v1.PostService.Get:input_type -> api.postpb.v1.GetRequest
+	9,  // 17: api.postpb.v1.PostService.Update:input_type -> api.postpb.v1.UpdateRequest
+	11, // 18: api.postpb.v1.PostService.Delete:input_type -> api.postpb.v1.DeleteRequest
+	5,  // 19: api.postpb.v1.PostService.Create:output_type -> api.postpb.v1.CreateResponse
+	7,  // 20: api.postpb.v1.PostService.Get:output_type -> api.postpb.v1.GetResponse
+	10, // 21: api.postpb.v1.PostService.Update:output_type -> api.postpb.v1.UpdateResponse
+	12, // 22: api.postpb.v1.PostService.Delete:output_type -> api.postpb.v1.DeleteResponse
+	19, // [19:23] is the sub-list for method output_type
+	15, // [15:19] is the sub-list for method input_type
+	15, // [15:15] is the sub-list for extension type_name
+	15, // [15:15] is the sub-list for extension extendee
+	0,  // [0:15] is the sub-list for field type_name
 }
 
 func init() { file_api_postpb_v1_post_proto_init() }
@@ -752,7 +886,7 @@ func file_api_postpb_v1_post_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_api_postpb_v1_post_proto_rawDesc), len(file_api_postpb_v1_post_proto_rawDesc)),
 			NumEnums:      2,
-			NumMessages:   8,
+			NumMessages:   11,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

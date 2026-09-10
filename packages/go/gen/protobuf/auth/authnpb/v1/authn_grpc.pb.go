@@ -19,9 +19,9 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	AuthnService_Register_FullMethodName   = "/auth.authn.v1.AuthnService/Register"
-	AuthnService_Login_FullMethodName      = "/auth.authn.v1.AuthnService/Login"
-	AuthnService_RefreshJWT_FullMethodName = "/auth.authn.v1.AuthnService/RefreshJWT"
+	AuthnService_Register_FullMethodName   = "/auth.authnpb.v1.AuthnService/Register"
+	AuthnService_Login_FullMethodName      = "/auth.authnpb.v1.AuthnService/Login"
+	AuthnService_RefreshJWT_FullMethodName = "/auth.authnpb.v1.AuthnService/RefreshJWT"
 )
 
 // AuthnServiceClient is the client API for AuthnService service.
@@ -176,7 +176,7 @@ func _AuthnService_RefreshJWT_Handler(srv interface{}, ctx context.Context, dec 
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
 var AuthnService_ServiceDesc = grpc.ServiceDesc{
-	ServiceName: "auth.authn.v1.AuthnService",
+	ServiceName: "auth.authnpb.v1.AuthnService",
 	HandlerType: (*AuthnServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{

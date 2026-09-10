@@ -7,7 +7,7 @@
 /* eslint-disable */
 import type { User } from "../../userpb/v1/user";
 
-export const protobufPackage = "auth.authn.v1";
+export const protobufPackage = "auth.authnpb.v1";
 
 export interface RegisterRequest {
   user: User | undefined;

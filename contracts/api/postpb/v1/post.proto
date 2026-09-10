@@ -1,9 +1,8 @@
 syntax = "proto3";
 
 option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1;postpb";
-package postpb.v1;
+package api.postpb.v1;
 
-import "google/protobuf/empty.proto";
 import "google/protobuf/timestamp.proto";
 
 import "google/api/annotations.proto";
@@ -11,31 +10,30 @@ import "google/api/annotations.proto";
 import "commonpb/v1/common.proto";
 
 service PostService {
-  rpc Create (CreateRequest) returns (commonpb.v1.IDVersion)
+  rpc Create (CreateRequest) returns (CreateResponse)
   {
     option (google.api.http) = {
-      post: "/v1/post/"
+      post: "/api/v1/post"
       body: "post"
     };
   };
   rpc Get (GetRequest) returns (GetResponse)
   {
     option (google.api.http) = {
-      get: "/v1/post/{id}"
+      get: "/api/v1/post/{id}"
     };
   };
-  rpc Update (UpdateRequest) returns (commonpb.v1.IDVersion) {
+  rpc Update (UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
-      patch: "/v1/post/"
+      patch: "/api/v1/post"
       body : "post"
     };
   };
-  rpc Delete (DeleteRequest) returns (google.protobuf.Empty) {
+  rpc Delete (DeleteRequest) returns (DeleteResponse) {
     option (google.api.http) = {
-      delete: "/v1/post/{id}"
+      delete: "/api/v1/post/{id}"
     };
   };
-
 }
 
 enum PostStatus {
@@ -78,6 +76,10 @@ message CreateRequest {
   repeated PostBlock post_blocks = 2;
 }
 
+message CreateResponse {
+  commonpb.v1.IDVersion id_version = 1;
+}
+
 message GetRequest {
   int64 id = 1;
 }
@@ -98,7 +100,13 @@ message UpdateRequest {
   PostBlockUpdateRequest post_block_request = 2;
 }
 
+message UpdateResponse {
+  commonpb.v1.IDVersion id_version = 1;
+}
+
 message DeleteRequest {
   int64                     id         = 1;
   google.protobuf.Timestamp updated_at = 2;
 }
+
+message DeleteResponse {}

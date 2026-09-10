@@ -9,7 +9,6 @@ package userpb
 import (
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
-	_ "google.golang.org/protobuf/types/known/timestamppb"
 	reflect "reflect"
 	sync "sync"
 	unsafe "unsafe"
@@ -86,7 +85,7 @@ var File_auth_userpb_v1_user_proto protoreflect.FileDescriptor
 
 const file_auth_userpb_v1_user_proto_rawDesc = "" +
 	"\n" +
-	"\x19auth/userpb/v1/user.proto\x12\x0eauth.userpb.v1\x1a\x1fgoogle/protobuf/timestamp.proto\"H\n" +
+	"\x19auth/userpb/v1/user.proto\x12\x0eauth.userpb.v1\"H\n" +
 	"\x04User\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x1a\n" +
 	"\busername\x18\x02 \x01(\tR\busername\x12\x14\n" +

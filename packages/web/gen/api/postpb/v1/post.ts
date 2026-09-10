@@ -6,9 +6,8 @@
 
 /* eslint-disable */
 import type { IDVersion } from "../../../commonpb/v1/common";
-import type { Empty } from "../../../google/protobuf/empty";
 
-export const protobufPackage = "postpb.v1";
+export const protobufPackage = "api.postpb.v1";
 
 export enum PostStatus {
   POST_STATUS_UNSPECIFIED = 0,
@@ -49,6 +48,10 @@ export interface CreateRequest {
   postBlocks: PostBlock[];
 }
 
+export interface CreateResponse {
+  idVersion: IDVersion | undefined;
+}
+
 export interface GetRequest {
   id: number;
 }
@@ -69,14 +72,21 @@ export interface UpdateRequest {
   postBlockRequest: PostBlockUpdateRequest | undefined;
 }
 
+export interface UpdateResponse {
+  idVersion: IDVersion | undefined;
+}
+
 export interface DeleteRequest {
   id: number;
   updatedAt: Date | undefined;
 }
 
+export interface DeleteResponse {
+}
+
 export interface PostService {
-  Create(request: CreateRequest): Promise<IDVersion>;
+  Create(request: CreateRequest): Promise<CreateResponse>;
   Get(request: GetRequest): Promise<GetResponse>;
-  Update(request: UpdateRequest): Promise<IDVersion>;
-  Delete(request: DeleteRequest): Promise<Empty>;
+  Update(request: UpdateRequest): Promise<UpdateResponse>;
+  Delete(request: DeleteRequest): Promise<DeleteResponse>;
 }
