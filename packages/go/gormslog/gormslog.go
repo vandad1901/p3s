@@ -10,7 +10,7 @@ import (
 )
 
 func New(logger *slog.Logger) *GormSlog {
-	return &GormSlog{logger: logger}
+	return &GormSlog{logger: logger.With("source", "gorm")}
 }
 
 type GormSlog struct {
