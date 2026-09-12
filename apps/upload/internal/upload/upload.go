@@ -79,7 +79,7 @@ func (s *Service) FinalizeUpload(ctx context.Context, pKey string) error {
 
 	res, err := s.s3Client.HeadObject(ctx, params)
 	if err != nil {
-		return fmt.Errorf("checking if file exists: %w", err)
+		return fmt.Errorf("checking if file with key %s exists: %w", key, err)
 	}
 
 	if *res.ContentLength == 0 {
