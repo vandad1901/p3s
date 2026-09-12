@@ -1,6 +1,6 @@
-CREATE TABLE IF NOT EXISTS mq_message(
+CREATE TABLE IF NOT EXISTS upload_message(
     id bigint PRIMARY KEY GENERATED ALWAYS AS IDENTITY,
-    claim_id UUID NOT NULL,
+    claim_id uuid NOT NULL,
     ---
     exchange_key varchar(255) NOT NULL,
     routing_key varchar(255) NOT NULL,

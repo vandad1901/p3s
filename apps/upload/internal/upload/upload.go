@@ -82,11 +82,18 @@ func (s *Service) FinalizeUpload(ctx context.Context, pKey string) error {
 		return fmt.Errorf("checking if file exists: %w", err)
 	}
 
-	if *res.ContentLength > 0 {
+	if *res.ContentLength == 0 {
 		return apperror.NotFound("upload.finalize.mediaNotFound")
 	}
 
-	// TODO: enqueue in outbox
+	err = s.outboxService.Enqueue(ctx, &outbox.Message{
+		RoutingKey: "media",
+
+		MessageBody: []byte(key),
+	})
+	if err != nil {
+		return fmt.Errorf("enqueueing message: %w", err)
+	}
 
 	return nil
 }

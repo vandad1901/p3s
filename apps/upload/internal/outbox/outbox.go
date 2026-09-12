@@ -21,5 +21,5 @@ type Message struct {
 }
 
 func (m *Message) TableName() string {
-	return "mq_message"
+	return "upload_message"
 }
