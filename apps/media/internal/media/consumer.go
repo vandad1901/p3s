@@ -54,6 +54,8 @@ func (s *Service) GracefulShutdown(ctx context.Context) {
 	s.consumer.CloseWithContext(ctx)
 }
 
+const s3Bucket = "p3s-upload-bucket"
+
 func (s *Service) handleMedia(ctx context.Context, key string) error {
 	queuedAt, err := s.takeLease(ctx, key)
 	if err != nil {
@@ -61,7 +63,7 @@ func (s *Service) handleMedia(ctx context.Context, key string) error {
 	}
 
 	res, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
-		Bucket: aws.String("p3s-upload-bucket"),
+		Bucket: aws.String(s3Bucket),
 		Key:    aws.String(key),
 	})
 	if err != nil {
@@ -85,7 +87,7 @@ func (s *Service) handleMedia(ctx context.Context, key string) error {
 		}
 
 		_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-			Bucket: aws.String("p3s-upload-bucket"),
+			Bucket: aws.String(s3Bucket),
 			Key:    aws.String(fmt.Sprintf("%s.%s", key, derivative.Extension)),
 			Body:   derivative.file,
 		})
