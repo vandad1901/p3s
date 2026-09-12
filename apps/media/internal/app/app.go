@@ -104,7 +104,8 @@ func (a *App) Shutdown() {
 		shutdownWG.Go(func() {
 			if a.mediaConsumer != nil {
 				a.logger.Info("Shutting down consumer")
-				a.mediaConsumer.CloseWithContext(ctx)
+
+				a.mediaService.GracefulShutdown(ctx)
 			}
 		})
 
