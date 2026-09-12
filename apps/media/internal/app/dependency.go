@@ -11,6 +11,7 @@ import (
 	"github.com/vandad1901/p3s/apps/media/internal/config"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	"github.com/vandad1901/p3s/packages/go/gormslog"
+	"github.com/vandad1901/p3s/packages/go/rmqslog"
 	"github.com/wagslane/go-rabbitmq"
 )
 
@@ -93,7 +94,10 @@ func initializeRabbitMQ(a *App, cfg *config.Config) error {
 		return fmt.Errorf("connect to RabbitMQ: %w", err)
 	}
 
-	a.mediaConsumer, err = rabbitmq.NewConsumer(a.rmqConn, "media")
+	a.mediaConsumer, err = rabbitmq.NewConsumer(a.rmqConn, "media",
+		rabbitmq.WithConsumerOptionsConsumerAutoAck(false),
+		rabbitmq.WithConsumerOptionsLogger(rmqslog.New(a.logger)),
+	)
 	if err != nil {
 		return fmt.Errorf("create consumer: %w", err)
 	}

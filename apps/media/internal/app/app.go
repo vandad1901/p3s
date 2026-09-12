@@ -55,7 +55,11 @@ func MustBoot(cfg *config.Config) *App {
 
 func (a *App) Serve(_ *config.Config) error {
 	servers := []func() error{
-		func() error { return a.mediaService.RunLoop() },
+		func() error {
+			a.logger.Info("Starting media consumer loop")
+
+			return a.mediaService.RunLoop()
+		},
 	}
 
 	var runnerWG sync.WaitGroup
