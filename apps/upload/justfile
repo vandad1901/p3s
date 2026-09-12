@@ -23,27 +23,27 @@ NORMAL := '\033[0m'
     echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }}{{ NORMAL }} Applying migrations to database"
     migrate -database "postgres://$UPLOAD_PG_USER:$UPLOAD_PG_PASSWORD@$UPLOAD_PG_HOST:$UPLOAD_PG_PORT/$UPLOAD_PG_DATABASE?sslmode=disable&x-migrations-table=upload_schema_migrations" -path ./migrations up
 
-    # echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }} {{ GREEN }}Creating{{ NORMAL }} S3 bucket"
-    # AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
-    # AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
-    # AWS_PAGER="" \
-    # aws s3api create-bucket \
-    #     --bucket "p3s-upload-bucket" \
-    #     --endpoint-url "$UPLOAD_S3_ENDPOINT"
+    echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }} {{ GREEN }}Creating{{ NORMAL }} S3 bucket"
+    AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
+    AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
+    AWS_PAGER="" \
+    aws s3api create-bucket \
+        --bucket "p3s-upload-bucket" \
+        --endpoint-url "$UPLOAD_S3_ENDPOINT"
 
 @db-down:
-    # echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }} {{ RED }}Clearing{{ NORMAL }} S3 bucket"
-    # AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
-    # AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
-    # AWS_PAGER="" \
-    # aws s3 rm "s3://p3s-upload-bucket" \
-    # --recursive \
-    # --endpoint-url "$UPLOAD_S3_ENDPOINT"
+    echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }} {{ RED }}Clearing{{ NORMAL }} S3 bucket"
+    AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
+    AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
+    AWS_PAGER="" \
+    aws s3 rm "s3://p3s-upload-bucket" \
+    --recursive \
+    --endpoint-url "$UPLOAD_S3_ENDPOINT"
 
-    # echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }} {{ RED }}Removing{{ NORMAL }} S3 bucket"
-    # AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
-    # AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
-    # AWS_PAGER="" \
-    # aws s3api delete-bucket \
-    #     --bucket "p3s-upload-bucket" \
-    #     --endpoint-url "$UPLOAD_S3_ENDPOINT" 
+    echo "{{ YELLOW }}[i] {{ BLUE }}upload{{ NORMAL }} {{ RED }}Removing{{ NORMAL }} S3 bucket"
+    AWS_ACCESS_KEY_ID="$UPLOAD_S3_ROOT_USERNAME" \
+    AWS_SECRET_ACCESS_KEY="$UPLOAD_S3_ROOT_PASSWORD" \
+    AWS_PAGER="" \
+    aws s3api delete-bucket \
+        --bucket "p3s-upload-bucket" \
+        --endpoint-url "$UPLOAD_S3_ENDPOINT" 
