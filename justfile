@@ -57,10 +57,17 @@ set shell := ["sh", "-cu"]
         --env-file apps/media/.env \
         exec {{ ARGS }}
 
+@db-up:
+    just auth db-up
+    just api db-up
+    just upload db-up
+    just media db-up
+
 @db:
     just auth db-reset
     just api db-reset
     just upload db-reset
+    just media db-reset
 
 @run:
     just auth run & \

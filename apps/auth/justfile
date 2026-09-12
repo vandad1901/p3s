@@ -16,9 +16,15 @@ NORMAL := '\033[0m'
     go test -tags test ./...
 
 @db-reset:
-    echo "{{ YELLOW }}[i] {{ RED }}Dropping{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
-    PGPASSWORD="$AUTH_PG_PASSWORD" dropdb --force --if-exists -h "$AUTH_PG_HOST" -p "$AUTH_PG_PORT" -U "$AUTH_PG_USER" "$AUTH_PG_DATABASE"
-    echo "{{ YELLOW }}[i] {{ GREEN }}Creating{{ NORMAL }} database: {{ BLUE }}auth{{ NORMAL }}"
+    just db-down
+    just db-up
+
+@db-up:
+    echo "{{ YELLOW }}[i] {{ BLUE }}auth{{ NORMAL }} {{ GREEN }}Creating{{ NORMAL }} database"
     PGPASSWORD="$AUTH_PG_PASSWORD" createdb -h "$AUTH_PG_HOST" -p "$AUTH_PG_PORT" -U "$AUTH_PG_USER" "$AUTH_PG_DATABASE"
-    echo "{{ YELLOW }}[i]{{ NORMAL }} Applying migrations to database: {{ BLUE }}auth{{ NORMAL }}"
+    echo "{{ YELLOW }}[i] {{ BLUE }}auth{{ NORMAL }}{{ NORMAL }} Applying migrations to database"
     migrate -database "postgres://$AUTH_PG_USER:$AUTH_PG_PASSWORD@$AUTH_PG_HOST:$AUTH_PG_PORT/$AUTH_PG_DATABASE?sslmode=disable" -path ./migrations up
+
+@db-down:
+    echo "{{ YELLOW }}[i] {{ BLUE }}auth{{ NORMAL }} {{ RED }}Dropping{{ NORMAL }} database"
+    PGPASSWORD="$AUTH_PG_PASSWORD" dropdb --force --if-exists -h "$AUTH_PG_HOST" -p "$AUTH_PG_PORT" -U "$AUTH_PG_USER" "$AUTH_PG_DATABASE"

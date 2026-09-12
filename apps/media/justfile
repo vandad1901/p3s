@@ -14,3 +14,16 @@ NORMAL := '\033[0m'
 
 @test:
     go test -tags test ./...
+
+@db-reset:
+    just db-up
+
+@db-up:
+    # echo "{{ YELLOW }}[i] {{ BLUE }}media{{ NORMAL }} {{ GREEN }}Creating{{ NORMAL }} database"
+    # PGPASSWORD="$MEDIA_PG_PASSWORD" createdb -h "$MEDIA_PG_HOST" -p "$MEDIA_PG_PORT" -U "$MEDIA_PG_USER" "$MEDIA_PG_DATABASE"
+    echo "{{ YELLOW }}[i] {{ BLUE }}media{{ NORMAL }} Applying migrations to database"
+    migrate -database "postgres://$MEDIA_PG_USER:$MEDIA_PG_PASSWORD@$MEDIA_PG_HOST:$MEDIA_PG_PORT/$MEDIA_PG_DATABASE?sslmode=disable&x-migrations-table=media_schema_migrations" -path ./migrations up
+
+# @db-down:
+#     echo "{{ YELLOW }}[i] {{ BLUE }}media{{ NORMAL }} {{ RED }}Dropping{{ NORMAL }} database"
+#     PGPASSWORD="$MEDIA_PG_PASSWORD" dropdb --force --if-exists -h "$MEDIA_PG_HOST" -p "$MEDIA_PG_PORT" -U "$MEDIA_PG_USER" "$MEDIA_PG_DATABASE"
