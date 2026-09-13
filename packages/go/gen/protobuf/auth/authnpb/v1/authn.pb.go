@@ -420,7 +420,7 @@ const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
 	"\bRegister\x12 .auth.authnpb.v1.RegisterRequest\x1a!.auth.authnpb.v1.RegisterResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/auth/v1/authn/register\x12g\n" +
 	"\x05Login\x12\x1d.auth.authnpb.v1.LoginRequest\x1a\x1e.auth.authnpb.v1.LoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/auth/v1/authn/login\x12x\n" +
 	"\n" +
-	"RefreshJWT\x12\".auth.authnpb.v1.RefreshJWTRequest\x1a#.auth.authnpb.v1.RefreshJWTResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/auth/v1/authn/refreshBGZEgithub.com/vandad1901/p3s/packages/go/gen/protobuf/authnpb/v1;authnpbb\x06proto3"
+	"RefreshJWT\x12\".auth.authnpb.v1.RefreshJWTRequest\x1a#.auth.authnpb.v1.RefreshJWTResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/auth/v1/authn/refreshBLZJgithub.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1;authnpbb\x06proto3"
 
 var (
 	file_auth_authnpb_v1_authn_proto_rawDescOnce sync.Once

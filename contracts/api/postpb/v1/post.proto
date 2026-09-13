@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/postpb/v1;postpb";
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/api/postpb/v1;postpb";
 package api.postpb.v1;
 
 import "google/protobuf/timestamp.proto";

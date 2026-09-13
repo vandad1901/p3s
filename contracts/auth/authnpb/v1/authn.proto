@@ -1,6 +1,6 @@
 syntax = "proto3";
 
-option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/authnpb/v1;authnpb";
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1;authnpb";
 package auth.authnpb.v1;
 
 import "google/protobuf/timestamp.proto";
