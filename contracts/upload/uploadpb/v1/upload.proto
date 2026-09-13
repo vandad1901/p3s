@@ -1,0 +1,24 @@
+syntax = "proto3";
+
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/upload/uploadpb/v1;uploadpb";
+package upload.uploadpb.v1;
+
+service UploadService {
+  rpc GenerateURL(GenerateURLRequest) returns (GenerateURLResponse) {}
+  rpc FinalizeUpload(FinalizeUploadRequest) returns (FinalizeUploadResponse){}
+}
+
+message GenerateURLRequest {
+  string media_key = 1;
+}
+
+message GenerateURLResponse {
+  string              url    = 1;
+  map<string, string> fields = 2;
+}
+
+message FinalizeUploadRequest {
+  string media_key = 1;
+}
+
+message FinalizeUploadResponse {}

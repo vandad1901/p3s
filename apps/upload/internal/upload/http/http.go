@@ -27,12 +27,15 @@ func (h *UploadHandler) UploadFile(c echo.Context) error {
 		return errMissingKey
 	}
 
-	res, err := h.uploadService.GenerateURL(c.Request().Context(), key)
+	url, fields, err := h.uploadService.GenerateURL(c.Request().Context(), key)
 	if err != nil {
 		return fmt.Errorf("uploading file: %w", err)
 	}
 
-	err = c.JSON(http.StatusOK, res)
+	err = c.JSON(http.StatusOK, map[string]any{
+		"url":    url,
+		"fields": fields,
+	})
 	if err != nil {
 		return fmt.Errorf("sending response: %w", err)
 	}

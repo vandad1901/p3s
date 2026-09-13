@@ -35,10 +35,10 @@ func NewService(s3Client *s3.Client, s3PresignClient *s3.PresignClient,
 	}
 }
 
-func (s *Service) GenerateURL(ctx context.Context, pKey string) (map[string]any, error) {
+func (s *Service) GenerateURL(ctx context.Context, pKey string) (string, map[string]string, error) {
 	userID, err := usercontext.CtxUser(ctx)
 	if err != nil {
-		return nil, err
+		return "", nil, err
 	}
 
 	key := fmt.Sprintf("%d/%s", userID, pKey)
@@ -55,13 +55,10 @@ func (s *Service) GenerateURL(ctx context.Context, pKey string) (map[string]any,
 		}
 	})
 	if err != nil {
-		return nil, fmt.Errorf("generating upload URL: %w", err)
+		return "", nil, fmt.Errorf("generating upload URL: %w", err)
 	}
 
-	return map[string]any{
-		"url":    resp.URL,
-		"fields": resp.Values,
-	}, nil
+	return resp.URL, resp.Values, nil
 }
 
 func (s *Service) FinalizeUpload(ctx context.Context, pKey string) error {
