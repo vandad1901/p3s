@@ -5,8 +5,6 @@ import (
 	"fmt"
 
 	"github.com/vandad1901/p3s/apps/auth/internal/authn"
-	"github.com/vandad1901/p3s/apps/auth/internal/identity"
-	"github.com/vandad1901/p3s/apps/auth/internal/session"
 	"github.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1"
 	"google.golang.org/grpc"
 )
@@ -14,17 +12,13 @@ import (
 type AuthnRPCServer struct {
 	authnpb.UnsafeAuthnServiceServer
 
-	authnService    *authn.Service
-	identityService *identity.Service
-	sessionService  *session.Service
+	authnService *authn.Service
 }
 
 func Register(s *grpc.Server,
-	authnService *authn.Service, identityService *identity.Service, sessionService *session.Service) {
+	authnService *authn.Service) {
 	authnpb.RegisterAuthnServiceServer(s, &AuthnRPCServer{
-		authnService:    authnService,
-		identityService: identityService,
-		sessionService:  sessionService,
+		authnService: authnService,
 	})
 }
 

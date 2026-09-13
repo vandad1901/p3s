@@ -21,8 +21,7 @@ func initializeGRPC(a *App, cfg *config.Config) {
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
-	authnrpc.Register(grpcServer,
-		a.AuthnService, a.identityService, a.SessionService)
+	authnrpc.Register(grpcServer, a.AuthnService)
 
 	if cfg.Environment == envutil.Development {
 		reflection.Register(grpcServer)
