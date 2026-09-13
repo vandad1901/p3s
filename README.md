@@ -1,48 +1,77 @@
-# Blog Platform
+# P3S Blog Platform
 
-Go microservices + Angular frontend. A blogging platform where posts are composed from blocks of text and media. Media is handled by a dedicated pipeline: uploads land in MinIO (S3-compatible), and RabbitMQ-driven workers process them asynchronously (thumbnails, normalization).
+A blogging platform written in Go. Build from the ground up with distributed system principles for reliability, scalability, and security. This codebase is a showcase of modern Go practices, including:
+
+- gRPC + Envoy REST gateway
+- Protobuf contracts + code-gen pipeline
+- JWT + refresh tokens, JWKS
+- Bucketed media uploads + dedicated media-ingest worker
+- asynchronous, decoupled services with independent deployments
 
 ## Architecture
 
-Protobuf contracts in `contracts/` are the single source of truth (generated into `packages/go/gen` + `packages/web/gen`). Services are independent gRPC apps that validate access tokens locally against the auth JWKS and coordinate asynchronously over an event bus:
+Protobuf contracts are the single source of truth. Services are independent gRPC apps that validate access tokens locally against the auth JWKS and coordinate asynchronously over an event bus:
 
 ```
 web ──▶ Envoy ──▶ auth (identity, JWT, sessions)
             └────▶ api (post CRUD, postgres)
-            └────▶ upload ──▶ MinIO
+            └────▶ upload ──▶ Silo
                           │
-                          │ publish
-                          ▼
-                     RabbitMQ ──▶ media-ingest (thumbnails, normalize)
+                          │ publish to RabbitMQ
+                          │
+                          └──▶ media-ingest (thumbnails, normalize)
 ```
 
 ## Status
 
-| Component                                                                  | Status        |
-| -------------------------------------------------------------------------- | ------------- |
-| Auth service (JWT + refresh tokens, JWKS, sessions)                        | 🟢 done       |
-| API service (post CRUD, gRPC + Envoy REST, media-ready `post_block` model) | 🟢 done       |
-| Proto contracts + codegen pipeline                                         | 🟢 done       |
-| Compose environment (`auth`, `api`, `pg`, `envoy`)                         | 🟢 done       |
-| Upload service + MinIO                                                     | 🔨 scaffolded |
-| RabbitMQ bus + media-ingest worker                                         | ⬜ planned    |
-| Web editor (pending-upload gating)                                         | ⬜ planned    |
-| Public post routes + cross-posting                                         | ⬜ planned    |
-
-## Roadmap
-
-1. **Upload service** — authenticated multipart upload to MinIO; client-defined object keys (`userID/uuidv7`) prevent cross-user collisions. Add MinIO to Compose.
-2. **Event bus** — RabbitMQ in Compose; upload service publishes upload events after object + record are durable.
-3. **Media-ingest worker** — consumes upload events, generates thumbnails (optionally strips EXIF / normalizes formats), stores artifacts back in MinIO; DLQ + ack-after-durable for at-least-once delivery.
-4. **API/web integration** — wire media blocks into post create/read; public post pages; gate draft/publish until all uploads succeed.
-5. **Extras** — cross-posting consumers (e.g. Telegram), scaling, observability.
+| Component                                           | Status     |
+| --------------------------------------------------- | ---------- |
+| Proto contracts + code-gen pipeline                 | 🟢 done    |
+| Add Envoy for gRPC and REST transcoding             | 🟢 done    |
+| Auth service (JWT + refresh tokens, JWKS, sessions) | 🟢 done    |
+| API service (post CRUD, media-ready )               | 🟢 done    |
+| API and Auth domain tests with Gherkin              | 🟢 done    |
+| Upload service + Silo                               | 🟢 done    |
+| media-ingest worker                                 | 🟢 done    |
+| wire up worker and upload with rabbitMQ             | 🟢 done    |
+| Web editor (pending-upload gating)                  | ⬜ planned |
 
 ## Getting Started
 
-1. Clone, then generate secrets once: `just generate-secrets`
-2. Regenerate contracts after proto changes: `just generate`
-3. Run the environment: `just build` (or `just dev`); API at `http://localhost:8080` (Envoy), web at `http://localhost:4200`.
-4. Per-service commands: `just auth dev`, `just api dev`, etc. (each app has its own `justfile`).
+0. requirements: `just`, `docker`, `docker-compose` and `mise`. You can use the scripts in `scripts/` to install them on Linux.
+1. Clone the repo
+
+```bash
+git clone github.com/vandad1901/p3s
+```
+
+2. The only real dependencies are `docker`, `docker compose` and `mise`. `mise` will take care of the rest. You can use the scripts in `scripts/` to install them on Linux.
+
+```bash
+./scripts/dev/00_install_essentials.sh
+./scripts/dev/01_install_mise.sh
+./scripts/dev/02_install_docker.sh
+```
+
+3. Start the service dependencies (Postgres, RabbitMQ, Silo, etc.)
+
+```bash
+just dev
+```
+
+4. Initialize the database and buckets and run database migrations
+
+```bash
+just db-up
+```
+
+5. Run the services
+
+```bash
+just run
+```
+
+the API will be accessible at `http://localhost:8080` , and the frontend at `http://localhost:3000` (upcoming). You can use the `just` commands to run the services individually, or use `docker compose` directly.
 
 ## Repository layout
 
@@ -50,7 +79,7 @@ web ──▶ Envoy ──▶ auth (identity, JWT, sessions)
 contracts/       protobuf contracts (auth/, api/)
 packages/go/     shared packages (dbpattern, envutil, idv, usercontext, …)
 packages/web/    generated TypeScript types
-apps/            auth · api · upload · envoy
+apps/            auth · api · upload · media
 infra/compose/   Docker Compose environment
 ```
 
