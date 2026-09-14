@@ -5,18 +5,21 @@ import (
 	postrpc "github.com/vandad1901/p3s/apps/api/internal/post/rpc"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
 
 func initializeServers(a *App, cfg *config.Config) {
 	a.grpcServer = grpc.NewServer()
-	registerGRPCServers(a, a.grpcServer, cfg)
+	registerGRPCServers(a, cfg)
 }
 
-func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
-	postrpc.Register(grpcServer, a.PostService)
+func registerGRPCServers(a *App, cfg *config.Config) {
+	healthpb.RegisterHealthServer(a.grpcServer, health.NewServer())
+	postrpc.Register(a.grpcServer, a.PostService)
 
 	if cfg.Environment == envutil.Development {
-		reflection.Register(grpcServer)
+		reflection.Register(a.grpcServer)
 	}
 }
