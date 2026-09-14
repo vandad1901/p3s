@@ -21,31 +21,28 @@ type Config struct {
 	HTTPListenAddress string
 }
 
+const HTTPListenAddress = "0.0.0.0:50153"
+
 func LoadConfig() *Config {
-	environment := envutil.MustGetEnvironment("APP_ENV")
+	cfg := new(Config)
+	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
-	var HTTPListenAddress string
+	cfg.RabbitMQAddress = envutil.MustGetString("RMQ_ENDPOINT")
 
-	switch environment {
+	cfg.S3Endpoint = envutil.MustGetString("S3_ENDPOINT")
+	cfg.S3ExternalEndpoint = envutil.MustGetString("S3_EXTERNAL_ENDPOINT")
+	cfg.S3RootUsername = envutil.MustGetString("S3_ROOT_USERNAME")
+	cfg.S3RootPassword = envutil.MustGetString("S3_ROOT_PASSWORD")
+
+	cfg.DSN = getDSN()
+
+	cfg.AuthServiceAddress = envutil.MustGetString("AUTH_JWKS_ADDRESS")
+
+	switch cfg.Environment {
 	case envutil.Development, envutil.Production:
-		HTTPListenAddress = envutil.MustGetString("HTTP_LISTEN_ADDRESS")
+		cfg.HTTPListenAddress = HTTPListenAddress
 	case envutil.Test:
 	}
 
-	return &Config{
-		Environment: environment,
-
-		RabbitMQAddress: envutil.MustGetString("UPLOAD_RMQ_ENDPOINT"),
-
-		S3Endpoint:         envutil.MustGetString("UPLOAD_S3_ENDPOINT"),
-		S3ExternalEndpoint: envutil.MustGetString("UPLOAD_S3_EXTERNAL_ENDPOINT"),
-		S3RootUsername:     envutil.MustGetString("UPLOAD_S3_ROOT_USERNAME"),
-		S3RootPassword:     envutil.MustGetString("UPLOAD_S3_ROOT_PASSWORD"),
-
-		DSN: getDSN(),
-
-		AuthServiceAddress: envutil.MustGetString("AUTH_JWKS_ADDRESS"),
-
-		HTTPListenAddress: HTTPListenAddress,
-	}
+	return cfg
 }
