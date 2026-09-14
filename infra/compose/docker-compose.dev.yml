@@ -47,8 +47,8 @@ services:
       - "9901:9901"
     volumes:
       - ../../apps/envoy:/etc/envoy
-    # depends_on:
-    #   - auth
+    extra_hosts:
+      - "host.docker.internal:host-gateway"
 
   rmq:
     image: rabbitmq:3-management
