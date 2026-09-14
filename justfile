@@ -70,17 +70,18 @@ set shell := ["sh", "-cu"]
     just media db-reset
 
 @run:
-    just auth run & \
-    just api run & \
-    just upload run & \
-    just media run & \
+    APP_ENV=development just auth run & \
+    APP_ENV=development just api run & \
+    APP_ENV=development just upload run & \
+    APP_ENV=development just media run & \
     wait
 
 @test:
-    just --dotenv-filename .env.test auth test
-    just --dotenv-filename .env.test api test
-    just --dotenv-filename .env.test upload test
-    just --dotenv-filename .env.test media test
+    go test ./packages/go/...
+    APP_ENV=test just --dotenv-filename .env.test auth test
+    APP_ENV=test just --dotenv-filename .env.test api test
+    APP_ENV=test just --dotenv-filename .env.test upload test
+    APP_ENV=test just --dotenv-filename .env.test media test
 
 @generate:
     buf generate
