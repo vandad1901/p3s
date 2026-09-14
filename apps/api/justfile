@@ -10,10 +10,10 @@ BLUE := '\033[0;34m'
 NORMAL := '\033[0m'
 
 @run:
-    go run ./cmd/server/
+    APP_ENV=development go run ./cmd/server/
 
 @test:
-    go test -tags test ./...
+    APP_ENV=test go test -tags test ./...
 
 @db-reset:
     just db-down
