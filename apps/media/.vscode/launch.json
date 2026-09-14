@@ -8,6 +8,9 @@
             "mode": "debug",
             "program": "${workspaceFolder}/cmd/server",
             "envFile": "${workspaceFolder}/.env",
+            "env": {
+                "APP_ENV": "development"
+            },
             "cwd": "${workspaceFolder}/"
         },
     ]

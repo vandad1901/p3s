@@ -8,11 +8,11 @@ import (
 )
 
 func getDSN() string {
-	host := gnrconfig.MustGetString("MEDIA_PG_HOST")
-	port := gnrconfig.MustGetString("MEDIA_PG_PORT")
-	user := gnrconfig.MustGetString("MEDIA_PG_USER")
-	password := gnrconfig.MustGetString("MEDIA_PG_PASSWORD")
-	dbName := gnrconfig.MustGetString("MEDIA_PG_DATABASE")
+	host := gnrconfig.MustGetString("API_PG_HOST")
+	port := gnrconfig.MustGetString("API_PG_PORT")
+	user := gnrconfig.MustGetString("API_PG_USER")
+	password := gnrconfig.MustGetString("API_PG_PASSWORD")
+	dbName := gnrconfig.MustGetString("API_PG_DATABASE")
 
 	return fmt.Sprintf(dbpattern.PostgresDSNFormat, host, user, password, dbName, port)
 }

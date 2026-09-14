@@ -20,20 +20,20 @@ type Config struct {
 }
 
 func LoadConfig() *Config {
-	environment := envutil.MustGetEnvironment("APP_ENV")
+	cfg := new(Config)
 
-	return &Config{
-		Environment: environment,
+	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
-		RabbitMQAddress: envutil.MustGetString("MEDIA_RMQ_ENDPOINT"),
+	cfg.RabbitMQAddress = envutil.MustGetString("RMQ_ENDPOINT")
 
-		S3Endpoint:     envutil.MustGetString("MEDIA_S3_ENDPOINT"),
-		S3RootUsername: envutil.MustGetString("MEDIA_S3_ROOT_USERNAME"),
-		S3RootPassword: envutil.MustGetString("MEDIA_S3_ROOT_PASSWORD"),
-		S3BucketName:   envutil.MustGetString("MEDIA_S3_BUCKET_NAME"),
+	cfg.S3Endpoint = envutil.MustGetString("S3_ENDPOINT")
+	cfg.S3RootUsername = envutil.MustGetString("S3_ROOT_USERNAME")
+	cfg.S3RootPassword = envutil.MustGetString("S3_ROOT_PASSWORD")
+	cfg.S3BucketName = envutil.MustGetString("S3_BUCKET_NAME")
 
-		DSN: getDSN(),
+	cfg.DSN = getDSN()
 
-		AuthServiceAddress: envutil.MustGetString("AUTH_JWKS_ADDRESS"),
-	}
+	cfg.AuthServiceAddress = envutil.MustGetString("AUTH_JWKS_ADDRESS")
+
+	return cfg
 }
