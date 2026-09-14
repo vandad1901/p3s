@@ -9,10 +9,8 @@ import (
 	"os"
 
 	"image/gif"
-	_ "image/gif"
 	"image/jpeg"
 	"image/png"
-	_ "image/png"
 
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
