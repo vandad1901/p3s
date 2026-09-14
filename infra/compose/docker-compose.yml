@@ -25,8 +25,12 @@ services:
     restart: unless-stopped
     environment:
       - API_PG_HOST=pg
+      - APP_ENV=development
     env_file:
       - ../../apps/api/.env
+    healthcheck:
+      test: ["CMD","/app/healthcheck"]
+      interval: 30s
     depends_on:
       - auth
       - pg

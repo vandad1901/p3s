@@ -11,11 +11,13 @@ COPY . .
 RUN --mount=type=cache,target=/go/pkg/mod \
     --mount=type=cache,target=/root/.cache/go-build \
     CGO_ENABLED=0 GOOS=linux \
-    go build -ldflags="-w -s" -o main ./apps/api/cmd/server
+    go build -ldflags="-w -s" -o main ./apps/api/cmd/server && \
+    go build -ldflags="-w -s" -o healthcheck ./apps/api/cmd/healthcheck
 
 FROM gcr.io/distroless/static-debian13:nonroot
 WORKDIR /app
 
 COPY --from=builder /app/main /app/main
+COPY --from=builder /app/healthcheck /app/healthcheck
 
 ENTRYPOINT ["/app/main"]
