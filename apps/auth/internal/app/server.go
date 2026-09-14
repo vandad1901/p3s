@@ -7,6 +7,8 @@ import (
 	jwkshttp "github.com/vandad1901/p3s/apps/auth/internal/jwks/http"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
 	"google.golang.org/grpc/reflection"
 )
 
@@ -21,6 +23,7 @@ func initializeGRPC(a *App, cfg *config.Config) {
 }
 
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
+	healthpb.RegisterHealthServer(grpcServer, health.NewServer())
 	authnrpc.Register(grpcServer, a.AuthnService)
 
 	if cfg.Environment == envutil.Development {
