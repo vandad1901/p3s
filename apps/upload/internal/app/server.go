@@ -1,27 +1,25 @@
 package app
 
 import (
-	"github.com/labstack/echo/v4"
-	"github.com/labstack/echo/v4/middleware"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
-	uploadhttp "github.com/vandad1901/p3s/apps/upload/internal/upload/http"
-	"github.com/vandad1901/p3s/packages/go/apperror"
-	"github.com/vandad1901/p3s/packages/go/authguard"
+	uploadrpc "github.com/vandad1901/p3s/apps/upload/internal/upload/rpc"
+	"github.com/vandad1901/p3s/packages/go/envutil"
+	"google.golang.org/grpc"
+	"google.golang.org/grpc/health"
+	healthpb "google.golang.org/grpc/health/grpc_health_v1"
+	"google.golang.org/grpc/reflection"
 )
 
-func initializeServers(a *App, _ *config.Config) {
-	a.echo = echo.New()
-
-	a.echo.Pre(middleware.AddTrailingSlash())
-
-	g := a.echo.Group("/upload/v1",
-		apperror.EchoMiddleware(a.logger),
-		authguard.EchoAuthGuard(a.logger, a.parser, a.keyfunc),
-	)
-
-	registerHTTPHandlers(a, g)
+func initializeServers(a *App, cfg *config.Config) {
+	a.grpcServer = grpc.NewServer()
+	registerGRPCServers(a, cfg)
 }
 
-func registerHTTPHandlers(a *App, g *echo.Group) {
-	uploadhttp.Register(g.Group("/upload"), a.uploadService)
+func registerGRPCServers(a *App, cfg *config.Config) {
+	healthpb.RegisterHealthServer(a.grpcServer, health.NewServer())
+	uploadrpc.Register(a.grpcServer, a.uploadService)
+
+	if cfg.Environment == envutil.Development {
+		reflection.Register(a.grpcServer)
+	}
 }
