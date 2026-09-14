@@ -18,10 +18,10 @@ type Config struct {
 
 	AuthServiceAddress string
 
-	HTTPListenAddress string
+	GRPCListenAddress string
 }
 
-const HTTPListenAddress = "0.0.0.0:50153"
+const GRPCListenAddress = "0.0.0.0:50053"
 
 func LoadConfig() *Config {
 	cfg := new(Config)
@@ -40,7 +40,7 @@ func LoadConfig() *Config {
 
 	switch cfg.Environment {
 	case envutil.Development, envutil.Production:
-		cfg.HTTPListenAddress = HTTPListenAddress
+		cfg.GRPCListenAddress = GRPCListenAddress
 	case envutil.Test:
 	}
 

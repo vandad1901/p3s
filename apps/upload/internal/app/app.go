@@ -7,19 +7,18 @@ import (
 	"log"
 	"log/slog"
 	"net"
-	"net/http"
 	"sync"
 	"time"
 
 	"github.com/MicahParks/keyfunc/v3"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/golang-jwt/jwt/v5"
-	"github.com/labstack/echo/v4"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
 	"github.com/vandad1901/p3s/apps/upload/internal/outbox"
 	"github.com/vandad1901/p3s/apps/upload/internal/upload"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"github.com/wagslane/go-rabbitmq"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
 
@@ -35,7 +34,7 @@ type App struct {
 	outboxService *outbox.Service
 	uploadService *upload.Service
 
-	echo *echo.Echo
+	grpcServer *grpc.Server
 
 	shutdownOnce sync.Once
 }
@@ -72,7 +71,7 @@ func MustBoot(cfg *config.Config) *App {
 
 func (a *App) Serve(cfg *config.Config) error {
 	servers := []func() error{
-		func() error { return serveHTTP(a, cfg) },
+		func() error { return serveGRPC(a, cfg) },
 		func() error { return startOutboxWorker(a) },
 	}
 
@@ -106,26 +105,22 @@ func (a *App) Serve(cfg *config.Config) error {
 	return nil
 }
 
-func serveHTTP(a *App, cfg *config.Config) error {
+func serveGRPC(a *App, cfg *config.Config) error {
 	lc := net.ListenConfig{}
 
-	lis, err := lc.Listen(context.Background(), "tcp", cfg.HTTPListenAddress)
+	lis, err := lc.Listen(context.Background(), "tcp", cfg.GRPCListenAddress)
 	if err != nil {
-		return fmt.Errorf("http listen on %s: %w", cfg.HTTPListenAddress, err)
+		return fmt.Errorf("grpc listen on %s: %w", cfg.GRPCListenAddress, err)
 	}
 
-	a.logger.Info("HTTP listening", "address", cfg.HTTPListenAddress)
+	a.logger.Info("gRPC listening", "address", cfg.GRPCListenAddress)
 
-	a.echo.Listener = lis
-	a.echo.HideBanner = true
-	a.echo.HidePort = true
-
-	err = a.echo.Start(cfg.HTTPListenAddress)
-	if err != nil && !errors.Is(err, http.ErrServerClosed) {
-		return fmt.Errorf("serve http: %w", err)
+	err = a.grpcServer.Serve(lis)
+	if err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		return fmt.Errorf("serve grpc: %w", err)
 	}
 
-	a.logger.Info("HTTP server stopped gracefully")
+	a.logger.Info("gRPC server stopped gracefully")
 
 	return nil
 }
@@ -151,12 +146,9 @@ func (a *App) Shutdown() {
 		var shutdownWG sync.WaitGroup
 
 		shutdownWG.Go(func() {
-			a.logger.Info("Shutting down HTTP server")
+			a.logger.Info("Shutting down GRPC server")
 
-			err := a.echo.Shutdown(ctx)
-			if err != nil {
-				a.logger.Error("Failed to shutdown HTTP server gracefully", "error", err)
-			}
+			a.grpcServer.GracefulStop()
 		})
 		shutdownWG.Go(func() {
 			a.logger.Info("Shutting down outbox worker")
@@ -180,10 +172,7 @@ func (a *App) Shutdown() {
 		case <-ctx.Done():
 			a.logger.Error("Graceful shutdown timed out; Giving up")
 
-			err := a.echo.Close()
-			if err != nil {
-				a.logger.Error("Failed to close HTTP server", "error", err)
-			}
+			a.grpcServer.Stop()
 
 			a.outboxService.ForceShutdown()
 		}
