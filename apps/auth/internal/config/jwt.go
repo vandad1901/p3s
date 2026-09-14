@@ -16,13 +16,12 @@ type JWTConfig struct {
 }
 
 func loadJWTConfig() *JWTConfig {
-	ecKey := MustGetECKey()
-	KeyID := envutil.MustGetString("KEYSET_KEY_ID")
+	jwtConfig := new(JWTConfig)
 
-	return &JWTConfig{
-		PrivateKey: ecKey,
-		KeyID:      KeyID,
-	}
+	jwtConfig.PrivateKey = MustGetECKey()
+	jwtConfig.KeyID = envutil.MustGetString("KEYSET_KEY_ID")
+
+	return jwtConfig
 }
 
 func MustGetECKey() *ecdsa.PrivateKey {

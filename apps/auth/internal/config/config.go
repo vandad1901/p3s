@@ -8,36 +8,30 @@ type Config struct {
 	Environment envutil.Environment
 
 	JWTConfig *JWTConfig
-
-	DSN string
+	DSN       string
 
 	GRPCListenAddress string
 	HTTPListenAddress string
 }
 
+const (
+	gRPCListenAddress = "0.0.0.0:50051"
+	HTTPListenAddress = "0.0.0.0:50151"
+)
+
 func LoadConfig() *Config {
-	environment := envutil.MustGetEnvironment("APP_ENV")
+	cfg := new(Config)
+	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
-	var (
-		gRPCListenAddress string
-		HTTPListenAddress string
-	)
+	cfg.JWTConfig = loadJWTConfig()
+	cfg.DSN = getDSN()
 
-	switch environment {
+	switch cfg.Environment {
 	case envutil.Development, envutil.Production:
-		gRPCListenAddress = envutil.MustGetString("GRPC_LISTEN_ADDRESS")
-		HTTPListenAddress = envutil.MustGetString("HTTP_LISTEN_ADDRESS")
+		cfg.GRPCListenAddress = gRPCListenAddress
+		cfg.HTTPListenAddress = HTTPListenAddress
 	case envutil.Test:
 	}
 
-	return &Config{
-		Environment: environment,
-
-		JWTConfig: loadJWTConfig(),
-
-		DSN: getDSN(),
-
-		GRPCListenAddress: gRPCListenAddress,
-		HTTPListenAddress: HTTPListenAddress,
-	}
+	return cfg
 }
