@@ -5,27 +5,28 @@ import (
 )
 
 type Config struct {
-	GRPCListenAddress string
-	Environment       envutil.Environment
+	Environment envutil.Environment
 
 	DSN string
+
+	GRPCListenAddress string
 }
 
+const (
+	gRPCListenAddress = "0.0.0.0:50052"
+)
+
 func LoadConfig() *Config {
-	environment := envutil.MustGetEnvironment("APP_ENV")
+	cfg := new(Config)
+	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
-	var gRPCListenAddress string
+	cfg.DSN = getDSN()
 
-	switch environment {
+	switch cfg.Environment {
 	case envutil.Development, envutil.Production:
-		gRPCListenAddress = envutil.MustGetString("GRPC_LISTEN_ADDRESS")
+		cfg.GRPCListenAddress = gRPCListenAddress
 	case envutil.Test:
 	}
 
-	return &Config{
-		GRPCListenAddress: gRPCListenAddress,
-		Environment:       environment,
-
-		DSN: getDSN(),
-	}
+	return cfg
 }
