@@ -8,10 +8,14 @@ services:
     restart: unless-stopped
     environment:
       - AUTH_PG_HOST=pg
+      - APP_ENV=development
     env_file:
       - ../../apps/auth/.env
     volumes:
       - ../../apps/auth/jwt_private_key.pem:/app/jwt_private_key.pem
+    healthcheck:
+      test: ["CMD","/app/healthcheck"]
+      interval: 30s
     depends_on:
       - pg
   api:
