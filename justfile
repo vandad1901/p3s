@@ -12,13 +12,13 @@ set shell := ["sh", "-cu"]
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
-        up -d --remove-orphans
+        up -d --remove-orphans --wait
 
 @build:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
-        up -d --build --remove-orphans
+        up -d --build --remove-orphans --wait
 
 @stop:
     docker compose \
@@ -29,7 +29,7 @@ set shell := ["sh", "-cu"]
 @dev:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        up -d --build --remove-orphans
+        up -d --build --remove-orphans --wait
 
 @compose-exec *ARGS:
     docker compose \
