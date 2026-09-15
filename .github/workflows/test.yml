@@ -24,7 +24,14 @@ jobs:
       API_PG_PASSWORD: postgres
       API_PG_DATABASE: api
 
-      JWT_PRIVATE_KEY_PATH: "./jwt_private_key.pem"
+      RMQ_ENDPOINT: amqp://rmq-user:rmq-password@localhost:5672
+
+      S3_ENDPOINT: http://localhost:9000
+      S3_EXTERNAL_ENDPOINT: http://localhost:9000
+      S3_ROOT_USERNAME: s3-username
+      S3_ROOT_PASSWORD: s3-password
+
+      JWT_PRIVATE_KEY_PATH: "../../jwt_private_key.pem"
       KEYSET_KEY_ID: "auth-key-1"
 
     steps:
