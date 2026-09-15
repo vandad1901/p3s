@@ -37,6 +37,7 @@ jobs:
     steps:
       - uses: actions/checkout@v4
       - uses: jdx/mise-action@v4
+      - run: mise exec -- just generate-secrets
       - run: mise exec -- just dev
       - run: mise exec -- just db-up
       - run: mise exec -- just test
