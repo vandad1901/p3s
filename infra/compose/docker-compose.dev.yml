@@ -16,10 +16,10 @@ services:
     image: docker.io/library/postgres:17
     restart: unless-stopped
     environment:
-      POSTGRES_USER: ${AUTH_PG_USER} # shared with api service
-      POSTGRES_PASSWORD: ${AUTH_PG_PASSWORD} # shared with api service
+      POSTGRES_USER: ${AUTH_PG_USER:-postgres}
+      POSTGRES_PASSWORD: ${AUTH_PG_PASSWORD:-postgres}
     ports:
-      - "${AUTH_PG_PORT}:5432" # shared with api service
+      - "5432:5432"
     volumes:
       - pg_data:/var/lib/postgresql/data
 
@@ -27,10 +27,10 @@ services:
     image: pgsty/silo:latest
     restart: unless-stopped
     environment:
-      MINIO_ROOT_USER: ${S3_ROOT_USERNAME}
-      MINIO_ROOT_PASSWORD: ${S3_ROOT_PASSWORD}
+      MINIO_ROOT_USER: ${S3_ROOT_USERNAME:-s3-username}
+      MINIO_ROOT_PASSWORD: ${S3_ROOT_PASSWORD:-s3-password}
     ports:
-      - "${S3_PORT}:9000"
+      - "9000:9000"
       - "9001:9001"
     volumes:
       - silo_data:/data
@@ -54,13 +54,13 @@ services:
     image: rabbitmq:3-management
     restart: unless-stopped
     environment:
-      RABBITMQ_DEFAULT_USER: rmq-user
-      RABBITMQ_DEFAULT_PASS: rmq-password
+      RABBITMQ_DEFAULT_USER: ${RMQ_USERNAME:-rmq-user}
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASSWORD:-rmq-password}
     ports:
       - "5672:5672"
       - "15672:15672"
     healthcheck:
-      test: ["CMD", "rabbitmqctl", "status"]
+      test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 30s
 
 volumes:

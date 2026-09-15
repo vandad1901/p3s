@@ -42,7 +42,7 @@ services:
     environment:
       - API_PG_HOST=pg
       - APP_ENV=development
-      - S3_ENDPOINT=http://silo:${S3_PORT}
+      - S3_ENDPOINT=http://silo:9000
       - RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
       - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
     env_file:
@@ -62,7 +62,7 @@ services:
     environment:
       - API_PG_HOST=pg
       - APP_ENV=development
-      - S3_ENDPOINT=http://silo:${S3_PORT}
+      - S3_ENDPOINT=http://silo:9000
       - RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
     env_file:
       - ../../apps/media/.env
