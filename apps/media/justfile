@@ -20,4 +20,4 @@ NORMAL := '\033[0m'
 
 @db-up:
     echo "{{ YELLOW }}[i] {{ BLUE }}media{{ NORMAL }} Applying migrations to database"
-    migrate -database "postgres://$MEDIA_PG_USER:$MEDIA_PG_PASSWORD@$MEDIA_PG_HOST:$MEDIA_PG_PORT/$MEDIA_PG_DATABASE?sslmode=disable&x-migrations-table=media_schema_migrations" -path ./migrations up
+    migrate -database "postgres://$API_PG_USER:$API_PG_PASSWORD@$API_PG_HOST:$API_PG_PORT/$API_PG_DATABASE?sslmode=disable&x-migrations-table=media_schema_migrations" -path ./migrations up
