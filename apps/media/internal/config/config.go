@@ -12,7 +12,6 @@ type Config struct {
 	S3Endpoint     string
 	S3RootUsername string
 	S3RootPassword string
-	S3BucketName   string
 
 	DSN string
 
@@ -29,7 +28,6 @@ func LoadConfig() *Config {
 	cfg.S3Endpoint = envutil.MustGetString("S3_ENDPOINT")
 	cfg.S3RootUsername = envutil.MustGetString("S3_ROOT_USERNAME")
 	cfg.S3RootPassword = envutil.MustGetString("S3_ROOT_PASSWORD")
-	cfg.S3BucketName = envutil.MustGetString("S3_BUCKET_NAME")
 
 	cfg.DSN = getDSN()
 
