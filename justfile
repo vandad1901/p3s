@@ -12,49 +12,29 @@ set shell := ["sh", "-cu"]
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
-        --env-file apps/auth/.env \
-        --env-file apps/api/.env \
-        --env-file apps/upload/.env \
-        --env-file apps/media/.env \
         up -d --remove-orphans
 
 @build:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
-        --env-file apps/auth/.env \
-        --env-file apps/api/.env \
-        --env-file apps/upload/.env \
-        --env-file apps/media/.env \
         up -d --build --remove-orphans
 
 @stop:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
-        --env-file apps/auth/.env \
-        --env-file apps/api/.env \
-        --env-file apps/upload/.env \
-        --env-file apps/media/.env \
         down
 
 @dev:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        --env-file apps/auth/.env \
-        --env-file apps/api/.env \
-        --env-file apps/upload/.env \
-        --env-file apps/media/.env \
         up -d --build --remove-orphans
 
 @compose-exec *ARGS:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
         -f ./infra/compose/docker-compose.yml \
-        --env-file apps/auth/.env \
-        --env-file apps/api/.env \
-        --env-file apps/upload/.env \
-        --env-file apps/media/.env \
         exec {{ ARGS }}
 
 @db-up:
