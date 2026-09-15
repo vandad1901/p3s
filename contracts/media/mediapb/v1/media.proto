@@ -1,0 +1,16 @@
+syntax = "proto3";
+
+option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapb";
+package media.mediapb.v1;
+
+service MediaService {
+  rpc AreMediaReady(AreMediaReadyRequest) returns (AreMediaReadyResponse) {}
+}
+
+message AreMediaReadyRequest {
+  repeated string media_keys = 1;
+}
+
+message AreMediaReadyResponse {
+  int64 unfinished = 1;
+}
