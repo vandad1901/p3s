@@ -37,7 +37,7 @@ static_resources:
                         - match:
                             prefix: "/upload/"
                           route:
-                            cluster: upload_http
+                            cluster: upload_grpc
 
                 http_filters:
                   - name: envoy.filters.http.grpc_json_transcoder
@@ -47,6 +47,7 @@ static_resources:
                       services:
                         - auth.authnpb.v1.AuthnService
                         - api.postpb.v1.PostService
+                        - upload.uploadpb.v1.UploadService
                       match_incoming_request_route: true
                       convert_grpc_status: true
 
@@ -94,9 +95,10 @@ static_resources:
                     socket_address:
                       address: api
                       port_value: 50052
-    - name: upload_http
+    - name: upload_grpc
       connect_timeout: 1s
       type: logical_dns
+      http2_protocol_options: {}
       load_assignment:
         cluster_name: upload_http
         endpoints:
@@ -105,4 +107,4 @@ static_resources:
                   address:
                     socket_address:
                       address: upload
-                      port_value: 50153
+                      port_value: 50053

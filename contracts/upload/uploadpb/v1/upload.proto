@@ -3,9 +3,21 @@ syntax = "proto3";
 option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/upload/uploadpb/v1;uploadpb";
 package upload.uploadpb.v1;
 
+import "google/api/annotations.proto";
+
 service UploadService {
-  rpc GenerateURL(GenerateURLRequest) returns (GenerateURLResponse) {}
-  rpc FinalizeUpload(FinalizeUploadRequest) returns (FinalizeUploadResponse){}
+  rpc GenerateURL(GenerateURLRequest) returns (GenerateURLResponse) {
+    option (google.api.http) = {
+      post: "/upload/v1/init"
+      body: "*"
+    };
+  }
+  rpc FinalizeUpload(FinalizeUploadRequest) returns (FinalizeUploadResponse){
+    option (google.api.http) = {
+      post: "/upload/v1/finalize"
+      body: "*"
+    };
+  }
 }
 
 message GenerateURLRequest {

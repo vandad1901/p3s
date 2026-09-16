@@ -7,6 +7,7 @@
 package uploadpb
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -201,7 +202,7 @@ var File_upload_uploadpb_v1_upload_proto protoreflect.FileDescriptor
 
 const file_upload_uploadpb_v1_upload_proto_rawDesc = "" +
 	"\n" +
-	"\x1fupload/uploadpb/v1/upload.proto\x12\x12upload.uploadpb.v1\"1\n" +
+	"\x1fupload/uploadpb/v1/upload.proto\x12\x12upload.uploadpb.v1\x1a\x1cgoogle/api/annotations.proto\"1\n" +
 	"\x12GenerateURLRequest\x12\x1b\n" +
 	"\tmedia_key\x18\x01 \x01(\tR\bmediaKey\"\xaf\x01\n" +
 	"\x13GenerateURLResponse\x12\x10\n" +
@@ -212,10 +213,10 @@ const file_upload_uploadpb_v1_upload_proto_rawDesc = "" +
 	"\x05value\x18\x02 \x01(\tR\x05value:\x028\x01\"4\n" +
 	"\x15FinalizeUploadRequest\x12\x1b\n" +
 	"\tmedia_key\x18\x01 \x01(\tR\bmediaKey\"\x18\n" +
-	"\x16FinalizeUploadResponse2\xdc\x01\n" +
-	"\rUploadService\x12`\n" +
-	"\vGenerateURL\x12&.upload.uploadpb.v1.GenerateURLRequest\x1a'.upload.uploadpb.v1.GenerateURLResponse\"\x00\x12i\n" +
-	"\x0eFinalizeUpload\x12).upload.uploadpb.v1.FinalizeUploadRequest\x1a*.upload.uploadpb.v1.FinalizeUploadResponse\"\x00BPZNgithub.com/vandad1901/p3s/packages/go/gen/protobuf/upload/uploadpb/v1;uploadpbb\x06proto3"
+	"\x16FinalizeUploadResponse2\x95\x02\n" +
+	"\rUploadService\x12z\n" +
+	"\vGenerateURL\x12&.upload.uploadpb.v1.GenerateURLRequest\x1a'.upload.uploadpb.v1.GenerateURLResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x01*\"\x0f/upload/v1/init\x12\x87\x01\n" +
+	"\x0eFinalizeUpload\x12).upload.uploadpb.v1.FinalizeUploadRequest\x1a*.upload.uploadpb.v1.FinalizeUploadResponse\"\x1e\x82\xd3\xe4\x93\x02\x18:\x01*\"\x13/upload/v1/finalizeBPZNgithub.com/vandad1901/p3s/packages/go/gen/protobuf/upload/uploadpb/v1;uploadpbb\x06proto3"
 
 var (
 	file_upload_uploadpb_v1_upload_proto_rawDescOnce sync.Once
