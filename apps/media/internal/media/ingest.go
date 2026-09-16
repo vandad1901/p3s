@@ -12,6 +12,8 @@ import (
 	"image/jpeg"
 	"image/png"
 
+	"github.com/aws/aws-sdk-go-v2/aws"
+	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"golang.org/x/image/draw"
 	_ "golang.org/x/image/webp"
 )
@@ -37,6 +39,56 @@ const (
 const (
 	jpegQuality = 80
 )
+
+const s3Bucket = "p3s-upload-bucket"
+
+func (s *Service) HandleMedia(ctx context.Context, key string) error {
+	queuedAt, err := s.takeLease(ctx, key)
+	if err != nil {
+		return fmt.Errorf("creating media: %w", err)
+	}
+
+	res, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
+		Bucket: aws.String(s3Bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("getting media from S3: %w", err)
+	}
+
+	derivatives, err := IngestMedia(ctx, res.Body, *res.ContentLength)
+	if err != nil {
+		return err
+	}
+
+	err = res.Body.Close()
+	if err != nil {
+		return fmt.Errorf("closing media body: %w", err)
+	}
+
+	for _, derivative := range derivatives {
+		_, err = derivative.file.Seek(0, io.SeekStart)
+		if err != nil {
+			return fmt.Errorf("seeking derivative file: %w", err)
+		}
+
+		_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+			Bucket: aws.String(s3Bucket),
+			Key:    aws.String(fmt.Sprintf("%s.%s", key, derivative.Extension)),
+			Body:   derivative.file,
+		})
+		if err != nil {
+			return fmt.Errorf("putting derivative to S3: %w", err)
+		}
+	}
+
+	_, err = s.changeStatus(ctx, key, queuedAt, MediaIngestStatusIngested)
+	if err != nil {
+		return fmt.Errorf("changing media status: %w", err)
+	}
+
+	return nil
+}
 
 func checkContext(ctx context.Context) error {
 	select {
