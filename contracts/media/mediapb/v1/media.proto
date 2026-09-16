@@ -3,14 +3,21 @@ syntax = "proto3";
 option go_package = "github.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapb";
 package media.mediapb.v1;
 
+import "google/api/annotations.proto";
+
 service MediaService {
-  rpc AreMediaReady(AreMediaReadyRequest) returns (AreMediaReadyResponse) {}
+  rpc MediaIngested(MediaIngestedRequest) returns (MediaIngestedResponse) {
+    option (google.api.http) = {
+      post: "/media/v1/ingested"
+      body: "*"
+    } ;
+  }
 }
 
-message AreMediaReadyRequest {
+message MediaIngestedRequest {
   repeated string media_keys = 1;
 }
 
-message AreMediaReadyResponse {
+message MediaIngestedResponse {
   int64 unfinished = 1;
 }
