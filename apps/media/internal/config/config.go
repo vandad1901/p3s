@@ -15,8 +15,14 @@ type Config struct {
 
 	DSN string
 
+	GRPCListenAddress string
+
 	AuthServiceAddress string
 }
+
+const (
+	gRPCListenAddress = "0.0.0.0:50054"
+)
 
 func LoadConfig() *Config {
 	cfg := new(Config)
@@ -30,6 +36,12 @@ func LoadConfig() *Config {
 	cfg.S3RootPassword = envutil.MustGetString("S3_ROOT_PASSWORD")
 
 	cfg.DSN = getDSN()
+
+	switch cfg.Environment {
+	case envutil.Development, envutil.Production:
+		cfg.GRPCListenAddress = gRPCListenAddress
+	case envutil.Test:
+	}
 
 	cfg.AuthServiceAddress = envutil.MustGetString("AUTH_JWKS_ADDRESS")
 

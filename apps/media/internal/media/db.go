@@ -8,6 +8,20 @@ import (
 	"gorm.io/gorm/clause"
 )
 
+func dbCountReady(db *gorm.DB, keys []string) (int64, error) {
+	var count int64
+
+	err := db.Model(&Media{}).
+		Where("ingest_status = ?", MediaIngestStatusIngested).
+		Where("media_key IN ?", keys).
+		Count(&count).Error
+	if err != nil {
+		return 0, err
+	}
+
+	return count, nil
+}
+
 const (
 	tryCountLimit = 5
 	ingestTimeout = 1 * time.Minute
@@ -56,14 +70,14 @@ func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, er
 	}
 
 	if media.IngestStatus == MediaIngestStatusIngested {
-		return time.Time{}, errAlreadyProcessed
+		return time.Time{}, ErrAlreadyProcessed
 	}
 
 	if media.TryCount >= tryCountLimit {
-		return time.Time{}, errIngestFailed
+		return time.Time{}, ErrIngestFailed
 	}
 
-	return time.Time{}, errAlreadyProcessing
+	return time.Time{}, ErrAlreadyProcessing
 }
 
 func dbChangeStatus(_ context.Context, db *gorm.DB,

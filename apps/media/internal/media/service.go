@@ -2,32 +2,46 @@ package media
 
 import (
 	"context"
-	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	"github.com/vandad1901/p3s/packages/go/idv"
-	"github.com/wagslane/go-rabbitmq"
 	"gorm.io/gorm"
 )
 
 type Service struct {
-	logger   *slog.Logger
 	s3Client *s3.Client
 	db       *gorm.DB
-
-	consumer *rabbitmq.Consumer
 }
 
-func NewService(logger *slog.Logger, db *gorm.DB, s3Client *s3.Client, consumer *rabbitmq.Consumer) *Service {
+func NewService(db *gorm.DB, s3Client *s3.Client) *Service {
 	return &Service{
-		logger:   logger,
 		db:       db,
 		s3Client: s3Client,
-
-		consumer: consumer,
 	}
+}
+
+func (s *Service) MediaIngested(ctx context.Context, keys []string) (int64, error) {
+	db := s.db.WithContext(ctx)
+
+	var res int64
+
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		readyCount, err := dbCountReady(tx, keys)
+		if err != nil {
+			return err
+		}
+
+		res = int64(len(keys)) - readyCount
+
+		return nil
+	})
+	if txErr != nil {
+		return 0, txErr
+	}
+
+	return res, nil
 }
 
 func (s *Service) takeLease(ctx context.Context, key string) (time.Time, error) {

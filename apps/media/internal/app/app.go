@@ -2,16 +2,23 @@ package app
 
 import (
 	"context"
+	"errors"
 	"fmt"
 	"log"
 	"log/slog"
+	"net"
 	"sync"
 	"time"
 
+	"github.com/MicahParks/keyfunc/v3"
 	"github.com/aws/aws-sdk-go-v2/service/s3"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/media/internal/config"
 	"github.com/vandad1901/p3s/apps/media/internal/media"
+	mediaworker "github.com/vandad1901/p3s/apps/media/internal/media/worker"
+	"github.com/vandad1901/p3s/packages/go/envutil"
 	"github.com/wagslane/go-rabbitmq"
+	"google.golang.org/grpc"
 	"gorm.io/gorm"
 )
 
@@ -19,10 +26,14 @@ type App struct {
 	logger        *slog.Logger
 	s3Client      *s3.Client
 	db            *gorm.DB
+	keyfunc       keyfunc.Keyfunc
+	parser        *jwt.Parser
 	rmqConn       *rabbitmq.Conn
 	mediaConsumer *rabbitmq.Consumer
 
 	mediaService *media.Service
+
+	grpcServer *grpc.Server
 
 	shutdownOnce sync.Once
 }
@@ -41,6 +52,10 @@ func Boot(cfg *config.Config, logger *slog.Logger) (*App, error) {
 
 	initializeServices(a)
 
+	if cfg.Environment != envutil.Test {
+		initializeServers(a, cfg)
+	}
+
 	return a, nil
 }
 
@@ -53,13 +68,14 @@ func MustBoot(cfg *config.Config) *App {
 	return a
 }
 
-func (a *App) Serve(_ *config.Config) error {
+func (a *App) Serve(cfg *config.Config) error {
 	servers := []func() error{
 		func() error {
 			a.logger.Info("Starting media consumer loop")
 
-			return a.mediaService.RunLoop()
+			return mediaworker.RunLoop(a.logger, a.mediaConsumer, a.mediaService)
 		},
+		func() error { return serveGRPC(a, cfg) },
 	}
 
 	var runnerWG sync.WaitGroup
@@ -92,6 +108,26 @@ func (a *App) Serve(_ *config.Config) error {
 	return nil
 }
 
+func serveGRPC(a *App, cfg *config.Config) error {
+	lc := net.ListenConfig{}
+
+	lis, err := lc.Listen(context.Background(), "tcp", cfg.GRPCListenAddress)
+	if err != nil {
+		return fmt.Errorf("grpc listen on %s: %w", cfg.GRPCListenAddress, err)
+	}
+
+	a.logger.Info("gRPC listening", "address", cfg.GRPCListenAddress)
+
+	err = a.grpcServer.Serve(lis)
+	if err != nil && !errors.Is(err, grpc.ErrServerStopped) {
+		return fmt.Errorf("serve grpc: %w", err)
+	}
+
+	a.logger.Info("gRPC server stopped gracefully")
+
+	return nil
+}
+
 const shutdownTimeoutSecs = 10
 
 func (a *App) Shutdown() {
@@ -105,8 +141,13 @@ func (a *App) Shutdown() {
 			if a.mediaConsumer != nil {
 				a.logger.Info("Shutting down consumer")
 
-				a.mediaService.GracefulShutdown(ctx)
+				a.mediaConsumer.CloseWithContext(ctx)
 			}
+		})
+		shutdownWG.Go(func() {
+			a.logger.Info("Shutting down gRPC server")
+
+			a.grpcServer.GracefulStop()
 		})
 
 		done := make(chan struct{})
@@ -123,6 +164,10 @@ func (a *App) Shutdown() {
 			a.closeConnections()
 
 		case <-ctx.Done():
+			a.logger.Error("Graceful shutdown timed out; Giving up")
+
+			a.grpcServer.Stop()
+
 			a.logger.Error("Graceful shutdown timed out; Giving up")
 		}
 	})

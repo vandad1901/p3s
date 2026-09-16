@@ -5,5 +5,5 @@ import (
 )
 
 func initializeServices(a *App) {
-	a.mediaService = media.NewService(a.logger, a.db, a.s3Client, a.mediaConsumer)
+	a.mediaService = media.NewService(a.db, a.s3Client)
 }

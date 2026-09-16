@@ -3,9 +3,9 @@ package media
 import "errors"
 
 var (
-	errAlreadyProcessing = errors.New("media.ingest.alreadyProcessing")
-	errAlreadyProcessed  = errors.New("media.ingest.alreadyProcessed")
-	errIngestFailed      = errors.New("media.ingest.failed")
+	ErrAlreadyProcessing = errors.New("media.ingest.alreadyProcessing")
+	ErrAlreadyProcessed  = errors.New("media.ingest.alreadyProcessed")
+	ErrIngestFailed      = errors.New("media.ingest.failed")
 )
 
 var (
