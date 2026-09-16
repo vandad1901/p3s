@@ -19,14 +19,14 @@ import (
 const _ = grpc.SupportPackageIsVersion9
 
 const (
-	MediaService_AreMediaReady_FullMethodName = "/media.mediapb.v1.MediaService/AreMediaReady"
+	MediaService_MediaIngested_FullMethodName = "/media.mediapb.v1.MediaService/MediaIngested"
 )
 
 // MediaServiceClient is the client API for MediaService service.
 //
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MediaServiceClient interface {
-	AreMediaReady(ctx context.Context, in *AreMediaReadyRequest, opts ...grpc.CallOption) (*AreMediaReadyResponse, error)
+	MediaIngested(ctx context.Context, in *MediaIngestedRequest, opts ...grpc.CallOption) (*MediaIngestedResponse, error)
 }
 
 type mediaServiceClient struct {
@@ -37,10 +37,10 @@ func NewMediaServiceClient(cc grpc.ClientConnInterface) MediaServiceClient {
 	return &mediaServiceClient{cc}
 }
 
-func (c *mediaServiceClient) AreMediaReady(ctx context.Context, in *AreMediaReadyRequest, opts ...grpc.CallOption) (*AreMediaReadyResponse, error) {
+func (c *mediaServiceClient) MediaIngested(ctx context.Context, in *MediaIngestedRequest, opts ...grpc.CallOption) (*MediaIngestedResponse, error) {
 	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
-	out := new(AreMediaReadyResponse)
-	err := c.cc.Invoke(ctx, MediaService_AreMediaReady_FullMethodName, in, out, cOpts...)
+	out := new(MediaIngestedResponse)
+	err := c.cc.Invoke(ctx, MediaService_MediaIngested_FullMethodName, in, out, cOpts...)
 	if err != nil {
 		return nil, err
 	}
@@ -51,7 +51,7 @@ func (c *mediaServiceClient) AreMediaReady(ctx context.Context, in *AreMediaRead
 // All implementations must embed UnimplementedMediaServiceServer
 // for forward compatibility.
 type MediaServiceServer interface {
-	AreMediaReady(context.Context, *AreMediaReadyRequest) (*AreMediaReadyResponse, error)
+	MediaIngested(context.Context, *MediaIngestedRequest) (*MediaIngestedResponse, error)
 	mustEmbedUnimplementedMediaServiceServer()
 }
 
@@ -62,8 +62,8 @@ type MediaServiceServer interface {
 // pointer dereference when methods are called.
 type UnimplementedMediaServiceServer struct{}
 
-func (UnimplementedMediaServiceServer) AreMediaReady(context.Context, *AreMediaReadyRequest) (*AreMediaReadyResponse, error) {
-	return nil, status.Error(codes.Unimplemented, "method AreMediaReady not implemented")
+func (UnimplementedMediaServiceServer) MediaIngested(context.Context, *MediaIngestedRequest) (*MediaIngestedResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method MediaIngested not implemented")
 }
 func (UnimplementedMediaServiceServer) mustEmbedUnimplementedMediaServiceServer() {}
 func (UnimplementedMediaServiceServer) testEmbeddedByValue()                      {}
@@ -86,20 +86,20 @@ func RegisterMediaServiceServer(s grpc.ServiceRegistrar, srv MediaServiceServer)
 	s.RegisterService(&MediaService_ServiceDesc, srv)
 }
 
-func _MediaService_AreMediaReady_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
-	in := new(AreMediaReadyRequest)
+func _MediaService_MediaIngested_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(MediaIngestedRequest)
 	if err := dec(in); err != nil {
 		return nil, err
 	}
 	if interceptor == nil {
-		return srv.(MediaServiceServer).AreMediaReady(ctx, in)
+		return srv.(MediaServiceServer).MediaIngested(ctx, in)
 	}
 	info := &grpc.UnaryServerInfo{
 		Server:     srv,
-		FullMethod: MediaService_AreMediaReady_FullMethodName,
+		FullMethod: MediaService_MediaIngested_FullMethodName,
 	}
 	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
-		return srv.(MediaServiceServer).AreMediaReady(ctx, req.(*AreMediaReadyRequest))
+		return srv.(MediaServiceServer).MediaIngested(ctx, req.(*MediaIngestedRequest))
 	}
 	return interceptor(ctx, in, info, handler)
 }
@@ -112,8 +112,8 @@ var MediaService_ServiceDesc = grpc.ServiceDesc{
 	HandlerType: (*MediaServiceServer)(nil),
 	Methods: []grpc.MethodDesc{
 		{
-			MethodName: "AreMediaReady",
-			Handler:    _MediaService_AreMediaReady_Handler,
+			MethodName: "MediaIngested",
+			Handler:    _MediaService_MediaIngested_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

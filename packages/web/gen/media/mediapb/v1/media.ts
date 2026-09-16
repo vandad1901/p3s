@@ -8,14 +8,14 @@
 
 export const protobufPackage = "media.mediapb.v1";
 
-export interface AreMediaReadyRequest {
+export interface MediaIngestedRequest {
   mediaKeys: string[];
 }
 
-export interface AreMediaReadyResponse {
+export interface MediaIngestedResponse {
   unfinished: number;
 }
 
 export interface MediaService {
-  AreMediaReady(request: AreMediaReadyRequest): Promise<AreMediaReadyResponse>;
+  MediaIngested(request: MediaIngestedRequest): Promise<MediaIngestedResponse>;
 }

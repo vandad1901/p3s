@@ -7,6 +7,7 @@
 package mediapb
 
 import (
+	_ "google.golang.org/genproto/googleapis/api/annotations"
 	protoreflect "google.golang.org/protobuf/reflect/protoreflect"
 	protoimpl "google.golang.org/protobuf/runtime/protoimpl"
 	reflect "reflect"
@@ -21,27 +22,27 @@ const (
 	_ = protoimpl.EnforceVersion(protoimpl.MaxVersion - 20)
 )
 
-type AreMediaReadyRequest struct {
+type MediaIngestedRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	MediaKeys     []string               `protobuf:"bytes,1,rep,name=media_keys,json=mediaKeys,proto3" json:"media_keys,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AreMediaReadyRequest) Reset() {
-	*x = AreMediaReadyRequest{}
+func (x *MediaIngestedRequest) Reset() {
+	*x = MediaIngestedRequest{}
 	mi := &file_media_mediapb_v1_media_proto_msgTypes[0]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AreMediaReadyRequest) String() string {
+func (x *MediaIngestedRequest) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AreMediaReadyRequest) ProtoMessage() {}
+func (*MediaIngestedRequest) ProtoMessage() {}
 
-func (x *AreMediaReadyRequest) ProtoReflect() protoreflect.Message {
+func (x *MediaIngestedRequest) ProtoReflect() protoreflect.Message {
 	mi := &file_media_mediapb_v1_media_proto_msgTypes[0]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -53,39 +54,39 @@ func (x *AreMediaReadyRequest) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AreMediaReadyRequest.ProtoReflect.Descriptor instead.
-func (*AreMediaReadyRequest) Descriptor() ([]byte, []int) {
+// Deprecated: Use MediaIngestedRequest.ProtoReflect.Descriptor instead.
+func (*MediaIngestedRequest) Descriptor() ([]byte, []int) {
 	return file_media_mediapb_v1_media_proto_rawDescGZIP(), []int{0}
 }
 
-func (x *AreMediaReadyRequest) GetMediaKeys() []string {
+func (x *MediaIngestedRequest) GetMediaKeys() []string {
 	if x != nil {
 		return x.MediaKeys
 	}
 	return nil
 }
 
-type AreMediaReadyResponse struct {
+type MediaIngestedResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Unfinished    int64                  `protobuf:"varint,1,opt,name=unfinished,proto3" json:"unfinished,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
 
-func (x *AreMediaReadyResponse) Reset() {
-	*x = AreMediaReadyResponse{}
+func (x *MediaIngestedResponse) Reset() {
+	*x = MediaIngestedResponse{}
 	mi := &file_media_mediapb_v1_media_proto_msgTypes[1]
 	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
 	ms.StoreMessageInfo(mi)
 }
 
-func (x *AreMediaReadyResponse) String() string {
+func (x *MediaIngestedResponse) String() string {
 	return protoimpl.X.MessageStringOf(x)
 }
 
-func (*AreMediaReadyResponse) ProtoMessage() {}
+func (*MediaIngestedResponse) ProtoMessage() {}
 
-func (x *AreMediaReadyResponse) ProtoReflect() protoreflect.Message {
+func (x *MediaIngestedResponse) ProtoReflect() protoreflect.Message {
 	mi := &file_media_mediapb_v1_media_proto_msgTypes[1]
 	if x != nil {
 		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
@@ -97,12 +98,12 @@ func (x *AreMediaReadyResponse) ProtoReflect() protoreflect.Message {
 	return mi.MessageOf(x)
 }
 
-// Deprecated: Use AreMediaReadyResponse.ProtoReflect.Descriptor instead.
-func (*AreMediaReadyResponse) Descriptor() ([]byte, []int) {
+// Deprecated: Use MediaIngestedResponse.ProtoReflect.Descriptor instead.
+func (*MediaIngestedResponse) Descriptor() ([]byte, []int) {
 	return file_media_mediapb_v1_media_proto_rawDescGZIP(), []int{1}
 }
 
-func (x *AreMediaReadyResponse) GetUnfinished() int64 {
+func (x *MediaIngestedResponse) GetUnfinished() int64 {
 	if x != nil {
 		return x.Unfinished
 	}
@@ -113,16 +114,16 @@ var File_media_mediapb_v1_media_proto protoreflect.FileDescriptor
 
 const file_media_mediapb_v1_media_proto_rawDesc = "" +
 	"\n" +
-	"\x1cmedia/mediapb/v1/media.proto\x12\x10media.mediapb.v1\"5\n" +
-	"\x14AreMediaReadyRequest\x12\x1d\n" +
+	"\x1cmedia/mediapb/v1/media.proto\x12\x10media.mediapb.v1\x1a\x1cgoogle/api/annotations.proto\"5\n" +
+	"\x14MediaIngestedRequest\x12\x1d\n" +
 	"\n" +
 	"media_keys\x18\x01 \x03(\tR\tmediaKeys\"7\n" +
-	"\x15AreMediaReadyResponse\x12\x1e\n" +
+	"\x15MediaIngestedResponse\x12\x1e\n" +
 	"\n" +
 	"unfinished\x18\x01 \x01(\x03R\n" +
-	"unfinished2r\n" +
-	"\fMediaService\x12b\n" +
-	"\rAreMediaReady\x12&.media.mediapb.v1.AreMediaReadyRequest\x1a'.media.mediapb.v1.AreMediaReadyResponse\"\x00BMZKgithub.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapbb\x06proto3"
+	"unfinished2\x8f\x01\n" +
+	"\fMediaService\x12\x7f\n" +
+	"\rMediaIngested\x12&.media.mediapb.v1.MediaIngestedRequest\x1a'.media.mediapb.v1.MediaIngestedResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/media/v1/ingestedBMZKgithub.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapbb\x06proto3"
 
 var (
 	file_media_mediapb_v1_media_proto_rawDescOnce sync.Once
@@ -138,12 +139,12 @@ func file_media_mediapb_v1_media_proto_rawDescGZIP() []byte {
 
 var file_media_mediapb_v1_media_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
 var file_media_mediapb_v1_media_proto_goTypes = []any{
-	(*AreMediaReadyRequest)(nil),  // 0: media.mediapb.v1.AreMediaReadyRequest
-	(*AreMediaReadyResponse)(nil), // 1: media.mediapb.v1.AreMediaReadyResponse
+	(*MediaIngestedRequest)(nil),  // 0: media.mediapb.v1.MediaIngestedRequest
+	(*MediaIngestedResponse)(nil), // 1: media.mediapb.v1.MediaIngestedResponse
 }
 var file_media_mediapb_v1_media_proto_depIdxs = []int32{
-	0, // 0: media.mediapb.v1.MediaService.AreMediaReady:input_type -> media.mediapb.v1.AreMediaReadyRequest
-	1, // 1: media.mediapb.v1.MediaService.AreMediaReady:output_type -> media.mediapb.v1.AreMediaReadyResponse
+	0, // 0: media.mediapb.v1.MediaService.MediaIngested:input_type -> media.mediapb.v1.MediaIngestedRequest
+	1, // 1: media.mediapb.v1.MediaService.MediaIngested:output_type -> media.mediapb.v1.MediaIngestedResponse
 	1, // [1:2] is the sub-list for method output_type
 	0, // [0:1] is the sub-list for method input_type
 	0, // [0:0] is the sub-list for extension type_name
