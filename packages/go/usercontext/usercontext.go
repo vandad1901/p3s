@@ -21,3 +21,12 @@ func CtxUser(ctx context.Context) (int64, error) {
 
 	return userID, nil
 }
+
+func CtxUserOrDefault(ctx context.Context) (int64, error) {
+	userID, ok := ctx.Value(UserCtxKey{}).(int64)
+	if !ok {
+		return 0, nil
+	}
+
+	return userID, nil
+}
