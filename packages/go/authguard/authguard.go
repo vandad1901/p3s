@@ -15,6 +15,11 @@ import (
 )
 
 func GRPCAuthGuard(logger *slog.Logger, parser *jwt.Parser, k keyfunc.Keyfunc) grpc.UnaryServerInterceptor {
+	return GRPCAuthGuardWithExceptions(logger, parser, k, map[string]struct{}{})
+}
+
+func GRPCAuthGuardWithExceptions(logger *slog.Logger, parser *jwt.Parser, k keyfunc.Keyfunc,
+	exceptions map[string]struct{}) grpc.UnaryServerInterceptor {
 	return func(
 		ctx context.Context,
 		req any,
@@ -22,6 +27,10 @@ func GRPCAuthGuard(logger *slog.Logger, parser *jwt.Parser, k keyfunc.Keyfunc) g
 		handler grpc.UnaryHandler,
 	) (any, error) {
 		if info.FullMethod == "/grpc.health.v1.Health/Check" {
+			return handler(ctx, req)
+		}
+
+		if _, ok := exceptions[info.FullMethod]; ok {
 			return handler(ctx, req)
 		}
 
