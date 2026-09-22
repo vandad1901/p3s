@@ -35,13 +35,18 @@ func NewService(s3Client *s3.Client, s3PresignClient *s3.PresignClient,
 	}
 }
 
-func (s *Service) GenerateURL(ctx context.Context, pKey string) (string, map[string]string, error) {
+func (s *Service) GenerateURL(ctx context.Context, mediaKey string) (string, map[string]string, error) {
 	userID, err := usercontext.CtxUser(ctx)
 	if err != nil {
 		return "", nil, err
 	}
 
-	key := fmt.Sprintf("%d/%s", userID, pKey)
+	err = validateMediaKey(mediaKey)
+	if err != nil {
+		return "", nil, err
+	}
+
+	key := fmt.Sprintf("%d/%s", userID, mediaKey)
 
 	params := &s3.PutObjectInput{
 		Bucket: aws.String(bucketName),
@@ -61,13 +66,18 @@ func (s *Service) GenerateURL(ctx context.Context, pKey string) (string, map[str
 	return resp.URL, resp.Values, nil
 }
 
-func (s *Service) FinalizeUpload(ctx context.Context, pKey string) error {
+func (s *Service) FinalizeUpload(ctx context.Context, mediaKey string) error {
 	userID, err := usercontext.CtxUser(ctx)
 	if err != nil {
 		return err
 	}
 
-	key := fmt.Sprintf("%d/%s", userID, pKey)
+	err = validateMediaKey(mediaKey)
+	if err != nil {
+		return err
+	}
+
+	key := fmt.Sprintf("%d/%s", userID, mediaKey)
 
 	params := &s3.HeadObjectInput{
 		Bucket: aws.String(bucketName),
