@@ -216,10 +216,17 @@ func createDerivatives(ctx context.Context, img image.Image, formatStr string) (
 	}
 
 	derivatives := []derivative{}
+	srcWidth := img.Bounds().Dx()
 
 	sizes := []int{smallWidth, mediumWidth, largeWidth}
 	for _, width := range sizes {
-		resizedImg := resizeImage(img, width)
+		resizedImg := img
+		outWidth := srcWidth
+
+		if srcWidth > width {
+			resizedImg = resizeImage(img, width)
+			outWidth = width
+		}
 
 		encodedImage, ext, err := encodeForStorage(resizedImg, formatStr)
 		if err != nil {
@@ -228,8 +235,12 @@ func createDerivatives(ctx context.Context, img image.Image, formatStr string) (
 
 		derivatives = append(derivatives, derivative{
 			file:      bytes.NewReader(encodedImage.Bytes()),
-			Extension: fmt.Sprintf("%d.%s", width, ext),
+			Extension: fmt.Sprintf("%d.%s", outWidth, ext),
 		})
+
+		if srcWidth <= width {
+			break
+		}
 	}
 
 	return derivatives, nil
