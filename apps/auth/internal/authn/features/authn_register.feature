@@ -41,7 +41,7 @@ Feature: Authn Register
 
         Then user should get the following error
             """
-            validating password: credential.InsecurePassword
+            validating password: credential.validation.InsecurePassword
             """
     Scenario: Register with duplicate username
         Given user registers with the following data
