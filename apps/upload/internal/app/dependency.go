@@ -12,6 +12,7 @@ import (
 	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
+	"github.com/vandad1901/p3s/packages/go/envutil"
 	"github.com/vandad1901/p3s/packages/go/gormslog"
 	"github.com/wagslane/go-rabbitmq"
 )
@@ -27,9 +28,11 @@ func initializeDependencies(a *App, cfg *config.Config) error {
 		return err
 	}
 
-	err = initializeJWT(a, cfg)
-	if err != nil {
-		return err
+	if cfg.Environment != envutil.Test {
+		err = initializeJWT(a, cfg)
+		if err != nil {
+			return err
+		}
 	}
 
 	err = initializeRabbitMQ(a, cfg)

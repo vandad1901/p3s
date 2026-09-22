@@ -216,10 +216,17 @@ func createDerivatives(ctx context.Context, img image.Image, formatStr string) (
 	}
 
 	derivatives := []derivative{}
+	srcWidth := img.Bounds().Dx()
 
 	sizes := []int{smallWidth, mediumWidth, largeWidth}
 	for _, width := range sizes {
-		resizedImg := resizeImage(img, width)
+		resizedImg := img
+		outWidth := srcWidth
+
+		if srcWidth > width {
+			resizedImg = resizeImage(img, width)
+			outWidth = width
+		}
 
 		encodedImage, ext, err := encodeForStorage(resizedImg, formatStr)
 		if err != nil {
@@ -228,8 +235,12 @@ func createDerivatives(ctx context.Context, img image.Image, formatStr string) (
 
 		derivatives = append(derivatives, derivative{
 			file:      bytes.NewReader(encodedImage.Bytes()),
-			Extension: fmt.Sprintf("%d.%s", width, ext),
+			Extension: fmt.Sprintf("%d.%s", outWidth, ext),
 		})
+
+		if srcWidth <= width {
+			break
+		}
 	}
 
 	return derivatives, nil
@@ -267,7 +278,7 @@ func encodeForStorage(resizedImg image.Image, formatStr string) (bytes.Buffer, s
 
 func resizeImage(src image.Image, width int) image.Image {
 	srcBounds := src.Bounds()
-	height := srcBounds.Dy() * width / srcBounds.Dx()
+	height := max(srcBounds.Dy()*width/srcBounds.Dx(), 1)
 	dst := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	draw.BiLinear.Scale(dst, dst.Bounds(), src, srcBounds, draw.Over, nil)

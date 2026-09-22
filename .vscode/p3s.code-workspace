@@ -30,6 +30,9 @@
 		// Go settings
 		"go.buildTags": "test",
 		"go.testEnvFile": "${workspaceFolder}/.env.test",
+		"go.testEnvVars": {
+			"APP_ENV": "test"
+		},
 		"go.testExplorer.enable": true,
 		"go.testExplorer.showDynamicSubtestsInEditor": true,
 		"go.testTags": "test",

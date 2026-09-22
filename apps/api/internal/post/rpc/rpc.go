@@ -28,7 +28,7 @@ func (s *RPCServer) Create(ctx context.Context, req *postpb.CreateRequest) (*pos
 
 	res, _, err := s.postService.CreatePost(ctx, p, postBlocks)
 	if err != nil {
-		return nil, fmt.Errorf("error creating user: %w", err)
+		return nil, fmt.Errorf("error creating post: %w", err)
 	}
 
 	return &postpb.CreateResponse{
@@ -39,7 +39,7 @@ func (s *RPCServer) Create(ctx context.Context, req *postpb.CreateRequest) (*pos
 func (s *RPCServer) Get(ctx context.Context, req *postpb.GetRequest) (*postpb.GetResponse, error) {
 	post, postBlocks, err := s.postService.GetPost(ctx, req.GetId())
 	if err != nil {
-		return nil, fmt.Errorf("error getting user: %w", err)
+		return nil, fmt.Errorf("error getting post: %w", err)
 	}
 
 	return &postpb.GetResponse{
@@ -58,7 +58,7 @@ func (s *RPCServer) Update(ctx context.Context, req *postpb.UpdateRequest) (*pos
 
 	res, _, err := s.postService.UpdatePost(ctx, pst, mutateList)
 	if err != nil {
-		return nil, fmt.Errorf("error updating user: %w", err)
+		return nil, fmt.Errorf("error updating post: %w", err)
 	}
 
 	return &postpb.UpdateResponse{
@@ -67,9 +67,12 @@ func (s *RPCServer) Update(ctx context.Context, req *postpb.UpdateRequest) (*pos
 }
 
 func (s *RPCServer) Delete(ctx context.Context, req *postpb.DeleteRequest) (*postpb.DeleteResponse, error) {
-	err := s.postService.DeletePost(ctx, &idv.IDV{})
+	err := s.postService.DeletePost(ctx, &idv.IDV{
+		ID:        req.GetId(),
+		UpdatedAt: req.GetUpdatedAt().AsTime(),
+	})
 	if err != nil {
-		return nil, fmt.Errorf("error deleting user: %w", err)
+		return nil, fmt.Errorf("error deleting post: %w", err)
 	}
 
 	return &postpb.DeleteResponse{}, nil
