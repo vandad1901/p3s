@@ -40,10 +40,9 @@ func LoadConfig() *Config {
 	switch cfg.Environment {
 	case envutil.Development, envutil.Production:
 		cfg.GRPCListenAddress = gRPCListenAddress
+		cfg.AuthServiceAddress = envutil.MustGetString("AUTH_JWKS_ADDRESS")
 	case envutil.Test:
 	}
-
-	cfg.AuthServiceAddress = envutil.MustGetString("AUTH_JWKS_ADDRESS")
 
 	return cfg
 }
