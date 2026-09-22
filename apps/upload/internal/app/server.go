@@ -18,7 +18,7 @@ func initializeServers(a *App, cfg *config.Config) {
 
 func registerGRPCServers(a *App, cfg *config.Config) {
 	healthpb.RegisterHealthServer(a.grpcServer, health.NewServer())
-	uploadrpc.Register(a.grpcServer, a.uploadService)
+	uploadrpc.Register(a.grpcServer, a.UploadService)
 
 	if cfg.Environment == envutil.Development {
 		reflection.Register(a.grpcServer)

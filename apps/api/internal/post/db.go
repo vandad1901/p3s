@@ -62,11 +62,17 @@ func dbCreatePostBlocks(_ context.Context, db *gorm.DB, postID int64, items []*P
 	return createdIDs, nil
 }
 
-func dbGetPost(_ context.Context, db *gorm.DB, postID int64) (*Post, error) {
+func dbGetPost(ctx context.Context, db *gorm.DB, postID int64) (*Post, error) {
 	res := new(Post)
 
-	err := db.Table("post").
+	currentUser, err := usercontext.CtxUserOrDefault(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Table("post").
 		Where("id = ?", postID).
+		Where("created_by = ? OR status = ?", currentUser, PostStatusPublished).
 		First(res).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {
@@ -102,6 +108,7 @@ func dbUpdatePost(ctx context.Context, db *gorm.DB, p *Post) (*idv.IDV, error) {
 
 	res := db.Model(Post{}).
 		Where("id = ?", p.ID).
+		Where("created_by = ?", currentUser).
 		Where("updated_at = ?", p.UpdatedAt).
 		Updates(
 			map[string]any{
@@ -172,9 +179,15 @@ func dbDeletePostBlock(_ context.Context, db *gorm.DB, postID int64, items []int
 	return nil
 }
 
-func dbDeletePost(_ context.Context, db *gorm.DB, postIDV *idv.IDV) error {
+func dbDeletePost(ctx context.Context, db *gorm.DB, postIDV *idv.IDV) error {
+	currentUser, err := usercontext.CtxUser(ctx)
+	if err != nil {
+		return err
+	}
+
 	res := db.
 		Where("id = ?", postIDV.ID).
+		Where("created_by = ?", currentUser).
 		Where("updated_at = ?", postIDV.UpdatedAt).
 		Delete(Post{})
 	if res.Error != nil {

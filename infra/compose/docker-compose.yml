@@ -14,7 +14,7 @@ services:
     volumes:
       - ../../apps/auth/jwt_private_key.pem:/app/jwt_private_key.pem
     healthcheck:
-      test: ["CMD","/app/healthcheck"]
+      test: [ "CMD", "/app/healthcheck" ]
       interval: 30s
     depends_on:
       - pg
@@ -26,10 +26,11 @@ services:
     environment:
       - API_PG_HOST=pg
       - APP_ENV=development
+      - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
     env_file:
       - ../../apps/api/.env
     healthcheck:
-      test: ["CMD","/app/healthcheck"]
+      test: [ "CMD", "/app/healthcheck" ]
       interval: 30s
     depends_on:
       - auth
@@ -48,7 +49,7 @@ services:
     env_file:
       - ../../apps/upload/.env
     healthcheck:
-      test: ["CMD","/app/healthcheck"]
+      test: [ "CMD", "/app/healthcheck" ]
       interval: 30s
     depends_on:
       - auth
@@ -64,6 +65,7 @@ services:
       - APP_ENV=development
       - S3_ENDPOINT=http://silo:9000
       - RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
+      - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
     env_file:
       - ../../apps/media/.env
     depends_on:
