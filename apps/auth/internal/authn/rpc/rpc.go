@@ -22,7 +22,8 @@ func Register(s *grpc.Server,
 	})
 }
 
-func (s *AuthnRPCServer) Register(ctx context.Context, req *authnpb.RegisterRequest) (*authnpb.RegisterResponse, error) {
+func (s *AuthnRPCServer) Register(ctx context.Context, req *authnpb.RegisterRequest,
+) (*authnpb.RegisterResponse, error) {
 	user := mapToUser(req.GetUser())
 
 	res, err := s.authnService.Register(ctx, user, req.GetPassword())
@@ -33,7 +34,8 @@ func (s *AuthnRPCServer) Register(ctx context.Context, req *authnpb.RegisterRequ
 	return &authnpb.RegisterResponse{Session: mapToSessionResponsePB(res)}, nil
 }
 
-func (s *AuthnRPCServer) Login(ctx context.Context, req *authnpb.LoginRequest) (*authnpb.LoginResponse, error) {
+func (s *AuthnRPCServer) Login(ctx context.Context, req *authnpb.LoginRequest,
+) (*authnpb.LoginResponse, error) {
 	res, err := s.authnService.Login(ctx, req.GetUsername(), req.GetPassword())
 	if err != nil {
 		return nil, fmt.Errorf("authn login: %w", err)
