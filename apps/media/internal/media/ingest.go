@@ -267,7 +267,7 @@ func encodeForStorage(resizedImg image.Image, formatStr string) (bytes.Buffer, s
 
 func resizeImage(src image.Image, width int) image.Image {
 	srcBounds := src.Bounds()
-	height := srcBounds.Dy() * width / srcBounds.Dx()
+	height := max(srcBounds.Dy()*width/srcBounds.Dx(), 1)
 	dst := image.NewRGBA(image.Rect(0, 0, width, height))
 
 	draw.BiLinear.Scale(dst, dst.Bounds(), src, srcBounds, draw.Over, nil)
