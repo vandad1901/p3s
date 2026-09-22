@@ -7,9 +7,13 @@ import (
 
 func mapToPost(in *postpb.Post) *post.Post {
 	return &post.Post{
+		ID: in.GetId(),
+
 		Title:  in.GetTitle(),
 		Slug:   in.GetSlug(),
 		Status: post.PostStatus(in.GetPostStatus()),
+
+		UpdatedAt: in.GetUpdatedAt().AsTime(),
 	}
 }
 
