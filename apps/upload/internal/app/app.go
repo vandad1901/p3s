@@ -32,7 +32,7 @@ type App struct {
 	publisher *rabbitmq.Publisher
 
 	outboxService *outbox.Service
-	uploadService *upload.Service
+	UploadService *upload.Service
 
 	grpcServer *grpc.Server
 
