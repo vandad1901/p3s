@@ -10,6 +10,8 @@ type Config struct {
 	DSN string
 
 	GRPCListenAddress string
+
+	AuthServiceAddress string
 }
 
 const (
@@ -18,6 +20,7 @@ const (
 
 func LoadConfig() *Config {
 	cfg := new(Config)
+
 	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
 	cfg.DSN = getDSN()
@@ -27,6 +30,8 @@ func LoadConfig() *Config {
 		cfg.GRPCListenAddress = gRPCListenAddress
 	case envutil.Test:
 	}
+
+	cfg.AuthServiceAddress = envutil.MustGetString("AUTH_JWKS_ADDRESS")
 
 	return cfg
 }

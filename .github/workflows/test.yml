@@ -33,6 +33,7 @@ jobs:
 
       JWT_PRIVATE_KEY_PATH: "../../jwt_private_key.pem"
       KEYSET_KEY_ID: "auth-key-1"
+      AUTH_JWKS_ADDRESS: "http://localhost:50151/.well-known/jwks.json"
 
     steps:
       - uses: actions/checkout@v4
