@@ -10,6 +10,8 @@ import (
 	"sync"
 	"time"
 
+	"github.com/MicahParks/keyfunc/v3"
+	"github.com/golang-jwt/jwt/v5"
 	"github.com/vandad1901/p3s/apps/api/internal/config"
 	"github.com/vandad1901/p3s/apps/api/internal/post"
 	"github.com/vandad1901/p3s/packages/go/envutil"
@@ -18,8 +20,10 @@ import (
 )
 
 type App struct {
-	logger *slog.Logger
-	db     *gorm.DB
+	logger  *slog.Logger
+	db      *gorm.DB
+	keyfunc keyfunc.Keyfunc
+	parser  *jwt.Parser
 
 	PostService *post.Service
 
