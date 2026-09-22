@@ -62,11 +62,17 @@ func dbCreatePostBlocks(_ context.Context, db *gorm.DB, postID int64, items []*P
 	return createdIDs, nil
 }
 
-func dbGetPost(_ context.Context, db *gorm.DB, postID int64) (*Post, error) {
+func dbGetPost(ctx context.Context, db *gorm.DB, postID int64) (*Post, error) {
 	res := new(Post)
 
-	err := db.Table("post").
+	currentUser, err := usercontext.CtxUserOrDefault(ctx)
+	if err != nil {
+		return nil, err
+	}
+
+	err = db.Table("post").
 		Where("id = ?", postID).
+		Where("created_by = ? OR status = ?", currentUser, PostStatusPublished).
 		First(res).Error
 	if err != nil {
 		if errors.Is(err, gorm.ErrRecordNotFound) {

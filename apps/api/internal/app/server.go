@@ -12,7 +12,11 @@ import (
 )
 
 func initializeServers(a *App, cfg *config.Config) {
-	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(authguard.GRPCAuthGuard(a.logger, a.parser, a.keyfunc)))
+	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(
+		authguard.GRPCAuthGuardWithExceptions(a.logger, a.parser, a.keyfunc, map[string]struct{}{
+			"/api.postpb.v1/Get": {},
+		}),
+	))
 	registerGRPCServers(a, cfg)
 }
 
