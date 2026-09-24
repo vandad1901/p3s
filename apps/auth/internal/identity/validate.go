@@ -5,9 +5,17 @@ import (
 	"net/mail"
 )
 
+const (
+	MinUsernameLength = 5
+)
+
 func ValidateUser(ctx context.Context, user *User) error {
 	if user.Username == "" {
 		return errEmptyUsername
+	}
+
+	if len(user.Username) < MinUsernameLength {
+		return errInvalidUsername
 	}
 
 	if user.Email == "" {

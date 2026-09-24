@@ -5,6 +5,7 @@ import (
 	authnrpc "github.com/vandad1901/p3s/apps/auth/internal/authn/rpc"
 	"github.com/vandad1901/p3s/apps/auth/internal/config"
 	jwkshttp "github.com/vandad1901/p3s/apps/auth/internal/jwks/http"
+	"github.com/vandad1901/p3s/packages/go/apperror"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"google.golang.org/grpc"
 	"google.golang.org/grpc/health"
@@ -18,7 +19,7 @@ func initializeServers(a *App, cfg *config.Config) {
 }
 
 func initializeGRPC(a *App, cfg *config.Config) {
-	a.grpcServer = grpc.NewServer()
+	a.grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(apperror.GRPCMiddleware(a.logger)))
 	registerGRPCServers(a, a.grpcServer, cfg)
 }
 
