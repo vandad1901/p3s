@@ -16,6 +16,15 @@ Feature: Authn Register
             """
             validating user: identity.validation.emptyUsername
             """
+    Scenario: Register with short username
+        When user registers with the following data expecting error
+            | Key    | Username | Email                     | Password       |
+            | $User1 | {4c}     | johndoe-{16c}@example.com | p@ssw0rd-{16c} |
+
+        Then user should get the following error
+            """
+            validating user: identity.validation.invalidUsername
+            """
     Scenario: Register with empty email
         When user registers with the following data expecting error
             | Key    | Username      | Email    | Password       |
