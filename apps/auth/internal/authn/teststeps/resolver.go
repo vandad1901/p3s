@@ -16,12 +16,12 @@ func resolveUser(s *godogutil.SharedData, row map[string]string) *identity.User 
 	return u
 }
 
-func resolveRefreshJWTRequest(s *scenario.Scenario, row map[string]string) *authnpb.RefreshJWTRequest {
+func resolveRefreshJWTRequest(s *scenario.Scenario, row map[string]string) (*authnpb.RefreshJWTRequest, string) {
 	res := new(authnpb.RefreshJWTRequest)
 
 	res.UserId = godogutil.ResolveInt64(s.SharedData, row, "UserID")
 	res.SessionId = godogutil.ResolveInt64(s.SharedData, row, "SessionID")
-	res.RefreshToken = godogutil.ResolveString(s.SharedData, row, "RefreshToken")
+	refreshToken := godogutil.ResolveString(s.SharedData, row, "RefreshToken")
 
-	return res
+	return res, refreshToken
 }
