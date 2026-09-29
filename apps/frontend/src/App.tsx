@@ -1,6 +1,6 @@
+import { Authentication } from "@/pages/authn/authn";
+import { Home } from "@/pages/home/home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
-import { Authentication } from "./pages/authn/authn";
-import { Home } from "./pages/home/home";
 
 function App() {
   return (
