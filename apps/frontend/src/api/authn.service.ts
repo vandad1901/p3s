@@ -14,6 +14,7 @@ async function Register(
 ): Promise<APIResponse<RegisterResponse>> {
   return await api("/auth/v1/authn/register", {
     method: "POST",
+    credentials: "include",
     body: JSON.stringify(request),
   });
 }
@@ -23,6 +24,7 @@ async function Login(
 ): Promise<APIResponse<LoginResponse>> {
   return await api("/auth/v1/authn/login", {
     method: "POST",
+    credentials: "include",
     body: JSON.stringify(request),
   });
 }
