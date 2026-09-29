@@ -46,7 +46,6 @@ message AuthSessionResponse {
   int64 session_id = 1;
 
   string                    jwt               = 2;
-  string                    refresh_token     = 3;
   google.protobuf.Timestamp access_expires_at = 4;
 }
 
@@ -64,9 +63,8 @@ message LoginResponse {
 }
 
 message RefreshJWTRequest {
-  int64  user_id       = 1;
-  int64  session_id    = 2;
-  string refresh_token = 3;
+  int64 user_id    = 1;
+  int64 session_id = 2;
 }
 
 message RefreshJWTResponse {
