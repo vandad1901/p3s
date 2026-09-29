@@ -121,18 +121,18 @@ func (s *Service) Login(ctx context.Context, username string, password string) (
 	return res, nil
 }
 
-func (s *Service) RefreshJWT(ctx context.Context, in *authnpb.RefreshJWTRequest) (*authnpb.RefreshJWTResponse, error) {
+func (s *Service) RefreshJWT(ctx context.Context, refreshToken string, sessionID, userID int64) (*authnpb.RefreshJWTResponse, error) {
 	db := s.db.WithContext(ctx)
 
-	refreshTokenHash := token.HashRefreshToken(in.GetRefreshToken())
+	refreshTokenHash := token.HashRefreshToken(refreshToken)
 
 	valid, err := s.sessionService.CheckRefreshTokenTx(ctx, db,
-		in.GetSessionId(), in.GetUserId(), refreshTokenHash)
+		sessionID, userID, refreshTokenHash)
 	if err != nil || !valid {
 		return nil, errInvalidAuthn
 	}
 
-	jwt, err := s.tokenService.GenerateJWT(in.GetUserId())
+	jwt, err := s.tokenService.GenerateJWT(userID)
 	if err != nil {
 		return nil, fmt.Errorf("generating jwt: %w", err)
 	}

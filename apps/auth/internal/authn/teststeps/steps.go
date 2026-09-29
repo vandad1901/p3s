@@ -100,9 +100,9 @@ func RefreshStep(s *scenario.Scenario) func(context.Context, string, *godog.Tabl
 		currentMap := s.SyncTableToMap(table)
 
 		for _, row := range currentMap {
-			req := resolveRefreshJWTRequest(s, row)
+			req, refreshToken := resolveRefreshJWTRequest(s, row)
 
-			res, err := s.A.AuthnService.RefreshJWT(ctx, req)
+			res, err := s.A.AuthnService.RefreshJWT(ctx, refreshToken, req.GetSessionId(), req.GetUserId())
 			if expectError != "" {
 				s.Require.Error(err)
 				s.ReturnedError = err
