@@ -26,6 +26,7 @@ static_resources:
                         allow_headers: "content-type,authorization"
                         expose_headers: "grpc-status,grpc-message"
                         max_age: "86400"
+                        allow_credentials: true
 
                       routes:
                         - match:
