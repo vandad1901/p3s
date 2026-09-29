@@ -77,21 +77,21 @@ type BlockType int32
 
 const (
 	BlockType_BLOCK_TYPE_UNSPECIFIED BlockType = 0
-	BlockType_BLOCK_TYPE_HEADER      BlockType = 1
-	BlockType_BLOCK_TYPE_TEXT        BlockType = 2
+	BlockType_BLOCK_TYPE_TEXT        BlockType = 1
+	BlockType_BLOCK_TYPE_MEDIA       BlockType = 2
 )
 
 // Enum value maps for BlockType.
 var (
 	BlockType_name = map[int32]string{
 		0: "BLOCK_TYPE_UNSPECIFIED",
-		1: "BLOCK_TYPE_HEADER",
-		2: "BLOCK_TYPE_TEXT",
+		1: "BLOCK_TYPE_TEXT",
+		2: "BLOCK_TYPE_MEDIA",
 	}
 	BlockType_value = map[string]int32{
 		"BLOCK_TYPE_UNSPECIFIED": 0,
-		"BLOCK_TYPE_HEADER":      1,
-		"BLOCK_TYPE_TEXT":        2,
+		"BLOCK_TYPE_TEXT":        1,
+		"BLOCK_TYPE_MEDIA":       2,
 	}
 )
 
@@ -802,11 +802,11 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"PostStatus\x12\x1b\n" +
 	"\x17POST_STATUS_UNSPECIFIED\x10\x00\x12\x15\n" +
 	"\x11POST_STATUS_DRAFT\x10\x01\x12\x19\n" +
-	"\x15POST_STATUS_PUBLISHED\x10\x02*S\n" +
+	"\x15POST_STATUS_PUBLISHED\x10\x02*R\n" +
 	"\tBlockType\x12\x1a\n" +
-	"\x16BLOCK_TYPE_UNSPECIFIED\x10\x00\x12\x15\n" +
-	"\x11BLOCK_TYPE_HEADER\x10\x01\x12\x13\n" +
-	"\x0fBLOCK_TYPE_TEXT\x10\x022\x8e\x03\n" +
+	"\x16BLOCK_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
+	"\x0fBLOCK_TYPE_TEXT\x10\x01\x12\x14\n" +
+	"\x10BLOCK_TYPE_MEDIA\x10\x022\x8e\x03\n" +
 	"\vPostService\x12a\n" +
 	"\x06Create\x12\x1c.api.postpb.v1.CreateRequest\x1a\x1d.api.postpb.v1.CreateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x04post\"\f/api/v1/post\x12W\n" +
 	"\x03Get\x12\x19.api.postpb.v1.GetRequest\x1a\x1a.api.postpb.v1.GetResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/v1/post/{id}\x12a\n" +
