@@ -57,8 +57,8 @@ message Post {
 
 enum BlockType {
   BLOCK_TYPE_UNSPECIFIED = 0;
-  BLOCK_TYPE_HEADER      = 1;
-  BLOCK_TYPE_TEXT        = 2;
+  BLOCK_TYPE_TEXT        = 1;
+  BLOCK_TYPE_MEDIA       = 2;
 }
 
 message PostBlock {
