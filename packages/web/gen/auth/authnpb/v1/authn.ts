@@ -17,7 +17,6 @@ export interface RegisterRequest {
 export interface AuthSessionResponse {
   sessionId: number;
   jwt: string;
-  refreshToken: string;
   accessExpiresAt: Date | undefined;
 }
 
@@ -37,7 +36,6 @@ export interface LoginResponse {
 export interface RefreshJWTRequest {
   userId: number;
   sessionId: number;
-  refreshToken: string;
 }
 
 export interface RefreshJWTResponse {
