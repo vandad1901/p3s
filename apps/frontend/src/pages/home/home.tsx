@@ -3,7 +3,7 @@ import { useAuth } from "../../contexts/AuthContext";
 import { Button } from "@base-ui/react/button";
 
 export function Home() {
-  const { user, setUser } = useAuth();
+  const { user, setUserFromAuth } = useAuth();
 
   return (
     <>
@@ -11,7 +11,7 @@ export function Home() {
         {user === null ? (
           <Link to="/login">login</Link>
         ) : (
-          <Button onClick={() => setUser(null)}>logout</Button>
+          <Button onClick={() => setUserFromAuth(null)}>logout</Button>
         )}
         <p>
           Welcome to the home page!{" "}
