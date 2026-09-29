@@ -20,8 +20,7 @@ func mapToSessionResponsePB(in *session.SessionResponse) *authnpb.AuthSessionRes
 	return &authnpb.AuthSessionResponse{
 		SessionId: in.SessionID,
 
-		Jwt:          in.JWT,
-		RefreshToken: in.RefreshToken,
+		Jwt: in.JWT,
 
 		AccessExpiresAt: timestamppb.New(in.ExpiresAt),
 	}

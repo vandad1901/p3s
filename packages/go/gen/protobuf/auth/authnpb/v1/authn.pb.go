@@ -80,7 +80,6 @@ type AuthSessionResponse struct {
 	state           protoimpl.MessageState `protogen:"open.v1"`
 	SessionId       int64                  `protobuf:"varint,1,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
 	Jwt             string                 `protobuf:"bytes,2,opt,name=jwt,proto3" json:"jwt,omitempty"`
-	RefreshToken    string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	AccessExpiresAt *timestamppb.Timestamp `protobuf:"bytes,4,opt,name=access_expires_at,json=accessExpiresAt,proto3" json:"access_expires_at,omitempty"`
 	unknownFields   protoimpl.UnknownFields
 	sizeCache       protoimpl.SizeCache
@@ -126,13 +125,6 @@ func (x *AuthSessionResponse) GetSessionId() int64 {
 func (x *AuthSessionResponse) GetJwt() string {
 	if x != nil {
 		return x.Jwt
-	}
-	return ""
-}
-
-func (x *AuthSessionResponse) GetRefreshToken() string {
-	if x != nil {
-		return x.RefreshToken
 	}
 	return ""
 }
@@ -288,7 +280,6 @@ type RefreshJWTRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
 	SessionId     int64                  `protobuf:"varint,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
-	RefreshToken  string                 `protobuf:"bytes,3,opt,name=refresh_token,json=refreshToken,proto3" json:"refresh_token,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -335,13 +326,6 @@ func (x *RefreshJWTRequest) GetSessionId() int64 {
 		return x.SessionId
 	}
 	return 0
-}
-
-func (x *RefreshJWTRequest) GetRefreshToken() string {
-	if x != nil {
-		return x.RefreshToken
-	}
-	return ""
 }
 
 type RefreshJWTResponse struct {
@@ -395,12 +379,11 @@ const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
 	"\x1bauth/authnpb/v1/authn.proto\x12\x0fauth.authnpb.v1\x1a\x1fgoogle/protobuf/timestamp.proto\x1a\x1cgoogle/api/annotations.proto\x1a\x19auth/userpb/v1/user.proto\"W\n" +
 	"\x0fRegisterRequest\x12(\n" +
 	"\x04user\x18\x01 \x01(\v2\x14.auth.userpb.v1.UserR\x04user\x12\x1a\n" +
-	"\bpassword\x18\x02 \x01(\tR\bpassword\"\xb3\x01\n" +
+	"\bpassword\x18\x02 \x01(\tR\bpassword\"\x8e\x01\n" +
 	"\x13AuthSessionResponse\x12\x1d\n" +
 	"\n" +
 	"session_id\x18\x01 \x01(\x03R\tsessionId\x12\x10\n" +
-	"\x03jwt\x18\x02 \x01(\tR\x03jwt\x12#\n" +
-	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\x12F\n" +
+	"\x03jwt\x18\x02 \x01(\tR\x03jwt\x12F\n" +
 	"\x11access_expires_at\x18\x04 \x01(\v2\x1a.google.protobuf.TimestampR\x0faccessExpiresAt\"R\n" +
 	"\x10RegisterResponse\x12>\n" +
 	"\asession\x18\x01 \x01(\v2$.auth.authnpb.v1.AuthSessionResponseR\asession\"F\n" +
@@ -408,12 +391,11 @@ const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
 	"\busername\x18\x01 \x01(\tR\busername\x12\x1a\n" +
 	"\bpassword\x18\x02 \x01(\tR\bpassword\"O\n" +
 	"\rLoginResponse\x12>\n" +
-	"\asession\x18\x01 \x01(\v2$.auth.authnpb.v1.AuthSessionResponseR\asession\"p\n" +
+	"\asession\x18\x01 \x01(\v2$.auth.authnpb.v1.AuthSessionResponseR\asession\"K\n" +
 	"\x11RefreshJWTRequest\x12\x17\n" +
 	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
 	"\n" +
-	"session_id\x18\x02 \x01(\x03R\tsessionId\x12#\n" +
-	"\rrefresh_token\x18\x03 \x01(\tR\frefreshToken\"&\n" +
+	"session_id\x18\x02 \x01(\x03R\tsessionId\"&\n" +
 	"\x12RefreshJWTResponse\x12\x10\n" +
 	"\x03jwt\x18\x01 \x01(\tR\x03jwt2\xe6\x02\n" +
 	"\fAuthnService\x12s\n" +
