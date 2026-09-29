@@ -4,13 +4,16 @@ import react, { reactCompilerPreset } from "@vitejs/plugin-react";
 import { defineConfig } from "vite";
 
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   resolve: {
     tsconfigPaths: true,
+  },
+  build: {
+    sourcemap: mode === "development",
   },
   plugins: [
     react(),
     tailwindcss(),
     babel({ presets: [reactCompilerPreset()] }),
   ],
-});
+}));
