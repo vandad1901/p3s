@@ -2,13 +2,21 @@ import { postService } from "@/api/api.service";
 import { uploadMedia } from "@/api/upload.service";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
+import {
+  Select,
+  SelectContent,
+  SelectGroup,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 import { Input } from "@base-ui/react/input";
 import {
-  closestCenter,
   DndContext,
   DragOverlay,
   KeyboardSensor,
   PointerSensor,
+  pointerWithin,
   useSensor,
   useSensors,
   type DragEndEvent,
@@ -40,10 +48,58 @@ const MAX_IMAGE_BYTES = 20 << 20;
 
 // types
 
+const textSizeItems = [
+  {
+    label: "Heading 1",
+    value: "h1",
+  },
+  {
+    label: "Heading 2",
+    value: "h2",
+  },
+  {
+    label: "Heading 3",
+    value: "h3",
+  },
+  {
+    label: "Paragraph",
+    value: "p",
+  },
+] as const;
+
+export type TextSizeType = (typeof textSizeItems)[number]["value"];
+
+type TextMetadata = {
+  size: TextSizeType;
+};
+
 type TextBlock = {
   id: string;
   blockType: BlockType.BLOCK_TYPE_TEXT;
   text: string;
+  metadata: TextMetadata;
+};
+
+const imageSizeItems = [
+  {
+    label: "Small",
+    value: "sm",
+  },
+  {
+    label: "Medium",
+    value: "md",
+  },
+  {
+    label: "Large",
+    value: "lg",
+  },
+] as const;
+
+export type ImageSizeType = (typeof imageSizeItems)[number]["value"];
+
+type ImageMetadata = {
+  size: ImageSizeType;
+  // caption: string;
 };
 
 type MediaBlock = {
@@ -53,6 +109,7 @@ type MediaBlock = {
   src: string;
   status: "uploading" | "ready" | "error";
   error?: string;
+  metadata: ImageMetadata;
 };
 
 type Block = TextBlock | MediaBlock;
@@ -74,8 +131,10 @@ type State = {
 type Action =
   | { type: "title"; title: string }
   | { type: "slug"; slug: string }
-  | { type: "text"; id: string; text: string } // editing text block with id
+  | { type: "text"; id: string; text: string }
   | { type: "insert"; index: number; blocks: Block[] }
+  | { type: "updateTextMeta"; metadata: TextMetadata; id: string }
+  | { type: "updateImageMeta"; metadata: ImageMetadata; id: string }
   | { type: "remove"; id: string }
   | { type: "move"; from: number; to: number }
   | { type: "upload"; id: string; status: MediaBlock["status"]; error?: string } // documenting upload status changes
@@ -91,6 +150,7 @@ const newText = (): TextBlock => ({
   id: crypto.randomUUID(),
   blockType: BlockType.BLOCK_TYPE_TEXT,
   text: "",
+  metadata: { size: "p" },
 });
 const newMedia = (file: File, src: string): MediaBlock => ({
   id: crypto.randomUUID(),
@@ -98,6 +158,7 @@ const newMedia = (file: File, src: string): MediaBlock => ({
   file,
   src,
   status: "uploading",
+  metadata: { size: "lg" },
 });
 
 function reducer(s: State, a: Action): State {
@@ -139,6 +200,20 @@ function reducer(s: State, a: Action): State {
         ...d,
         blocks: [...d.blocks.slice(0, i), ...a.blocks, ...d.blocks.slice(i)],
       });
+    }
+    case "updateTextMeta": {
+      return commit(
+        s,
+        editBlockByID(d, a.id, (b) => ({ ...(b as TextBlock), metadata: a.metadata })),
+        "metadata",
+      );
+    }
+    case "updateImageMeta": {
+      return commit(
+        s,
+        editBlockByID(d, a.id, (b) => ({ ...(b as MediaBlock), metadata: a.metadata })),
+        "metadata",
+      );
     }
     case "remove": {
       const remainingBlocks = d.blocks.filter((b) => b.id !== a.id);
@@ -216,11 +291,11 @@ function toCreateRequest(doc: Doc, publish: boolean): CreateRequest {
     postBlocks: blocks.map((b, i) => ({
       id: 0,
       postId: 0,
-      position: i,
+      position: i * 10,
       blockType: b.blockType,
       text: b.blockType === BlockType.BLOCK_TYPE_TEXT ? b.text.trim() : "",
       media: b.blockType === BlockType.BLOCK_TYPE_MEDIA ? b.id : "",
-      metadata: "{}",
+      metadata: JSON.stringify(b.metadata),
     })),
   };
 }
@@ -248,6 +323,8 @@ export function Editor() {
   const [error, setError] = useState<string | null>(null);
   const [busy, setBusy] = useState(false);
   const [activeId, setActiveId] = useState<string | null>(null);
+  const [focusedId, setFocusedId] = useState<string | null>(null);
+  const focusedBlock = doc.blocks.find((b) => b.id === focusedId);
   const activeBlock = doc.blocks.find((b) => b.id === activeId);
 
   const root = useRef<HTMLDivElement>(null);
@@ -273,6 +350,7 @@ export function Editor() {
   useEffect(() => {
     if (!unsaved) return;
     const warn = (e: BeforeUnloadEvent) => e.preventDefault();
+
     window.addEventListener("beforeunload", warn);
     return () => window.removeEventListener("beforeunload", warn);
   }, [unsaved]);
@@ -450,6 +528,13 @@ export function Editor() {
     <div
       ref={root}
       className="mx-auto flex max-w-2xl flex-col items-center pb-12"
+      onFocus={(e) => {
+        const li = (e.target as HTMLElement).closest<HTMLElement>("[data-id]");
+        console.log("focused", li?.dataset.id);
+        if (li?.dataset.id) {
+          setFocusedId(li.dataset.id);
+        }
+      }}
       onPaste={onPaste}
       onDragOver={(e) => e.dataTransfer.types.includes("Files") && e.preventDefault()}
       onDrop={(e) => {
@@ -458,7 +543,7 @@ export function Editor() {
         addFiles(Array.from(e.dataTransfer.files), doc.blocks.length);
       }}
     >
-      <div className="bg-background sticky top-0 z-5 w-full border-b">
+      <div className="bg-background sticky top-0 z-5 w-full border-b px-2 md:px-0">
         <Input
           dir="auto"
           className="placeholder:text-muted-foreground/60 mt-10 resize-none text-3xl font-bold outline-none"
@@ -498,24 +583,72 @@ export function Editor() {
             }
           />
         </label>
-        <div className="flex w-full flex-col gap-1">
-          <div className="flex w-full justify-between p-2">
-            <ButtonGroup>
-              <Button
-                variant={"outline"}
-                onClick={() => dispatch({ type: "undo" })}
-                disabled={past.length === 0}
-              >
-                Undo <Undo />
-              </Button>
-              <Button
-                variant={"outline"}
-                onClick={() => dispatch({ type: "redo" })}
-                disabled={future.length === 0}
-              >
-                Redo <Redo />
-              </Button>
-            </ButtonGroup>
+        <div className="flex w-full flex-col gap-2 p-2">
+          <div className="flex w-full flex-wrap justify-between gap-y-3">
+            <div className="flex items-center gap-2">
+              {focusedBlock && (
+                <Select
+                  items={
+                    focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT
+                      ? textSizeItems
+                      : imageSizeItems
+                  }
+                  value={focusedBlock.metadata.size}
+                  onValueChange={(value) => {
+                    if (focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT) {
+                      dispatch({
+                        type: "updateTextMeta",
+                        id: focusedBlock.id,
+                        metadata: { size: value as TextSizeType },
+                      });
+                    }
+
+                    if (focusedBlock.blockType === BlockType.BLOCK_TYPE_MEDIA) {
+                      dispatch({
+                        type: "updateImageMeta",
+                        id: focusedBlock.id,
+                        metadata: { size: value as ImageSizeType },
+                      });
+                    }
+                  }}
+                >
+                  <SelectTrigger className="w-30 focus-within:opacity-100 hover:opacity-100">
+                    <SelectValue placeholder="Size" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectGroup>
+                      {(focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT
+                        ? textSizeItems
+                        : imageSizeItems
+                      ).map((item) => (
+                        <SelectItem
+                          key={item.value}
+                          value={item.value}
+                        >
+                          {item.label}
+                        </SelectItem>
+                      ))}
+                    </SelectGroup>
+                  </SelectContent>
+                </Select>
+              )}
+              <ButtonGroup>
+                <Button
+                  variant={"outline"}
+                  onClick={() => dispatch({ type: "undo" })}
+                  disabled={past.length === 0}
+                >
+                  Undo <Undo />
+                </Button>
+                <Button
+                  variant={"outline"}
+                  onClick={() => dispatch({ type: "redo" })}
+                  disabled={future.length === 0}
+                >
+                  Redo <Redo />
+                </Button>
+              </ButtonGroup>
+            </div>
             <div className="flex items-center gap-1">
               <p
                 aria-live="polite"
@@ -545,28 +678,27 @@ export function Editor() {
               </Button>
             </div>
           </div>
-          <p className="text-destructive/80 px-2 text-sm">{error}</p>
+          <p className="text-destructive/80 text-sm">{error}</p>
         </div>
       </div>
       <DndContext
         sensors={sensors}
         collisionDetection={(p) => {
-          return closestCenter(p);
-          // if (p.pointerCoordinates) {
-          //   p.pointerCoordinates.x = p.droppableContainers[0].rect.current?.left ?? 0;
-          //   const topY = p.droppableContainers.reduce(
-          //     (y, c) => Math.min(y, c.rect.current?.top ?? 0),
-          //     999999999,
-          //   );
-          //   const botY = p.droppableContainers.reduce(
-          //     (y, c) => Math.max(y, c.rect.current?.bottom ?? 0),
-          //     -999999999,
-          //   );
+          if (p.pointerCoordinates) {
+            p.pointerCoordinates.x = p.droppableContainers[0].rect.current?.left ?? 0;
+            const topY = p.droppableContainers.reduce(
+              (y, c) => Math.min(y, c.rect.current?.top ?? 0),
+              999999999,
+            );
+            const botY = p.droppableContainers.reduce(
+              (y, c) => Math.max(y, c.rect.current?.bottom ?? 0),
+              -999999999,
+            );
 
-          //   p.pointerCoordinates.y = Math.max(topY, Math.min(botY, p.pointerCoordinates.y));
-          // }
+            p.pointerCoordinates.y = Math.max(topY, Math.min(botY, p.pointerCoordinates.y));
+          }
 
-          // return pointerWithin(p);
+          return pointerWithin(p);
         }}
         onDragStart={({ active }: DragStartEvent) => {
           setActiveId(String(active.id));
@@ -596,6 +728,7 @@ export function Editor() {
                 fileInput={fileInput}
                 key={block.id}
                 startUpload={startUpload}
+                setFocusedId={setFocusedId}
               />
             ))}
           </ul>
@@ -609,14 +742,25 @@ export function Editor() {
                 <textarea
                   readOnly
                   dir="auto"
-                  className="field-sizing-content w-full resize-none outline-none"
+                  className={cn(
+                    "field-sizing-content w-full resize-none overflow-hidden outline-none",
+                    activeBlock.metadata.size === "h1" && "text-3xl font-bold",
+                    activeBlock.metadata.size === "h2" && "text-2xl font-semibold",
+                    activeBlock.metadata.size === "h3" && "text-xl font-semibold",
+                    activeBlock.metadata.size === "p" && "text-base",
+                  )}
                   placeholder="Start typing... (Enter adds a block, Shift+Enter a line break"
                   value={activeBlock.text}
                 ></textarea>
               ) : (
                 <img
                   src={activeBlock.src}
-                  className="max-h-96 max-w-full min-w-0 flex-1 rounded-md object-contain pr-8"
+                  className={cn(
+                    "max-w-full min-w-0 flex-1 rounded-md object-contain pr-8",
+                    activeBlock.metadata.size === "sm" && "max-h-48",
+                    activeBlock.metadata.size === "md" && "max-h-96",
+                    activeBlock.metadata.size === "lg" && "max-h-128",
+                  )}
                 />
               )}
             </div>
@@ -647,6 +791,7 @@ type SortableBlockProps = {
   insertAt: React.RefObject<number>;
   fileInput: React.RefObject<HTMLInputElement | null>;
   startUpload: (b: MediaBlock) => void;
+  setFocusedId: (id: string | null) => void;
 };
 
 function SortableBlock({
@@ -658,6 +803,7 @@ function SortableBlock({
   insertAt,
   fileInput,
   startUpload,
+  setFocusedId,
 }: SortableBlockProps) {
   const {
     attributes,
@@ -675,6 +821,7 @@ function SortableBlock({
     <li
       ref={setNodeRef}
       data-index={index}
+      data-id={block.id}
       className={"group relative flex flex-col items-start gap-1 rounded-md"}
     >
       <div
@@ -699,7 +846,13 @@ function SortableBlock({
           <textarea
             dir="auto"
             data-focus={block.id}
-            className="placeholder:text-muted-foreground/60 field-sizing-content w-full flex-1 resize-none outline-none"
+            className={cn(
+              "placeholder:text-muted-foreground/60 field-sizing-content w-full flex-1 resize-none overflow-hidden outline-none",
+              block.metadata.size === "h1" && "text-3xl font-bold",
+              block.metadata.size === "h2" && "text-2xl font-semibold",
+              block.metadata.size === "h3" && "text-xl font-semibold",
+              block.metadata.size === "p" && "text-base",
+            )}
             placeholder="Start typing... (Enter adds a block, Shift+Enter a line break"
             value={block.text}
             onChange={(e) =>
@@ -716,6 +869,7 @@ function SortableBlock({
           <MediaView
             block={block}
             onRetry={() => startUpload(block)}
+            setFocusedId={setFocusedId}
           />
         )}
         <Button
@@ -741,15 +895,22 @@ function SortableBlock({
 type MediaViewProps = {
   block: MediaBlock;
   onRetry: () => void;
+  setFocusedId: (id: string | null) => void;
 };
 
-function MediaView({ block, onRetry }: MediaViewProps) {
+function MediaView({ block, onRetry, setFocusedId }: MediaViewProps) {
   return (
-    <div className="relative w-full overflow-hidden">
+    <div
+      className="relative w-full overflow-hidden"
+      onClick={() => setFocusedId(block.id)}
+    >
       <img
         src={block.src}
         className={cn(
-          "max-h-96 w-full rounded-md object-contain",
+          "w-full rounded-md object-contain",
+          block.metadata.size === "sm" && "max-h-48",
+          block.metadata.size === "md" && "max-h-96",
+          block.metadata.size === "lg" && "max-h-128",
           block.status !== "ready" && "opacity-60",
         )}
       />
