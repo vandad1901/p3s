@@ -6,9 +6,10 @@ function App() {
   return (
     <BrowserRouter>
       <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Authentication mode="login" />} />
-        <Route path="/signup" element={<Authentication mode="register" />} />
+          <Route
+            path="/editor"
+            element={<Editor />}
+          />
       </Routes>
     </BrowserRouter>
   );
