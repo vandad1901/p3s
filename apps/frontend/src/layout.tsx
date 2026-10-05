@@ -38,15 +38,6 @@ export function Layout() {
                 <PenLine /> Write
               </NavLink>
 
-              <NavLink
-                to="/my-editor"
-                className={({ isActive }) =>
-                  cn(buttonVariants({ variant: isActive ? "secondary" : "ghost", size: "lg" }))
-                }
-              >
-                <PenLine /> My Write
-              </NavLink>
-
               <div className="flex items-center gap-2 ps-2">
                 <span
                   aria-hidden
