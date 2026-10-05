@@ -42,19 +42,19 @@ export namespace BlockType {
 }
 
 export interface Post {
-  id: number;
+  id: string;
   title: string;
   slug: string;
   postStatus: PostStatus;
   createdAt: Date | undefined;
-  createdBy: number;
+  createdBy: string;
   updatedAt: Date | undefined;
-  updatedBy: number;
+  updatedBy: string;
 }
 
 export interface PostBlock {
-  id: number;
-  postId: number;
+  id: string;
+  postId: string;
   position: number;
   blockType: BlockType;
   media: string;
@@ -83,7 +83,7 @@ export interface GetResponse {
 export interface PostBlockUpdateRequest {
   inserted: PostBlock[];
   updated: PostBlock[];
-  deleted: number[];
+  deleted: string[];
 }
 
 export interface UpdateRequest {
@@ -96,7 +96,7 @@ export interface UpdateResponse {
 }
 
 export interface DeleteRequest {
-  id: number;
+  id: string;
   updatedAt: Date | undefined;
 }
 
