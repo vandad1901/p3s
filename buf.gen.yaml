@@ -17,3 +17,4 @@ plugins:
     opt:
       - onlyTypes=true
       - emitImportedFiles=false
+      - enumsAsLiterals=true
