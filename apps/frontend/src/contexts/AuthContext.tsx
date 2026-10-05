@@ -101,7 +101,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       } catch (error) {
         console.error("Failed to refresh JWT", error);
       }
-    }, 1000 );
+    }, 10*60*1000 );
 
     return () => {
       clearInterval(tokenRefresher);
