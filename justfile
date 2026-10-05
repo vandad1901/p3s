@@ -51,9 +51,9 @@ set shell := ["sh", "-cu"]
 
 @run:
     just auth run & \
-    just api run & \
-    just upload run & \
-    just media run & \
+    sleep 0.5 && just api run & \
+    sleep 0.5 && just upload run & \
+    sleep 0.5 && just media run & \
     wait
 
 @test:

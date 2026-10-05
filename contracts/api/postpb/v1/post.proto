@@ -14,7 +14,7 @@ service PostService {
   {
     option (google.api.http) = {
       post: "/api/v1/post"
-      body: "post"
+      body: "*"
     };
   };
   rpc Get (GetRequest) returns (GetResponse)
@@ -26,7 +26,7 @@ service PostService {
   rpc Update (UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
       patch: "/api/v1/post"
-      body : "post"
+      body : "*"
     };
   };
   rpc Delete (DeleteRequest) returns (DeleteResponse) {
@@ -69,6 +69,8 @@ message PostBlock {
   BlockType block_type = 4;
   string    media      = 5;
   string    text       = 6;
+
+  string metadata = 7;
 }
 
 message CreateRequest {
