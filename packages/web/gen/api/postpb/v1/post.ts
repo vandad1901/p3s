@@ -9,18 +9,36 @@ import type { IDVersion } from "../../../commonpb/v1/common";
 
 export const protobufPackage = "api.postpb.v1";
 
-export enum PostStatus {
-  POST_STATUS_UNSPECIFIED = 0,
-  POST_STATUS_DRAFT = 1,
-  POST_STATUS_PUBLISHED = 2,
-  UNRECOGNIZED = -1,
+export const PostStatus = {
+  POST_STATUS_UNSPECIFIED: 0,
+  POST_STATUS_DRAFT: 1,
+  POST_STATUS_PUBLISHED: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type PostStatus = typeof PostStatus[keyof typeof PostStatus];
+
+export namespace PostStatus {
+  export type POST_STATUS_UNSPECIFIED = typeof PostStatus.POST_STATUS_UNSPECIFIED;
+  export type POST_STATUS_DRAFT = typeof PostStatus.POST_STATUS_DRAFT;
+  export type POST_STATUS_PUBLISHED = typeof PostStatus.POST_STATUS_PUBLISHED;
+  export type UNRECOGNIZED = typeof PostStatus.UNRECOGNIZED;
 }
 
-export enum BlockType {
-  BLOCK_TYPE_UNSPECIFIED = 0,
-  BLOCK_TYPE_TEXT = 1,
-  BLOCK_TYPE_MEDIA = 2,
-  UNRECOGNIZED = -1,
+export const BlockType = {
+  BLOCK_TYPE_UNSPECIFIED: 0,
+  BLOCK_TYPE_TEXT: 1,
+  BLOCK_TYPE_MEDIA: 2,
+  UNRECOGNIZED: -1,
+} as const;
+
+export type BlockType = typeof BlockType[keyof typeof BlockType];
+
+export namespace BlockType {
+  export type BLOCK_TYPE_UNSPECIFIED = typeof BlockType.BLOCK_TYPE_UNSPECIFIED;
+  export type BLOCK_TYPE_TEXT = typeof BlockType.BLOCK_TYPE_TEXT;
+  export type BLOCK_TYPE_MEDIA = typeof BlockType.BLOCK_TYPE_MEDIA;
+  export type UNRECOGNIZED = typeof BlockType.UNRECOGNIZED;
 }
 
 export interface Post {
@@ -41,6 +59,7 @@ export interface PostBlock {
   blockType: BlockType;
   media: string;
   text: string;
+  metadata: string;
 }
 
 export interface CreateRequest {

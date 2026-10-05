@@ -230,6 +230,7 @@ type PostBlock struct {
 	BlockType     BlockType              `protobuf:"varint,4,opt,name=block_type,json=blockType,proto3,enum=api.postpb.v1.BlockType" json:"block_type,omitempty"`
 	Media         string                 `protobuf:"bytes,5,opt,name=media,proto3" json:"media,omitempty"`
 	Text          string                 `protobuf:"bytes,6,opt,name=text,proto3" json:"text,omitempty"`
+	Metadata      string                 `protobuf:"bytes,7,opt,name=metadata,proto3" json:"metadata,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -302,6 +303,13 @@ func (x *PostBlock) GetMedia() string {
 func (x *PostBlock) GetText() string {
 	if x != nil {
 		return x.Text
+	}
+	return ""
+}
+
+func (x *PostBlock) GetMetadata() string {
+	if x != nil {
+		return x.Metadata
 	}
 	return ""
 }
@@ -760,7 +768,7 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\n" +
 	"updated_at\x18\a \x01(\v2\x1a.google.protobuf.TimestampR\tupdatedAt\x12\x1d\n" +
 	"\n" +
-	"updated_by\x18\b \x01(\x03R\tupdatedBy\"\xb3\x01\n" +
+	"updated_by\x18\b \x01(\x03R\tupdatedBy\"\xcf\x01\n" +
 	"\tPostBlock\x12\x0e\n" +
 	"\x02id\x18\x01 \x01(\x03R\x02id\x12\x17\n" +
 	"\apost_id\x18\x02 \x01(\x03R\x06postId\x12\x1a\n" +
@@ -768,7 +776,8 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\n" +
 	"block_type\x18\x04 \x01(\x0e2\x18.api.postpb.v1.BlockTypeR\tblockType\x12\x14\n" +
 	"\x05media\x18\x05 \x01(\tR\x05media\x12\x12\n" +
-	"\x04text\x18\x06 \x01(\tR\x04text\"s\n" +
+	"\x04text\x18\x06 \x01(\tR\x04text\x12\x1a\n" +
+	"\bmetadata\x18\a \x01(\tR\bmetadata\"s\n" +
 	"\rCreateRequest\x12'\n" +
 	"\x04post\x18\x01 \x01(\v2\x13.api.postpb.v1.PostR\x04post\x129\n" +
 	"\vpost_blocks\x18\x02 \x03(\v2\x18.api.postpb.v1.PostBlockR\n" +
@@ -806,11 +815,11 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\tBlockType\x12\x1a\n" +
 	"\x16BLOCK_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fBLOCK_TYPE_TEXT\x10\x01\x12\x14\n" +
-	"\x10BLOCK_TYPE_MEDIA\x10\x022\x8e\x03\n" +
-	"\vPostService\x12a\n" +
-	"\x06Create\x12\x1c.api.postpb.v1.CreateRequest\x1a\x1d.api.postpb.v1.CreateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x04post\"\f/api/v1/post\x12W\n" +
-	"\x03Get\x12\x19.api.postpb.v1.GetRequest\x1a\x1a.api.postpb.v1.GetResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/v1/post/{id}\x12a\n" +
-	"\x06Update\x12\x1c.api.postpb.v1.UpdateRequest\x1a\x1d.api.postpb.v1.UpdateResponse\"\x1a\x82\xd3\xe4\x93\x02\x14:\x04post2\f/api/v1/post\x12`\n" +
+	"\x10BLOCK_TYPE_MEDIA\x10\x022\x88\x03\n" +
+	"\vPostService\x12^\n" +
+	"\x06Create\x12\x1c.api.postpb.v1.CreateRequest\x1a\x1d.api.postpb.v1.CreateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/api/v1/post\x12W\n" +
+	"\x03Get\x12\x19.api.postpb.v1.GetRequest\x1a\x1a.api.postpb.v1.GetResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/v1/post/{id}\x12^\n" +
+	"\x06Update\x12\x1c.api.postpb.v1.UpdateRequest\x1a\x1d.api.postpb.v1.UpdateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*2\f/api/v1/post\x12`\n" +
 	"\x06Delete\x12\x1c.api.postpb.v1.DeleteRequest\x1a\x1d.api.postpb.v1.DeleteResponse\"\x19\x82\xd3\xe4\x93\x02\x13*\x11/api/v1/post/{id}BIZGgithub.com/vandad1901/p3s/packages/go/gen/protobuf/api/postpb/v1;postpbb\x06proto3"
 
 var (
