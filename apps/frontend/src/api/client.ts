@@ -31,7 +31,7 @@ export async function api<T>(
   requestHeaders.set("Content-Type", "application/json");
 
   if (authenticated && accessToken) {
-    requestHeaders.set("Authorization", `Bearer ${accessToken}`);
+    requestHeaders.set("Authorization", `${accessToken}`);
   }
 
   const response = await fetch(`${API_URL}${path}`, {
