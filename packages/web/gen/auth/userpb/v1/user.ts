@@ -9,7 +9,7 @@
 export const protobufPackage = "auth.userpb.v1";
 
 export interface User {
-  id: number;
+  id: string;
   username: string;
   email: string;
 }
