@@ -83,7 +83,7 @@ message CreateResponse {
 }
 
 message GetRequest {
-  int64 id = 1;
+  string slug = 1;
 }
 
 message GetResponse {

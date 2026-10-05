@@ -37,7 +37,7 @@ func (s *RPCServer) Create(ctx context.Context, req *postpb.CreateRequest) (*pos
 }
 
 func (s *RPCServer) Get(ctx context.Context, req *postpb.GetRequest) (*postpb.GetResponse, error) {
-	post, postBlocks, err := s.postService.GetPost(ctx, req.GetId())
+	post, postBlocks, err := s.postService.GetPost(ctx, req.GetSlug())
 	if err != nil {
 		return nil, fmt.Errorf("error getting post: %w", err)
 	}

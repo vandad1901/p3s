@@ -54,7 +54,7 @@ func GetStep(s *scenario.Scenario) func(context.Context, string, *godog.Table) {
 				rowPostBlocks[i] = resolvePostBlock(s.SharedData, s.DataMap[key])
 			}
 
-			actualPost, actualPostBlocks, err := s.A.PostService.GetPost(ctx, rowPost.ID)
+			actualPost, actualPostBlocks, err := s.A.PostService.GetPost(ctx, rowPost.Slug)
 			if expectError != "" {
 				s.Require.Error(err)
 				s.ReturnedError = err
@@ -101,7 +101,7 @@ func MustBeDeletedStep(s *scenario.Scenario) func(context.Context, *godog.Table)
 		for _, row := range currentMap {
 			rowPost := resolvePost(s.SharedData, row)
 
-			_, _, err := s.A.PostService.GetPost(ctx, rowPost.ID)
+			_, _, err := s.A.PostService.GetPost(ctx, rowPost.Slug)
 			s.Require.ErrorIs(err, post.ErrPostNotFount)
 		}
 	}
