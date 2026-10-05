@@ -21,11 +21,16 @@ func mapToPostBlock(in []*postpb.PostBlock) []*post.PostBlock {
 	res := make([]*post.PostBlock, len(in))
 	for i, item := range in {
 		res[i] = &post.PostBlock{
+			ID:     item.GetId(),
+			PostID: item.GetPostId(),
+
 			Position:  item.GetPosition(),
 			BlockType: post.BlockType(item.GetBlockType()),
 
 			MediaContent: item.GetMedia(),
 			TextContent:  item.GetText(),
+
+			Metadata: item.GetMetadata(),
 		}
 	}
 
