@@ -412,7 +412,7 @@ func (x *CreateResponse) GetIdVersion() *v1.IDVersion {
 
 type GetRequest struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
-	Id            int64                  `protobuf:"varint,1,opt,name=id,proto3" json:"id,omitempty"`
+	Slug          string                 `protobuf:"bytes,1,opt,name=slug,proto3" json:"slug,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -447,11 +447,11 @@ func (*GetRequest) Descriptor() ([]byte, []int) {
 	return file_api_postpb_v1_post_proto_rawDescGZIP(), []int{4}
 }
 
-func (x *GetRequest) GetId() int64 {
+func (x *GetRequest) GetSlug() string {
 	if x != nil {
-		return x.Id
+		return x.Slug
 	}
-	return 0
+	return ""
 }
 
 type GetResponse struct {
@@ -784,10 +784,10 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"postBlocks\"G\n" +
 	"\x0eCreateResponse\x125\n" +
 	"\n" +
-	"id_version\x18\x01 \x01(\v2\x16.commonpb.v1.IDVersionR\tidVersion\"\x1c\n" +
+	"id_version\x18\x01 \x01(\v2\x16.commonpb.v1.IDVersionR\tidVersion\" \n" +
 	"\n" +
-	"GetRequest\x12\x0e\n" +
-	"\x02id\x18\x01 \x01(\x03R\x02id\"q\n" +
+	"GetRequest\x12\x12\n" +
+	"\x04slug\x18\x01 \x01(\tR\x04slug\"q\n" +
 	"\vGetResponse\x12'\n" +
 	"\x04post\x18\x01 \x01(\v2\x13.api.postpb.v1.PostR\x04post\x129\n" +
 	"\vpost_blocks\x18\x02 \x03(\v2\x18.api.postpb.v1.PostBlockR\n" +
