@@ -9,6 +9,6 @@
 export const protobufPackage = "commonpb.v1";
 
 export interface IDVersion {
-  id: number;
+  id: string;
   updatedAt: Date | undefined;
 }

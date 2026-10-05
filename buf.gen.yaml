@@ -18,3 +18,4 @@ plugins:
       - onlyTypes=true
       - emitImportedFiles=false
       - enumsAsLiterals=true
+      - forceLong=string

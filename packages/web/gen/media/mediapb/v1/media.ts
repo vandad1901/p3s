@@ -13,7 +13,7 @@ export interface MediaIngestedRequest {
 }
 
 export interface MediaIngestedResponse {
-  unfinished: number;
+  unfinished: string;
 }
 
 export interface MediaService {
