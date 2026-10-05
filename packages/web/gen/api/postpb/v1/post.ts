@@ -72,7 +72,7 @@ export interface CreateResponse {
 }
 
 export interface GetRequest {
-  id: number;
+  slug: string;
 }
 
 export interface GetResponse {
