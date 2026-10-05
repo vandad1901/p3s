@@ -586,6 +586,22 @@ export function Editor() {
         <div className="flex w-full flex-col gap-2 p-2">
           <div className="flex w-full flex-wrap justify-between gap-y-3">
             <div className="flex items-center gap-2">
+              <ButtonGroup>
+                <Button
+                  variant={"outline"}
+                  onClick={() => dispatch({ type: "undo" })}
+                  disabled={past.length === 0}
+                >
+                  Undo <Undo />
+                </Button>
+                <Button
+                  variant={"outline"}
+                  onClick={() => dispatch({ type: "redo" })}
+                  disabled={future.length === 0}
+                >
+                  Redo <Redo />
+                </Button>
+              </ButtonGroup>
               {focusedBlock && (
                 <Select
                   items={
@@ -632,22 +648,6 @@ export function Editor() {
                   </SelectContent>
                 </Select>
               )}
-              <ButtonGroup>
-                <Button
-                  variant={"outline"}
-                  onClick={() => dispatch({ type: "undo" })}
-                  disabled={past.length === 0}
-                >
-                  Undo <Undo />
-                </Button>
-                <Button
-                  variant={"outline"}
-                  onClick={() => dispatch({ type: "redo" })}
-                  disabled={future.length === 0}
-                >
-                  Redo <Redo />
-                </Button>
-              </ButtonGroup>
             </div>
             <div className="flex items-center gap-1">
               <p
