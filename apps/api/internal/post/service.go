@@ -52,7 +52,7 @@ func (s *Service) CreatePost(ctx context.Context, post *Post, postBlocks []*Post
 	return res, addedIDs, nil
 }
 
-func (s *Service) GetPost(ctx context.Context, postID int64) (*Post, []*PostBlock, error) {
+func (s *Service) GetPost(ctx context.Context, postSlug string) (*Post, []*PostBlock, error) {
 	db := s.db.WithContext(ctx)
 
 	var (
@@ -62,7 +62,7 @@ func (s *Service) GetPost(ctx context.Context, postID int64) (*Post, []*PostBloc
 	)
 
 	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
-		post, postBlocks, err = GetTx(ctx, tx, postID)
+		post, postBlocks, err = GetTx(ctx, tx, postSlug)
 		if err != nil {
 			return err
 		}
@@ -76,13 +76,13 @@ func (s *Service) GetPost(ctx context.Context, postID int64) (*Post, []*PostBloc
 	return post, postBlocks, nil
 }
 
-func GetTx(ctx context.Context, tx *gorm.DB, postID int64) (*Post, []*PostBlock, error) {
-	post, err := dbGetPost(ctx, tx, postID)
+func GetTx(ctx context.Context, tx *gorm.DB, postSlug string) (*Post, []*PostBlock, error) {
+	post, err := dbGetPostBySlug(ctx, tx, postSlug)
 	if err != nil {
 		return nil, nil, err
 	}
 
-	postBlocks, err := dbGetPostBlocks(ctx, tx, postID)
+	postBlocks, err := dbGetPostBlocks(ctx, tx, post.ID)
 	if err != nil {
 		return nil, nil, err
 	}
