@@ -1,32 +1,34 @@
 import { Loader2 } from "lucide-react";
-import { useState, useEffect } from "react";
-import { useParams, Navigate } from "react-router-dom";
+import { useState, useEffect, type ReactNode } from "react";
+import { useParams, Navigate, useLocation } from "react-router-dom";
 import { loadFullPost, Editor } from "./editor";
 import type { EnrichedGetResponse } from "./mapper";
 import { Viewer } from "./viewer";
+import { useAuth } from "@/contexts/AuthContext";
 
-export function PostPage({ editMode }: { editMode: boolean }) {
+export function PostPage(props: { editMode: boolean }) {
+  const { pathname } = useLocation();
+  return (
+    <PostLoader
+      key={pathname}
+      {...props}
+    />
+  );
+}
+
+function PostLoader({ editMode }: { editMode: boolean }) {
   const { slug } = useParams();
-  const [loaded, setLoaded] = useState<
-    { slug: string; editMode: boolean; doc: EnrichedGetResponse } | undefined
-  >();
+  const { user } = useAuth();
+  const [result, setResult] = useState<{ doc: EnrichedGetResponse } | { error: string }>();
 
   useEffect(() => {
     if (!slug) return;
-    let ignore = false;
     loadFullPost(slug)
-      .then((doc) => {
-        if (!ignore) setLoaded({ slug, editMode, doc });
-      })
-      .catch((err) => console.error("Failed to load post:", err));
-    return () => {
-      ignore = true;
-    };
-  }, [slug, editMode]);
+      .then((res) => setResult(res.ok ? { doc: res } : { error: res.message }))
+      .catch(() => setResult({ error: "Couldn't reach the server." }));
+  }, [slug]);
 
-  const doc = loaded?.slug === slug && loaded?.editMode === editMode ? loaded.doc : undefined;
-
-  if (!slug && !editMode)
+  if ((!slug && !editMode) || (editMode && !user))
     return (
       <Navigate
         to="/"
@@ -34,23 +36,24 @@ export function PostPage({ editMode }: { editMode: boolean }) {
       />
     );
 
-  if (slug && !doc) {
+  if (result && "error" in result)
     return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="size-10 animate-spin" />
-      </div>
+      <Centered>
+        <p className="text-red-500">{result.error}</p>
+      </Centered>
     );
-  }
 
-  return editMode ? (
-    <Editor
-      key={slug ?? "new"}
-      remoteResponse={doc}
-    />
-  ) : (
-    <Viewer
-      key={slug}
-      doc={doc!}
-    />
-  );
+  if (slug && !result)
+    return (
+      <Centered>
+        <Loader2 className="size-10 animate-spin" />
+      </Centered>
+    );
+
+  const doc = result?.doc;
+  return editMode ? <Editor remoteResponse={doc} /> : <Viewer doc={doc!} />;
 }
+
+const Centered = ({ children }: { children: ReactNode }) => (
+  <div className="flex h-screen w-full items-center justify-center">{children}</div>
+);
