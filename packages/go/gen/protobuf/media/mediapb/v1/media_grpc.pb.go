@@ -20,6 +20,7 @@ const _ = grpc.SupportPackageIsVersion9
 
 const (
 	MediaService_MediaIngested_FullMethodName = "/media.mediapb.v1.MediaService/MediaIngested"
+	MediaService_GetMedia_FullMethodName      = "/media.mediapb.v1.MediaService/GetMedia"
 )
 
 // MediaServiceClient is the client API for MediaService service.
@@ -27,6 +28,7 @@ const (
 // For semantics around ctx use and closing/ending streaming RPCs, please refer to https://pkg.go.dev/google.golang.org/grpc/?tab=doc#ClientConn.NewStream.
 type MediaServiceClient interface {
 	MediaIngested(ctx context.Context, in *MediaIngestedRequest, opts ...grpc.CallOption) (*MediaIngestedResponse, error)
+	GetMedia(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error)
 }
 
 type mediaServiceClient struct {
@@ -47,11 +49,22 @@ func (c *mediaServiceClient) MediaIngested(ctx context.Context, in *MediaIngeste
 	return out, nil
 }
 
+func (c *mediaServiceClient) GetMedia(ctx context.Context, in *GetMediaRequest, opts ...grpc.CallOption) (*GetMediaResponse, error) {
+	cOpts := append([]grpc.CallOption{grpc.StaticMethod()}, opts...)
+	out := new(GetMediaResponse)
+	err := c.cc.Invoke(ctx, MediaService_GetMedia_FullMethodName, in, out, cOpts...)
+	if err != nil {
+		return nil, err
+	}
+	return out, nil
+}
+
 // MediaServiceServer is the server API for MediaService service.
 // All implementations must embed UnimplementedMediaServiceServer
 // for forward compatibility.
 type MediaServiceServer interface {
 	MediaIngested(context.Context, *MediaIngestedRequest) (*MediaIngestedResponse, error)
+	GetMedia(context.Context, *GetMediaRequest) (*GetMediaResponse, error)
 	mustEmbedUnimplementedMediaServiceServer()
 }
 
@@ -64,6 +77,9 @@ type UnimplementedMediaServiceServer struct{}
 
 func (UnimplementedMediaServiceServer) MediaIngested(context.Context, *MediaIngestedRequest) (*MediaIngestedResponse, error) {
 	return nil, status.Error(codes.Unimplemented, "method MediaIngested not implemented")
+}
+func (UnimplementedMediaServiceServer) GetMedia(context.Context, *GetMediaRequest) (*GetMediaResponse, error) {
+	return nil, status.Error(codes.Unimplemented, "method GetMedia not implemented")
 }
 func (UnimplementedMediaServiceServer) mustEmbedUnimplementedMediaServiceServer() {}
 func (UnimplementedMediaServiceServer) testEmbeddedByValue()                      {}
@@ -104,6 +120,24 @@ func _MediaService_MediaIngested_Handler(srv interface{}, ctx context.Context, d
 	return interceptor(ctx, in, info, handler)
 }
 
+func _MediaService_GetMedia_Handler(srv interface{}, ctx context.Context, dec func(interface{}) error, interceptor grpc.UnaryServerInterceptor) (interface{}, error) {
+	in := new(GetMediaRequest)
+	if err := dec(in); err != nil {
+		return nil, err
+	}
+	if interceptor == nil {
+		return srv.(MediaServiceServer).GetMedia(ctx, in)
+	}
+	info := &grpc.UnaryServerInfo{
+		Server:     srv,
+		FullMethod: MediaService_GetMedia_FullMethodName,
+	}
+	handler := func(ctx context.Context, req interface{}) (interface{}, error) {
+		return srv.(MediaServiceServer).GetMedia(ctx, req.(*GetMediaRequest))
+	}
+	return interceptor(ctx, in, info, handler)
+}
+
 // MediaService_ServiceDesc is the grpc.ServiceDesc for MediaService service.
 // It's only intended for direct use with grpc.RegisterService,
 // and not to be introspected or modified (even as a copy)
@@ -114,6 +148,10 @@ var MediaService_ServiceDesc = grpc.ServiceDesc{
 		{
 			MethodName: "MediaIngested",
 			Handler:    _MediaService_MediaIngested_Handler,
+		},
+		{
+			MethodName: "GetMedia",
+			Handler:    _MediaService_GetMedia_Handler,
 		},
 	},
 	Streams:  []grpc.StreamDesc{},

@@ -10,8 +10,9 @@ service MediaService {
     option (google.api.http) = {
       post: "/media/v1/ingested"
       body: "*"
-    } ;
+    };
   }
+  rpc GetMedia(GetMediaRequest) returns (GetMediaResponse) {}
 }
 
 message MediaIngestedRequest {
@@ -20,4 +21,24 @@ message MediaIngestedRequest {
 
 message MediaIngestedResponse {
   int64 unfinished = 1;
+}
+
+message GetMediaRequest  {
+  repeated string media_keys = 1;
+}
+
+message GetMediaResponse {
+  repeated MediaInfo media = 1;
+}
+
+message Derivative {
+  int32  width = 1;
+  string url   = 2;
+}
+
+message MediaInfo {
+  string              media_key   = 1;
+  int32               width       = 2;
+  int32               height      = 3;
+  repeated Derivative derivatives = 4;
 }
