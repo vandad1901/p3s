@@ -81,6 +81,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
           setUserFromRefresh(user, newJWT);
         })
         .catch((error) => {
+          setUserFromAuth(null);
           console.error("Failed to restore session", error);
         })
         .finally(() => {
