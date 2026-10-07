@@ -16,6 +16,27 @@ export interface MediaIngestedResponse {
   unfinished: string;
 }
 
+export interface GetMediaRequest {
+  mediaKeys: string[];
+}
+
+export interface GetMediaResponse {
+  media: MediaInfo[];
+}
+
+export interface Derivative {
+  width: number;
+  url: string;
+}
+
+export interface MediaInfo {
+  mediaKey: string;
+  width: number;
+  height: number;
+  derivatives: Derivative[];
+}
+
 export interface MediaService {
   MediaIngested(request: MediaIngestedRequest): Promise<MediaIngestedResponse>;
+  GetMedia(request: GetMediaRequest): Promise<GetMediaResponse>;
 }
