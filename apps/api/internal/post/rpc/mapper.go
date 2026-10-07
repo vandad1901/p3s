@@ -3,6 +3,7 @@ package rpc
 import (
 	"github.com/vandad1901/p3s/apps/api/internal/post"
 	"github.com/vandad1901/p3s/packages/go/gen/protobuf/api/postpb/v1"
+	"google.golang.org/protobuf/types/known/timestamppb"
 )
 
 func mapToPost(in *postpb.Post) *post.Post {
@@ -52,6 +53,9 @@ func mapToPostPB(in *post.Post) *postpb.Post {
 		Title:      in.Title,
 		Slug:       in.Slug,
 		PostStatus: postpb.PostStatus(in.Status),
+
+		CreatedBy: in.CreatedBy,
+		UpdatedAt: timestamppb.New(in.UpdatedAt),
 	}
 }
 
@@ -63,8 +67,9 @@ func mapToPostBlockPB(in []*post.PostBlock) []*postpb.PostBlock {
 			Position:  item.Position,
 			BlockType: postpb.BlockType(item.BlockType),
 
-			Media: item.MediaContent,
-			Text:  item.TextContent,
+			Media:    item.MediaContent,
+			Text:     item.TextContent,
+			Metadata: item.Metadata,
 		}
 	}
 
