@@ -30,3 +30,15 @@ func (s *MediaRPCServer) MediaIngested(ctx context.Context, req *mediapb.MediaIn
 
 	return &mediapb.MediaIngestedResponse{Unfinished: res}, nil
 }
+
+func (s *MediaRPCServer) GetMedia(ctx context.Context, req *mediapb.GetMediaRequest,
+) (*mediapb.GetMediaResponse, error) {
+	res, err := s.mediaService.GetMediaInfos(ctx, req.GetMediaKeys())
+	if err != nil {
+		return nil, fmt.Errorf("getting media infos: %w", err)
+	}
+
+	return &mediapb.GetMediaResponse{
+		Media: mapToMediaInfoPBs(res),
+	}, nil
+}

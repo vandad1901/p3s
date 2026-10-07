@@ -9,9 +9,10 @@ type Config struct {
 
 	RabbitMQAddress string
 
-	S3Endpoint     string
-	S3RootUsername string
-	S3RootPassword string
+	S3Endpoint         string
+	S3ExternalEndpoint string
+	S3RootUsername     string
+	S3RootPassword     string
 
 	DSN string
 
@@ -32,6 +33,7 @@ func LoadConfig() *Config {
 	cfg.RabbitMQAddress = envutil.MustGetString("RMQ_ENDPOINT")
 
 	cfg.S3Endpoint = envutil.MustGetString("S3_ENDPOINT")
+	cfg.S3ExternalEndpoint = envutil.MustGetString("S3_EXTERNAL_ENDPOINT")
 	cfg.S3RootUsername = envutil.MustGetString("S3_ROOT_USERNAME")
 	cfg.S3RootPassword = envutil.MustGetString("S3_ROOT_PASSWORD")
 

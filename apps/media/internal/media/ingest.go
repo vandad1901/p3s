@@ -216,13 +216,13 @@ func validateImage(cfg image.Config, format string) error {
 	return nil
 }
 
-func createDerivatives(ctx context.Context, img image.Image, formatStr string) ([]derivative, error) {
+func createDerivatives(ctx context.Context, img image.Image, formatStr string) ([]derivativeAsset, error) {
 	err := checkContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	derivatives := []derivative{}
+	derivatives := []derivativeAsset{}
 	srcWidth := img.Bounds().Dx()
 
 	sizes := []int{smallWidth, mediumWidth, largeWidth}
@@ -240,9 +240,10 @@ func createDerivatives(ctx context.Context, img image.Image, formatStr string) (
 			return nil, fmt.Errorf("encoding for storage: %w", err)
 		}
 
-		derivatives = append(derivatives, derivative{
+		derivatives = append(derivatives, derivativeAsset{
 			file:      bytes.NewReader(encodedImage.Bytes()),
-			Extension: fmt.Sprintf("%d.%s", outWidth, ext),
+			width:     int32(outWidth), //nolint:gosec // G115: limited by maxDimension
+			Extension: ext,
 		})
 
 		if srcWidth <= width {

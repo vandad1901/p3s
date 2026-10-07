@@ -2,6 +2,8 @@ package media
 
 import (
 	"context"
+	"maps"
+	"slices"
 	"time"
 
 	"gorm.io/gorm"
@@ -26,6 +28,47 @@ const (
 	tryCountLimit = 5
 	ingestTimeout = 1 * time.Minute
 )
+
+func dbGetMediaInfos(_ context.Context, db *gorm.DB, keys []string) ([]MediaInfo, error) {
+	var res []Media
+
+	err := db.Model(&Media{}).
+		Where("media_key IN ?", keys).
+		Find(&res).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var derivatives []Derivative
+
+	err = db.Model(&Derivative{}).
+		Where("media_key IN ?", keys).
+		Find(&derivatives).Error
+	if err != nil {
+		return nil, err
+	}
+
+	mediaMap := make(map[string]MediaInfo)
+	for _, media := range res {
+		mediaMap[media.MediaKey] = MediaInfo{
+			MediaKey:    media.MediaKey,
+			Width:       media.Width,
+			Height:      media.Height,
+			Derivatives: []Derivative{},
+		}
+	}
+
+	for _, derivative := range derivatives {
+		if mediaInfo, ok := mediaMap[derivative.MediaKey]; ok {
+			mediaInfo.Derivatives = append(mediaInfo.Derivatives, derivative)
+			mediaMap[derivative.MediaKey] = mediaInfo
+		}
+	}
+
+	result := slices.Collect(maps.Values(mediaMap))
+
+	return result, nil
+}
 
 func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, error) {
 	currentTime := time.Now()
