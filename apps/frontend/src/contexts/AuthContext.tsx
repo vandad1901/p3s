@@ -1,14 +1,8 @@
 import { authnService } from "@/api/authn.service";
 import { setAccessToken } from "@/api/client";
 import { jwtDecode } from "jwt-decode";
-import {
-  createContext,
-  useContext,
-  useEffect,
-  useRef,
-  useState,
-  type ReactNode,
-} from "react";
+import { Loader2 } from "lucide-react";
+import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
 type UIUser = {
   userId: string;
@@ -27,8 +21,8 @@ export const AuthContext = createContext<AuthContextValue | null>(null);
 
 async function refreshJWT(uiUser: Omit<UIUser, "jwt">): Promise<string> {
   let res = await authnService.RefreshJWT({
-    userId: parseInt(uiUser.userId),
-    sessionId: parseInt(uiUser.sessionId),
+    userId: uiUser.userId,
+    sessionId: uiUser.sessionId,
   });
 
   if (!res.ok) {
@@ -41,6 +35,7 @@ async function refreshJWT(uiUser: Omit<UIUser, "jwt">): Promise<string> {
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UIUser | null>(null);
+  const [loading, setLoading] = useState<boolean>(true);
   const userRef = useRef<UIUser | null>(null);
 
   const setUserFromAuth = (authUser: Omit<UIUser, "userId"> | null) => {
@@ -73,6 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userRef.current = updatedUser;
     setUser(updatedUser);
     setAccessToken(newJWT);
+    setLoading(false);
   };
 
   useEffect(() => {
@@ -88,31 +84,41 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         .catch((error) => {
           console.error("Failed to restore session", error);
         });
+    } else {
+      setLoading(false);
     }
 
-    const tokenRefresher = setInterval(async () => {
-      const currentUser = userRef.current;
+    const tokenRefresher = setInterval(
+      async () => {
+        const currentUser = userRef.current;
 
-      if (!currentUser) return;
+        if (!currentUser) return;
 
-      try {
-        const newJWT = await refreshJWT(currentUser);
-        setUserFromRefresh(currentUser, newJWT);
-      } catch (error) {
-        console.error("Failed to refresh JWT", error);
-      }
-    }, 10*60*1000 );
+        try {
+          const newJWT = await refreshJWT(currentUser);
+          setUserFromRefresh(currentUser, newJWT);
+        } catch (error) {
+          console.error("Failed to refresh JWT", error);
+        }
+      },
+      10 * 60 * 1000,
+    );
 
     return () => {
       clearInterval(tokenRefresher);
     };
   }, []);
 
-  return (
-    <AuthContext.Provider value={{ user, setUserFromAuth }}>
-      {children}
-    </AuthContext.Provider>
-  );
+  if (loading) {
+    return (
+      <div className="text-muted-foreground flex h-screen w-full flex-col items-center justify-center gap-4">
+        <Loader2 className="size-10 animate-spin" />
+        <p>Logging you in</p>
+      </div>
+    );
+  }
+
+  return <AuthContext.Provider value={{ user, setUserFromAuth }}>{children}</AuthContext.Provider>;
 }
 
 export function useAuth() {
