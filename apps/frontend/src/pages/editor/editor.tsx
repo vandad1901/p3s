@@ -31,7 +31,7 @@ import {
 } from "@dnd-kit/sortable";
 import { BlockType } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
-import { GripVertical, Loader2, Redo, Undo } from "lucide-react";
+import { GripVertical, Redo, Undo } from "lucide-react";
 import {
   useEffect,
   useReducer,
@@ -40,7 +40,7 @@ import {
   type ClipboardEvent,
   type KeyboardEvent,
 } from "react";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate } from "react-router-dom";
 import { AddBlockButtons, SortableBlock } from "./editor-block";
 import {
   mapRemoteToDoc,
@@ -87,7 +87,7 @@ function focusBlock(root: HTMLElement | null, id: string) {
   elem?.setSelectionRange(elem.value.length, elem.value.length);
 }
 
-async function loadFullPost(slug: string): Promise<EnrichedGetResponse> {
+export async function loadFullPost(slug: string): Promise<EnrichedGetResponse> {
   const res = await postService.Get({ slug });
   if (!res.ok) throw new Error(res.message);
 
@@ -107,40 +107,6 @@ async function loadFullPost(slug: string): Promise<EnrichedGetResponse> {
   });
 
   return { ...res, postBlocks: enrichedBlocks };
-}
-
-export function EditorPage({ editMode }: { editMode: boolean }) {
-  const { slug } = useParams();
-
-  const [initialDoc, setInitialDoc] = useState<EnrichedGetResponse | undefined>(undefined);
-
-  useEffect(() => {
-    if (!editMode) return;
-    if (!slug) throw new Error("Missing slug parameter");
-
-    loadFullPost(slug)
-      .then((res) => {
-        setInitialDoc(res);
-      })
-      .catch((err) => {
-        console.error("Failed to load post:", err);
-      });
-  }, [editMode, slug]);
-
-  if (editMode && !initialDoc) {
-    return (
-      <div className="flex h-screen w-full items-center justify-center">
-        <Loader2 className="size-10 animate-spin" />
-      </div>
-    );
-  }
-
-  return (
-    <Editor
-      key={slug}
-      remoteResponse={initialDoc}
-    />
-  );
 }
 
 export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetResponse }) {
@@ -293,7 +259,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
     if (remoteResponse === undefined) {
       try {
         const res = await postService.Create(toCreateRequest(doc, publish));
-        if (res.ok) navigate(`/posts/${doc.slug}`);
+        if (res.ok) navigate(`/post/${doc.slug}`);
         else setError(`couldn't save the post (${res.message}).`);
       } catch {
         setError("couldn't reach the server. Try again later.");
@@ -305,7 +271,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
         const res = await postService.Update(
           toUpdateRequest(remoteResponse.post!, remoteResponse.postBlocks, doc, publish),
         );
-        if (res.ok) navigate(`/posts/${doc.slug}`);
+        if (res.ok) navigate(`/post/${doc.slug}`);
         else setError(`couldn't save the post (${res.message}).`);
       } catch {
         setError("couldn't reach the server. Try again later.");
