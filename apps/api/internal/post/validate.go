@@ -34,6 +34,11 @@ func validatePostFields(ctx context.Context, db *gorm.DB, post *Post) error {
 		return err
 	}
 
+	err = validatePostStatus(post.Status)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -97,6 +102,15 @@ func validateSlugUniqueness(ctx context.Context, db *gorm.DB, postID int64, slug
 	}
 
 	return nil
+}
+
+func validatePostStatus(status PostStatus) error {
+	switch status {
+	case PostStatusDraft, PostStatusPublished, PostStatusUnspecified:
+		return nil
+	default:
+		return errInvalidStatus
+	}
 }
 
 func validatePostBlocks(postBlocks []*PostBlock) error {

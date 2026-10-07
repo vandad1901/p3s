@@ -14,6 +14,7 @@ var (
 var (
 	errEmptyTitle            = errors.New("post.validation.EmptyTitle")
 	errEmptySlug             = errors.New("post.validation.EmptySlug")
+	errInvalidStatus         = errors.New("post.validation.InvalidStatus")
 	errValidationInvalidSlug = errors.New("post.validation.InvalidSlug")
 	errInvalidContent        = errors.New("post.validation.InvalidContent")
 	errInvalidMetadata       = errors.New("post.validation.InvalidMetadata")
