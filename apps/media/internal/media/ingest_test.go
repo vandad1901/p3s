@@ -126,7 +126,7 @@ func TestIngestMedia(t *testing.T) {
 		t.Run(tt.name, func(t *testing.T) {
 			t.Parallel()
 
-			_, err := media.IngestMedia(context.Background(), bytes.NewReader(tt.data), int64(len(tt.data)))
+			_, _, err := media.IngestMedia(context.Background(), bytes.NewReader(tt.data), int64(len(tt.data)))
 			if (err != nil) != tt.wantErr {
 				t.Errorf("IngestMedia() error = %v, wantErr %v", err, tt.wantErr)
 			}

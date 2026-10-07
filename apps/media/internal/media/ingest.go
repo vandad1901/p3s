@@ -43,7 +43,7 @@ const (
 const s3Bucket = "p3s-upload-bucket"
 
 func (s *Service) HandleMedia(ctx context.Context, key string) error {
-	queuedAt, err := s.takeLease(ctx, key)
+	leasedAt, err := s.takeLease(ctx, key)
 	if err != nil {
 		return fmt.Errorf("creating media: %w", err)
 	}
@@ -56,7 +56,7 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		return fmt.Errorf("getting media from S3: %w", err)
 	}
 
-	derivatives, err := IngestMedia(ctx, res.Body, *res.ContentLength)
+	img, derivatives, err := IngestMedia(ctx, res.Body, *res.ContentLength)
 	if err != nil {
 		return err
 	}
@@ -74,7 +74,7 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 
 		_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
 			Bucket: aws.String(s3Bucket),
-			Key:    aws.String(fmt.Sprintf("%s.%s", key, derivative.Extension)),
+			Key:    aws.String(fmt.Sprintf("%s.%d.%s", key, derivative.width, derivative.Extension)),
 			Body:   derivative.file,
 		})
 		if err != nil {
@@ -82,7 +82,14 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		}
 	}
 
-	_, err = s.changeStatus(ctx, key, queuedAt, MediaIngestStatusIngested)
+	err = s.finalizeIngest(ctx, &Media{
+		MediaKey: key,
+
+		Width:  int32(img.Bounds().Dx()), //nolint:gosec // G115: limited by maxDimension
+		Height: int32(img.Bounds().Dx()), //nolint:gosec // G115: limited by maxDimension
+
+		LeasedAt: leasedAt,
+	}, derivatives)
 	if err != nil {
 		return fmt.Errorf("changing media status: %w", err)
 	}
@@ -100,33 +107,33 @@ func checkContext(ctx context.Context) error {
 }
 
 func IngestMedia(ctx context.Context, file io.Reader, contentLength int64,
-) ([]derivative, error) {
+) (image.Image, []derivativeAsset, error) {
 	tempFile, err := createTempFile(ctx, file, contentLength)
 	if err != nil {
-		return nil, fmt.Errorf("creating temp file: %w", err)
+		return nil, nil, fmt.Errorf("creating temp file: %w", err)
 	}
 
 	img, formatStr, err := parseAndValidateImage(ctx, tempFile)
 	if err != nil {
-		return nil, err
+		return nil, nil, err
 	}
 
 	err = tempFile.Close()
 	if err != nil {
-		return nil, fmt.Errorf("closing temp file: %w", err)
+		return nil, nil, fmt.Errorf("closing temp file: %w", err)
 	}
 
 	err = os.Remove(tempFile.Name())
 	if err != nil {
-		return nil, fmt.Errorf("removing temp file: %w", err)
+		return nil, nil, fmt.Errorf("removing temp file: %w", err)
 	}
 
 	derivatives, err := createDerivatives(ctx, img, formatStr)
 	if err != nil {
-		return nil, fmt.Errorf("deriving images: %w", err)
+		return nil, nil, fmt.Errorf("deriving images: %w", err)
 	}
 
-	return derivatives, nil
+	return img, derivatives, nil
 }
 
 func createTempFile(ctx context.Context, file io.Reader, contentLength int64) (*os.File, error) {

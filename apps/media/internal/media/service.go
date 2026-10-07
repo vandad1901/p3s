@@ -67,18 +67,18 @@ func (s *Service) takeLease(ctx context.Context, key string) (time.Time, error) 
 	return res, nil
 }
 
-func (s *Service) changeStatus(ctx context.Context,
-	mediaKey string, queuedAt time.Time, targetStatus MediaIngestStatus,
-) (*idv.IDV, error) {
+func (s *Service) finalizeIngest(ctx context.Context,
+	media *Media, derivatives []derivativeAsset,
+) error {
 	db := s.db.WithContext(ctx)
 
-	var (
-		res *idv.IDV
-		err error
-	)
-
 	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
-		err = dbChangeStatus(ctx, tx, mediaKey, queuedAt, targetStatus)
+		mediaID, err := dbFinalizeIngest(ctx, tx, media)
+		if err != nil {
+			return err
+		}
+
+		err = dbCreateDerivatives(ctx, tx, mediaID, media.MediaKey, derivatives)
 		if err != nil {
 			return err
 		}
@@ -86,8 +86,8 @@ func (s *Service) changeStatus(ctx context.Context,
 		return nil
 	})
 	if txErr != nil {
-		return nil, txErr
+		return txErr
 	}
 
-	return res, nil
+	return nil
 }

@@ -80,17 +80,44 @@ func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, er
 	return time.Time{}, ErrAlreadyProcessing
 }
 
-func dbChangeStatus(_ context.Context, db *gorm.DB,
-	mediaKey string, leasedAt time.Time,
-	targetStatus MediaIngestStatus) error {
+func dbFinalizeIngest(_ context.Context, db *gorm.DB,
+	media *Media) (int64, error) {
+	var md Media
+
 	err := db.Model(&Media{}).
-		Where("media_key = ?", mediaKey).
-		Where("leased_at = ?", leasedAt).
+		Where("media_key = ?", media.MediaKey).
+		Where("leased_at = ?", media.LeasedAt).
 		Updates(map[string]any{
-			"ingest_status": targetStatus,
-		}).Error
+			"ingest_status": MediaIngestStatusIngested,
+			"width":         media.Width,
+			"height":        media.Height,
+		}).Clauses(
+		clause.Returning{Columns: []clause.Column{{Name: "id"}}},
+	).Scan(&md).Error
 	if err != nil {
-		return err
+		return 0, err
+	}
+
+	return md.ID, nil
+}
+
+func dbCreateDerivatives(_ context.Context, db *gorm.DB,
+	mediaID int64,
+	mediaKey string, derivatives []derivativeAsset) error {
+	items := make([]Derivative, len(derivatives))
+	for i, derivative := range derivatives {
+		items[i] = Derivative{
+			MediaID:  mediaID,
+			MediaKey: mediaKey,
+
+			Ext:   derivative.Extension,
+			Width: derivative.width,
+		}
+	}
+
+	result := db.Create(&items)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return nil
