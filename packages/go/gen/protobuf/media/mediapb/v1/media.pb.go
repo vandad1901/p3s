@@ -343,10 +343,10 @@ const file_media_mediapb_v1_media_proto_rawDesc = "" +
 	"\tmedia_key\x18\x01 \x01(\tR\bmediaKey\x12\x14\n" +
 	"\x05width\x18\x02 \x01(\x05R\x05width\x12\x16\n" +
 	"\x06height\x18\x03 \x01(\x05R\x06height\x12>\n" +
-	"\vderivatives\x18\x04 \x03(\v2\x1c.media.mediapb.v1.DerivativeR\vderivatives2\xe4\x01\n" +
+	"\vderivatives\x18\x04 \x03(\v2\x1c.media.mediapb.v1.DerivativeR\vderivatives2\x81\x02\n" +
 	"\fMediaService\x12\x7f\n" +
-	"\rMediaIngested\x12&.media.mediapb.v1.MediaIngestedRequest\x1a'.media.mediapb.v1.MediaIngestedResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/media/v1/ingested\x12S\n" +
-	"\bGetMedia\x12!.media.mediapb.v1.GetMediaRequest\x1a\".media.mediapb.v1.GetMediaResponse\"\x00BMZKgithub.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapbb\x06proto3"
+	"\rMediaIngested\x12&.media.mediapb.v1.MediaIngestedRequest\x1a'.media.mediapb.v1.MediaIngestedResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/media/v1/ingested\x12p\n" +
+	"\bGetMedia\x12!.media.mediapb.v1.GetMediaRequest\x1a\".media.mediapb.v1.GetMediaResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/media/v1/getMediaBMZKgithub.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapbb\x06proto3"
 
 var (
 	file_media_mediapb_v1_media_proto_rawDescOnce sync.Once
