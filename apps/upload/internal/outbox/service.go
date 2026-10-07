@@ -35,7 +35,7 @@ func (s *Service) Enqueue(ctx context.Context, msg *Message) error {
 	db := s.db.WithContext(ctx)
 
 	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
-		err := dbEnqueue(db, msg)
+		err := dbEnqueue(tx, msg)
 		if err != nil {
 			return err
 		}
