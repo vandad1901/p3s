@@ -12,7 +12,12 @@ service MediaService {
       body: "*"
     };
   }
-  rpc GetMedia(GetMediaRequest) returns (GetMediaResponse) {}
+  rpc GetMedia(GetMediaRequest) returns (GetMediaResponse) {
+    option (google.api.http) = {
+      post: "/media/v1/getMedia"
+      body: "*"
+    };
+  }
 }
 
 message MediaIngestedRequest {
