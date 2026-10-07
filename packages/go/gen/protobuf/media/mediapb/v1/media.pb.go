@@ -110,6 +110,214 @@ func (x *MediaIngestedResponse) GetUnfinished() int64 {
 	return 0
 }
 
+type GetMediaRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MediaKeys     []string               `protobuf:"bytes,1,rep,name=media_keys,json=mediaKeys,proto3" json:"media_keys,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMediaRequest) Reset() {
+	*x = GetMediaRequest{}
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[2]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMediaRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMediaRequest) ProtoMessage() {}
+
+func (x *GetMediaRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[2]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMediaRequest.ProtoReflect.Descriptor instead.
+func (*GetMediaRequest) Descriptor() ([]byte, []int) {
+	return file_media_mediapb_v1_media_proto_rawDescGZIP(), []int{2}
+}
+
+func (x *GetMediaRequest) GetMediaKeys() []string {
+	if x != nil {
+		return x.MediaKeys
+	}
+	return nil
+}
+
+type GetMediaResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Media         []*MediaInfo           `protobuf:"bytes,1,rep,name=media,proto3" json:"media,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *GetMediaResponse) Reset() {
+	*x = GetMediaResponse{}
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[3]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *GetMediaResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*GetMediaResponse) ProtoMessage() {}
+
+func (x *GetMediaResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[3]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use GetMediaResponse.ProtoReflect.Descriptor instead.
+func (*GetMediaResponse) Descriptor() ([]byte, []int) {
+	return file_media_mediapb_v1_media_proto_rawDescGZIP(), []int{3}
+}
+
+func (x *GetMediaResponse) GetMedia() []*MediaInfo {
+	if x != nil {
+		return x.Media
+	}
+	return nil
+}
+
+type Derivative struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	Width         int32                  `protobuf:"varint,1,opt,name=width,proto3" json:"width,omitempty"`
+	Url           string                 `protobuf:"bytes,2,opt,name=url,proto3" json:"url,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *Derivative) Reset() {
+	*x = Derivative{}
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[4]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *Derivative) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*Derivative) ProtoMessage() {}
+
+func (x *Derivative) ProtoReflect() protoreflect.Message {
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[4]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use Derivative.ProtoReflect.Descriptor instead.
+func (*Derivative) Descriptor() ([]byte, []int) {
+	return file_media_mediapb_v1_media_proto_rawDescGZIP(), []int{4}
+}
+
+func (x *Derivative) GetWidth() int32 {
+	if x != nil {
+		return x.Width
+	}
+	return 0
+}
+
+func (x *Derivative) GetUrl() string {
+	if x != nil {
+		return x.Url
+	}
+	return ""
+}
+
+type MediaInfo struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	MediaKey      string                 `protobuf:"bytes,1,opt,name=media_key,json=mediaKey,proto3" json:"media_key,omitempty"`
+	Width         int32                  `protobuf:"varint,2,opt,name=width,proto3" json:"width,omitempty"`
+	Height        int32                  `protobuf:"varint,3,opt,name=height,proto3" json:"height,omitempty"`
+	Derivatives   []*Derivative          `protobuf:"bytes,4,rep,name=derivatives,proto3" json:"derivatives,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *MediaInfo) Reset() {
+	*x = MediaInfo{}
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[5]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *MediaInfo) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*MediaInfo) ProtoMessage() {}
+
+func (x *MediaInfo) ProtoReflect() protoreflect.Message {
+	mi := &file_media_mediapb_v1_media_proto_msgTypes[5]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use MediaInfo.ProtoReflect.Descriptor instead.
+func (*MediaInfo) Descriptor() ([]byte, []int) {
+	return file_media_mediapb_v1_media_proto_rawDescGZIP(), []int{5}
+}
+
+func (x *MediaInfo) GetMediaKey() string {
+	if x != nil {
+		return x.MediaKey
+	}
+	return ""
+}
+
+func (x *MediaInfo) GetWidth() int32 {
+	if x != nil {
+		return x.Width
+	}
+	return 0
+}
+
+func (x *MediaInfo) GetHeight() int32 {
+	if x != nil {
+		return x.Height
+	}
+	return 0
+}
+
+func (x *MediaInfo) GetDerivatives() []*Derivative {
+	if x != nil {
+		return x.Derivatives
+	}
+	return nil
+}
+
 var File_media_mediapb_v1_media_proto protoreflect.FileDescriptor
 
 const file_media_mediapb_v1_media_proto_rawDesc = "" +
@@ -121,9 +329,24 @@ const file_media_mediapb_v1_media_proto_rawDesc = "" +
 	"\x15MediaIngestedResponse\x12\x1e\n" +
 	"\n" +
 	"unfinished\x18\x01 \x01(\x03R\n" +
-	"unfinished2\x8f\x01\n" +
+	"unfinished\"0\n" +
+	"\x0fGetMediaRequest\x12\x1d\n" +
+	"\n" +
+	"media_keys\x18\x01 \x03(\tR\tmediaKeys\"E\n" +
+	"\x10GetMediaResponse\x121\n" +
+	"\x05media\x18\x01 \x03(\v2\x1b.media.mediapb.v1.MediaInfoR\x05media\"4\n" +
+	"\n" +
+	"Derivative\x12\x14\n" +
+	"\x05width\x18\x01 \x01(\x05R\x05width\x12\x10\n" +
+	"\x03url\x18\x02 \x01(\tR\x03url\"\x96\x01\n" +
+	"\tMediaInfo\x12\x1b\n" +
+	"\tmedia_key\x18\x01 \x01(\tR\bmediaKey\x12\x14\n" +
+	"\x05width\x18\x02 \x01(\x05R\x05width\x12\x16\n" +
+	"\x06height\x18\x03 \x01(\x05R\x06height\x12>\n" +
+	"\vderivatives\x18\x04 \x03(\v2\x1c.media.mediapb.v1.DerivativeR\vderivatives2\xe4\x01\n" +
 	"\fMediaService\x12\x7f\n" +
-	"\rMediaIngested\x12&.media.mediapb.v1.MediaIngestedRequest\x1a'.media.mediapb.v1.MediaIngestedResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/media/v1/ingestedBMZKgithub.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapbb\x06proto3"
+	"\rMediaIngested\x12&.media.mediapb.v1.MediaIngestedRequest\x1a'.media.mediapb.v1.MediaIngestedResponse\"\x1d\x82\xd3\xe4\x93\x02\x17:\x01*\"\x12/media/v1/ingested\x12S\n" +
+	"\bGetMedia\x12!.media.mediapb.v1.GetMediaRequest\x1a\".media.mediapb.v1.GetMediaResponse\"\x00BMZKgithub.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1;mediapbb\x06proto3"
 
 var (
 	file_media_mediapb_v1_media_proto_rawDescOnce sync.Once
@@ -137,19 +360,27 @@ func file_media_mediapb_v1_media_proto_rawDescGZIP() []byte {
 	return file_media_mediapb_v1_media_proto_rawDescData
 }
 
-var file_media_mediapb_v1_media_proto_msgTypes = make([]protoimpl.MessageInfo, 2)
+var file_media_mediapb_v1_media_proto_msgTypes = make([]protoimpl.MessageInfo, 6)
 var file_media_mediapb_v1_media_proto_goTypes = []any{
 	(*MediaIngestedRequest)(nil),  // 0: media.mediapb.v1.MediaIngestedRequest
 	(*MediaIngestedResponse)(nil), // 1: media.mediapb.v1.MediaIngestedResponse
+	(*GetMediaRequest)(nil),       // 2: media.mediapb.v1.GetMediaRequest
+	(*GetMediaResponse)(nil),      // 3: media.mediapb.v1.GetMediaResponse
+	(*Derivative)(nil),            // 4: media.mediapb.v1.Derivative
+	(*MediaInfo)(nil),             // 5: media.mediapb.v1.MediaInfo
 }
 var file_media_mediapb_v1_media_proto_depIdxs = []int32{
-	0, // 0: media.mediapb.v1.MediaService.MediaIngested:input_type -> media.mediapb.v1.MediaIngestedRequest
-	1, // 1: media.mediapb.v1.MediaService.MediaIngested:output_type -> media.mediapb.v1.MediaIngestedResponse
-	1, // [1:2] is the sub-list for method output_type
-	0, // [0:1] is the sub-list for method input_type
-	0, // [0:0] is the sub-list for extension type_name
-	0, // [0:0] is the sub-list for extension extendee
-	0, // [0:0] is the sub-list for field type_name
+	5, // 0: media.mediapb.v1.GetMediaResponse.media:type_name -> media.mediapb.v1.MediaInfo
+	4, // 1: media.mediapb.v1.MediaInfo.derivatives:type_name -> media.mediapb.v1.Derivative
+	0, // 2: media.mediapb.v1.MediaService.MediaIngested:input_type -> media.mediapb.v1.MediaIngestedRequest
+	2, // 3: media.mediapb.v1.MediaService.GetMedia:input_type -> media.mediapb.v1.GetMediaRequest
+	1, // 4: media.mediapb.v1.MediaService.MediaIngested:output_type -> media.mediapb.v1.MediaIngestedResponse
+	3, // 5: media.mediapb.v1.MediaService.GetMedia:output_type -> media.mediapb.v1.GetMediaResponse
+	4, // [4:6] is the sub-list for method output_type
+	2, // [2:4] is the sub-list for method input_type
+	2, // [2:2] is the sub-list for extension type_name
+	2, // [2:2] is the sub-list for extension extendee
+	0, // [0:2] is the sub-list for field type_name
 }
 
 func init() { file_media_mediapb_v1_media_proto_init() }
@@ -163,7 +394,7 @@ func file_media_mediapb_v1_media_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_media_mediapb_v1_media_proto_rawDesc), len(file_media_mediapb_v1_media_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   2,
+			NumMessages:   6,
 			NumExtensions: 0,
 			NumServices:   1,
 		},

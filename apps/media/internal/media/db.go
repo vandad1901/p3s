@@ -2,6 +2,8 @@ package media
 
 import (
 	"context"
+	"maps"
+	"slices"
 	"time"
 
 	"gorm.io/gorm"
@@ -26,6 +28,47 @@ const (
 	tryCountLimit = 5
 	ingestTimeout = 1 * time.Minute
 )
+
+func dbGetMediaInfos(_ context.Context, db *gorm.DB, keys []string) ([]MediaInfo, error) {
+	var res []Media
+
+	err := db.Model(&Media{}).
+		Where("media_key IN ?", keys).
+		Find(&res).Error
+	if err != nil {
+		return nil, err
+	}
+
+	var derivatives []Derivative
+
+	err = db.Model(&Derivative{}).
+		Where("media_key IN ?", keys).
+		Find(&derivatives).Error
+	if err != nil {
+		return nil, err
+	}
+
+	mediaMap := make(map[string]MediaInfo)
+	for _, media := range res {
+		mediaMap[media.MediaKey] = MediaInfo{
+			MediaKey:    media.MediaKey,
+			Width:       media.Width,
+			Height:      media.Height,
+			Derivatives: []Derivative{},
+		}
+	}
+
+	for _, derivative := range derivatives {
+		if mediaInfo, ok := mediaMap[derivative.MediaKey]; ok {
+			mediaInfo.Derivatives = append(mediaInfo.Derivatives, derivative)
+			mediaMap[derivative.MediaKey] = mediaInfo
+		}
+	}
+
+	result := slices.Collect(maps.Values(mediaMap))
+
+	return result, nil
+}
 
 func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, error) {
 	currentTime := time.Now()
@@ -80,17 +123,44 @@ func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, er
 	return time.Time{}, ErrAlreadyProcessing
 }
 
-func dbChangeStatus(_ context.Context, db *gorm.DB,
-	mediaKey string, leasedAt time.Time,
-	targetStatus MediaIngestStatus) error {
+func dbFinalizeIngest(_ context.Context, db *gorm.DB,
+	media *Media) (int64, error) {
+	var md Media
+
 	err := db.Model(&Media{}).
-		Where("media_key = ?", mediaKey).
-		Where("leased_at = ?", leasedAt).
+		Where("media_key = ?", media.MediaKey).
+		Where("leased_at = ?", media.LeasedAt).
 		Updates(map[string]any{
-			"ingest_status": targetStatus,
-		}).Error
+			"ingest_status": MediaIngestStatusIngested,
+			"width":         media.Width,
+			"height":        media.Height,
+		}).Clauses(
+		clause.Returning{Columns: []clause.Column{{Name: "id"}}},
+	).Scan(&md).Error
 	if err != nil {
-		return err
+		return 0, err
+	}
+
+	return md.ID, nil
+}
+
+func dbCreateDerivatives(_ context.Context, db *gorm.DB,
+	mediaID int64,
+	mediaKey string, derivatives []derivativeAsset) error {
+	items := make([]Derivative, len(derivatives))
+	for i, derivative := range derivatives {
+		items[i] = Derivative{
+			MediaID:  mediaID,
+			MediaKey: mediaKey,
+
+			Ext:   derivative.Extension,
+			Width: derivative.width,
+		}
+	}
+
+	result := db.Create(&items)
+	if result.Error != nil {
+		return result.Error
 	}
 
 	return nil
