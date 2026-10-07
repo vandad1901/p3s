@@ -26,233 +26,35 @@ import { restrictToVerticalAxis } from "@dnd-kit/modifiers";
 import {
   SortableContext,
   sortableKeyboardCoordinates,
-  useSortable,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities";
-import { BlockType, PostStatus, type CreateRequest } from "@gen/api/postpb/v1/post";
+import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
-import { GripVertical, ImagePlus, Loader2, Redo, RotateCw, Trash, Type, Undo } from "lucide-react";
+import { GripVertical, Loader2, Redo, Undo } from "lucide-react";
 import {
   useEffect,
   useReducer,
   useRef,
   useState,
-  type ActionDispatch,
   type ClipboardEvent,
   type KeyboardEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
-
-const MAX_IMAGE_BYTES = 20 << 20;
-
-// types
-
-const textSizeItems = [
-  {
-    label: "Heading 1",
-    value: "h1",
-  },
-  {
-    label: "Heading 2",
-    value: "h2",
-  },
-  {
-    label: "Heading 3",
-    value: "h3",
-  },
-  {
-    label: "Paragraph",
-    value: "p",
-  },
-] as const;
-
-export type TextSizeType = (typeof textSizeItems)[number]["value"];
-
-type TextMetadata = {
-  size: TextSizeType;
-};
-
-type TextBlock = {
-  id: string;
-  blockType: BlockType.BLOCK_TYPE_TEXT;
-  text: string;
-  metadata: TextMetadata;
-};
-
-const imageSizeItems = [
-  {
-    label: "Small",
-    value: "sm",
-  },
-  {
-    label: "Medium",
-    value: "md",
-  },
-  {
-    label: "Large",
-    value: "lg",
-  },
-] as const;
-
-export type ImageSizeType = (typeof imageSizeItems)[number]["value"];
-
-type ImageMetadata = {
-  size: ImageSizeType;
-  // caption: string;
-};
-
-type MediaBlock = {
-  id: string;
-  blockType: BlockType.BLOCK_TYPE_MEDIA;
-  file: File;
-  src: string;
-  status: "uploading" | "ready" | "error";
-  error?: string;
-  metadata: ImageMetadata;
-};
-
-type Block = TextBlock | MediaBlock;
-
-type Doc = {
-  title: string;
-  slug: string;
-  blocks: Block[];
-};
-
-// History Management
-
-type State = {
-  past: Doc[];
-  present: Doc;
-  future: Doc[];
-  key: string | null;
-};
-type Action =
-  | { type: "title"; title: string }
-  | { type: "slug"; slug: string }
-  | { type: "text"; id: string; text: string }
-  | { type: "insert"; index: number; blocks: Block[] }
-  | { type: "updateTextMeta"; metadata: TextMetadata; id: string }
-  | { type: "updateImageMeta"; metadata: ImageMetadata; id: string }
-  | { type: "remove"; id: string }
-  | { type: "move"; from: number; to: number }
-  | { type: "upload"; id: string; status: MediaBlock["status"]; error?: string } // documenting upload status changes
-  | { type: "undo" }
-  | { type: "redo" };
-
-function commit(s: State, doc: Doc, key: string | null = null): State {
-  if (key !== null && key === s.key) return { ...s, present: doc, future: [] };
-  return { past: [...s.past, s.present].slice(-100), present: doc, future: [], key };
-}
-
-const newText = (): TextBlock => ({
-  id: crypto.randomUUID(),
-  blockType: BlockType.BLOCK_TYPE_TEXT,
-  text: "",
-  metadata: { size: "p" },
-});
-const newMedia = (file: File, src: string): MediaBlock => ({
-  id: crypto.randomUUID(),
-  blockType: BlockType.BLOCK_TYPE_MEDIA,
-  file,
-  src,
-  status: "uploading",
-  metadata: { size: "lg" },
-});
-
-function reducer(s: State, a: Action): State {
-  const d = s.present;
-  const editBlockByID = (doc: Doc, id: string, fn: (b: Block) => Block): Doc => ({
-    ...doc,
-    blocks: doc.blocks.map((b) => (b.id === id ? fn(b) : b)),
-  });
-
-  switch (a.type) {
-    case "title": {
-      const slugify = (s: string) =>
-        s
-          .toLowerCase()
-          .normalize("NFKD")
-          .replace(/[^a-z0-9]+/g, "-")
-          .replace(/^-+|-+$/g, "");
-
-      const syncSlug = d.slug === slugify(d.title);
-      return commit(
-        s,
-        { ...d, title: a.title, slug: syncSlug ? slugify(a.title) : d.slug },
-        "title",
-      );
-    }
-    case "slug": {
-      return commit(s, { ...d, slug: a.slug }, "slug");
-    }
-    case "text": {
-      return commit(
-        s,
-        editBlockByID(d, a.id, (b) => ({ ...b, text: a.text })),
-        `text:${a.id}`,
-      );
-    }
-    case "insert": {
-      const i = Math.max(0, Math.min(a.index, d.blocks.length));
-      return commit(s, {
-        ...d,
-        blocks: [...d.blocks.slice(0, i), ...a.blocks, ...d.blocks.slice(i)],
-      });
-    }
-    case "updateTextMeta": {
-      return commit(
-        s,
-        editBlockByID(d, a.id, (b) => ({ ...(b as TextBlock), metadata: a.metadata })),
-        "metadata",
-      );
-    }
-    case "updateImageMeta": {
-      return commit(
-        s,
-        editBlockByID(d, a.id, (b) => ({ ...(b as MediaBlock), metadata: a.metadata })),
-        "metadata",
-      );
-    }
-    case "remove": {
-      const remainingBlocks = d.blocks.filter((b) => b.id !== a.id);
-      return commit(s, {
-        ...d,
-        blocks: remainingBlocks.length !== 0 ? remainingBlocks : [newText()],
-      });
-    }
-    case "move": {
-      const to = Math.max(0, Math.min(a.to, d.blocks.length));
-      if (a.from === to) return s;
-      return commit(s, {
-        ...d,
-        blocks: d.blocks.toSpliced(a.from, 1).toSpliced(to, 0, d.blocks[a.from]),
-      });
-    }
-    case "upload": {
-      const patch = (doc: Doc) =>
-        editBlockByID(doc, a.id, (b) => ({
-          ...b,
-          status: a.status,
-          error: a.error,
-        }));
-      return { ...s, past: s.past.map(patch), present: patch(d), future: s.future.map(patch) };
-    }
-    case "undo": {
-      const prevDoc = s.past.at(-1);
-      return prevDoc !== undefined
-        ? { past: s.past.slice(0, -1), present: prevDoc, future: [d, ...s.future], key: null }
-        : s;
-    }
-    case "redo": {
-      const nextDoc = s.future.at(0);
-      return nextDoc !== undefined
-        ? { past: [...s.past, d], present: nextDoc, future: s.future.slice(1), key: null }
-        : s;
-    }
-  }
-}
+import { useNavigate, useParams } from "react-router-dom";
+import { AddBlockButtons, SortableBlock } from "./editor-block";
+import { mapRemoteToDoc, toCreateRequest, toUpdateRequest } from "./mapper";
+import {
+  MAX_IMAGE_BYTES,
+  imageSizeItems,
+  newMedia,
+  newText,
+  reducer,
+  textSizeItems,
+  type Action,
+  type Doc,
+  type MediaBlock,
+  type TextBlock,
+  type TextSizeType,
+} from "./model";
 
 function validate(doc: Doc): string | null {
   if (!doc.title.trim()) return "Add a title.";
@@ -273,51 +75,63 @@ function validate(doc: Doc): string | null {
   return null;
 }
 
-function toCreateRequest(doc: Doc, publish: boolean): CreateRequest {
-  const blocks = doc.blocks.filter(
-    (b) => b.blockType === BlockType.BLOCK_TYPE_MEDIA || b.text.trim(),
-  );
-  return {
-    post: {
-      id: 0,
-      title: doc.title.trim(),
-      slug: doc.slug,
-      postStatus: publish ? PostStatus.POST_STATUS_PUBLISHED : PostStatus.POST_STATUS_DRAFT,
-      createdAt: undefined,
-      createdBy: 0,
-      updatedAt: undefined,
-      updatedBy: 0,
-    },
-    postBlocks: blocks.map((b, i) => ({
-      id: 0,
-      postId: 0,
-      position: i * 10,
-      blockType: b.blockType,
-      text: b.blockType === BlockType.BLOCK_TYPE_TEXT ? b.text.trim() : "",
-      media: b.blockType === BlockType.BLOCK_TYPE_MEDIA ? b.id : "",
-      metadata: JSON.stringify(b.metadata),
-    })),
-  };
-}
-
 function focusBlock(root: HTMLElement | null, id: string) {
   const elem = root?.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-focus="${id}"]`);
   elem?.focus();
   elem?.setSelectionRange(elem.value.length, elem.value.length);
 }
 
-export function Editor() {
+export function EditorPage({ editMode }: { editMode: boolean }) {
+  const { slug } = useParams();
+
+  const [initialDoc, setInitialDoc] = useState<GetResponse | undefined>(undefined);
+
+  useEffect(() => {
+    if (!editMode) return;
+    if (!slug) throw new Error("Missing slug parameter");
+
+    postService
+      .Get({ slug })
+      .then((res) => {
+        if (!res.ok) throw new Error(res.message);
+
+        setInitialDoc(res);
+      })
+      .catch((err) => {
+        console.error("Failed to load post:", err);
+      });
+  }, [editMode, slug]);
+
+  if (editMode && !initialDoc) {
+    return (
+      <div className="flex h-screen w-full items-center justify-center">
+        <Loader2 className="size-10 animate-spin" />
+      </div>
+    );
+  }
+
+  return (
+    <Editor
+      key={slug}
+      remoteResponse={initialDoc}
+    />
+  );
+}
+
+export function Editor({ remoteResponse }: { remoteResponse?: GetResponse }) {
   const navigate = useNavigate();
 
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     past: [],
     future: [],
     key: null,
-    present: {
-      title: "",
-      slug: "",
-      blocks: [newText()],
-    },
+    present: remoteResponse
+      ? mapRemoteToDoc(remoteResponse)
+      : {
+          title: "",
+          slug: "",
+          blocks: [newText()],
+        },
   }));
   const { present: doc, past, future } = state;
   const [error, setError] = useState<string | null>(null);
@@ -377,6 +191,7 @@ export function Editor() {
   }, []);
 
   async function startUpload(b: MediaBlock) {
+    if (b.file === undefined) return;
     dispatch({
       type: "upload",
       id: b.id,
@@ -430,9 +245,6 @@ export function Editor() {
   }
 
   function addText(i: number) {
-    // const last = doc.blocks.at(-1);
-    // if (last?.blockType === BlockType.BLOCK_TYPE_TEXT && last.text === "")
-    //   return focusBlock(root.current, last.id);
     const b = newText();
     focusAfterRender.current = b.id;
     dispatch({
@@ -453,14 +265,28 @@ export function Editor() {
     setBusy(true);
     setError(null);
 
-    try {
-      const res = await postService.Create(toCreateRequest(doc, publish));
-      if (res.ok) navigate(`/posts/${doc.slug}`);
-      else setError(`couldn't save the post (${res.message}).`);
-    } catch {
-      setError("couldn't reach the server. Try again later.");
-    } finally {
-      setBusy(false);
+    if (remoteResponse === undefined) {
+      try {
+        const res = await postService.Create(toCreateRequest(doc, publish));
+        if (res.ok) navigate(`/posts/${doc.slug}`);
+        else setError(`couldn't save the post (${res.message}).`);
+      } catch {
+        setError("couldn't reach the server. Try again later.");
+      } finally {
+        setBusy(false);
+      }
+    } else {
+      try {
+        const res = await postService.Update(
+          toUpdateRequest(remoteResponse.post!, remoteResponse.postBlocks, doc, publish),
+        );
+        if (res.ok) navigate(`/posts/${doc.slug}`);
+        else setError(`couldn't save the post (${res.message}).`);
+      } catch {
+        setError("couldn't reach the server. Try again later.");
+      } finally {
+        setBusy(false);
+      }
     }
   }
 
@@ -528,13 +354,6 @@ export function Editor() {
     <div
       ref={root}
       className="mx-auto flex max-w-2xl flex-col items-center pb-12"
-      onFocus={(e) => {
-        const li = (e.target as HTMLElement).closest<HTMLElement>("[data-id]");
-        console.log("focused", li?.dataset.id);
-        if (li?.dataset.id) {
-          setFocusedId(li.dataset.id);
-        }
-      }}
       onPaste={onPaste}
       onDragOver={(e) => e.dataTransfer.types.includes("Files") && e.preventDefault()}
       onDrop={(e) => {
@@ -602,51 +421,17 @@ export function Editor() {
                   Redo <Redo />
                 </Button>
               </ButtonGroup>
-              {focusedBlock && (
-                <Select
-                  items={
-                    focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT
-                      ? textSizeItems
-                      : imageSizeItems
-                  }
-                  value={focusedBlock.metadata.size}
-                  onValueChange={(value) => {
-                    if (focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT) {
-                      dispatch({
-                        type: "updateTextMeta",
-                        id: focusedBlock.id,
-                        metadata: { size: value as TextSizeType },
-                      });
-                    }
-
-                    if (focusedBlock.blockType === BlockType.BLOCK_TYPE_MEDIA) {
-                      dispatch({
-                        type: "updateImageMeta",
-                        id: focusedBlock.id,
-                        metadata: { size: value as ImageSizeType },
-                      });
-                    }
-                  }}
-                >
-                  <SelectTrigger className="w-30 focus-within:opacity-100 hover:opacity-100">
-                    <SelectValue placeholder="Size" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectGroup>
-                      {(focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT
-                        ? textSizeItems
-                        : imageSizeItems
-                      ).map((item) => (
-                        <SelectItem
-                          key={item.value}
-                          value={item.value}
-                        >
-                          {item.label}
-                        </SelectItem>
-                      ))}
-                    </SelectGroup>
-                  </SelectContent>
-                </Select>
+              {focusedBlock?.blockType === BlockType.BLOCK_TYPE_TEXT && (
+                <TextSizeSelect
+                  focusedBlock={focusedBlock}
+                  dispatch={dispatch}
+                />
+              )}
+              {focusedBlock?.blockType === BlockType.BLOCK_TYPE_MEDIA && (
+                <ImageSizeSelect
+                  focusedBlock={focusedBlock}
+                  dispatch={dispatch}
+                />
               )}
             </div>
             <div className="flex items-center gap-1">
@@ -712,10 +497,11 @@ export function Editor() {
         >
           <ul className="w-full gap-1">
             <AddBlockButtons
-              addText={addText}
-              insertAtIndex={0}
-              insertAt={insertAt}
-              fileInput={fileInput}
+              onTextAdd={() => addText(0)}
+              onImageAdd={() => {
+                insertAt.current = 0;
+                fileInput.current?.click();
+              }}
             />
             {doc.blocks.map((block, index) => (
               <SortableBlock
@@ -744,10 +530,7 @@ export function Editor() {
                   dir="auto"
                   className={cn(
                     "field-sizing-content w-full resize-none overflow-hidden outline-none",
-                    activeBlock.metadata.size === "h1" && "text-3xl font-bold",
-                    activeBlock.metadata.size === "h2" && "text-2xl font-semibold",
-                    activeBlock.metadata.size === "h3" && "text-xl font-semibold",
-                    activeBlock.metadata.size === "p" && "text-base",
+                    textSizeItems.find((i) => i.value === activeBlock.metadata.size)?.className,
                   )}
                   placeholder="Start typing... (Enter adds a block, Shift+Enter a line break"
                   value={activeBlock.text}
@@ -757,9 +540,7 @@ export function Editor() {
                   src={activeBlock.src}
                   className={cn(
                     "max-w-full min-w-0 flex-1 rounded-md object-contain pr-8",
-                    activeBlock.metadata.size === "sm" && "max-h-48",
-                    activeBlock.metadata.size === "md" && "max-h-96",
-                    activeBlock.metadata.size === "lg" && "max-h-128",
+                    imageSizeItems.find((i) => i.value === activeBlock.metadata.size)?.className,
                   )}
                 />
               )}
@@ -782,189 +563,83 @@ export function Editor() {
   );
 }
 
-type SortableBlockProps = {
-  index: number;
-  block: Block;
-  dispatch: ActionDispatch<[a: Action]>;
-  onTextKeyDown: (e: KeyboardEvent<HTMLTextAreaElement>, i: number) => void;
-  addText: (i: number) => void;
-  insertAt: React.RefObject<number>;
-  fileInput: React.RefObject<HTMLInputElement | null>;
-  startUpload: (b: MediaBlock) => void;
-  setFocusedId: (id: string | null) => void;
-};
-
-function SortableBlock({
-  index,
-  block,
+function TextSizeSelect({
+  focusedBlock,
   dispatch,
-  onTextKeyDown,
-  addText,
-  insertAt,
-  fileInput,
-  startUpload,
-  setFocusedId,
-}: SortableBlockProps) {
-  const {
-    attributes,
-    listeners,
-    setNodeRef,
-    setActivatorNodeRef,
-    transform,
-    transition,
-    isDragging,
-  } = useSortable({
-    id: block.id,
-  });
-
+}: {
+  focusedBlock: TextBlock;
+  dispatch: React.ActionDispatch<[a: Action]>;
+}) {
   return (
-    <li
-      ref={setNodeRef}
-      data-index={index}
-      data-id={block.id}
-      className={"group relative flex flex-col items-start gap-1 rounded-md"}
+    <Select
+      items={focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT ? textSizeItems : imageSizeItems}
+      value={focusedBlock.metadata.size}
+      onValueChange={(value) => {
+        if (value === null) return;
+        dispatch({
+          type: "updateTextMeta",
+          id: focusedBlock.id,
+          metadata: { size: value as TextSizeType },
+        });
+      }}
     >
-      <div
-        className={cn("relative flex w-full rounded-md p-1", isDragging && "opacity-20")}
-        style={{
-          transform: CSS.Translate.toString(transform),
-          transition,
-        }}
-      >
-        <div
-          ref={setActivatorNodeRef}
-          {...attributes}
-          {...listeners}
-          className={cn(
-            "text-muted-foreground/50 cursor-grab self-start",
-            isDragging && "outline-none",
-          )}
-        >
-          <GripVertical className="size-5" />
-        </div>
-        {block.blockType === BlockType.BLOCK_TYPE_TEXT && (
-          <textarea
-            dir="auto"
-            data-focus={block.id}
-            className={cn(
-              "placeholder:text-muted-foreground/60 field-sizing-content w-full flex-1 resize-none overflow-hidden outline-none",
-              block.metadata.size === "h1" && "text-3xl font-bold",
-              block.metadata.size === "h2" && "text-2xl font-semibold",
-              block.metadata.size === "h3" && "text-xl font-semibold",
-              block.metadata.size === "p" && "text-base",
-            )}
-            placeholder="Start typing... (Enter adds a block, Shift+Enter a line break"
-            value={block.text}
-            onChange={(e) =>
-              dispatch({
-                type: "text",
-                id: block.id,
-                text: e.target.value,
-              })
-            }
-            onKeyDown={(e) => onTextKeyDown(e, index)}
-          ></textarea>
-        )}
-        {block.blockType === BlockType.BLOCK_TYPE_MEDIA && (
-          <MediaView
-            block={block}
-            onRetry={() => startUpload(block)}
-            setFocusedId={setFocusedId}
-          />
-        )}
-        <Button
-          className="hover:text-destructive text-destructive/80 self-start bg-transparent opacity-0 group-hover:opacity-50 hover:bg-transparent"
-          variant={"destructive"}
-          onClick={() => {
-            dispatch({ type: "remove", id: block.id });
-          }}
-        >
-          <Trash className="size-4" />
-        </Button>
-      </div>
-      <AddBlockButtons
-        addText={addText}
-        insertAtIndex={index + 1}
-        insertAt={insertAt}
-        fileInput={fileInput}
-      />
-    </li>
+      <SelectTrigger className="w-30 focus-within:opacity-100 hover:opacity-100">
+        <SelectValue placeholder="Size" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {(focusedBlock.blockType === BlockType.BLOCK_TYPE_TEXT
+            ? textSizeItems
+            : imageSizeItems
+          ).map((item) => (
+            <SelectItem
+              key={item.value}
+              value={item.value}
+            >
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }
 
-type MediaViewProps = {
-  block: MediaBlock;
-  onRetry: () => void;
-  setFocusedId: (id: string | null) => void;
-};
-
-function MediaView({ block, onRetry, setFocusedId }: MediaViewProps) {
+function ImageSizeSelect({
+  focusedBlock,
+  dispatch,
+}: {
+  focusedBlock: MediaBlock;
+  dispatch: React.ActionDispatch<[a: Action]>;
+}) {
   return (
-    <div
-      className="relative w-full overflow-hidden"
-      onClick={() => setFocusedId(block.id)}
+    <Select
+      items={imageSizeItems}
+      value={focusedBlock.metadata.size}
+      onValueChange={(value) => {
+        if (value === null) return;
+        dispatch({
+          type: "updateImageMeta",
+          id: focusedBlock.id,
+          metadata: { size: value },
+        });
+      }}
     >
-      <img
-        src={block.src}
-        className={cn(
-          "w-full rounded-md object-contain",
-          block.metadata.size === "sm" && "max-h-48",
-          block.metadata.size === "md" && "max-h-96",
-          block.metadata.size === "lg" && "max-h-128",
-          block.status !== "ready" && "opacity-60",
-        )}
-      />
-      {block.status === "uploading" && (
-        <div className="absolute inset-0 grid place-items-center">
-          <Loader2
-            className="size-6 animate-spin"
-            aria-label="Uploading"
-          />
-        </div>
-      )}
-      {block.status === "error" && (
-        <div className="bg-background/90 text-destructive absolute inset-x-0 bottom-0 flex items-center justify-between gap-2 p-2 text-sm">
-          <span className="min-w-0 truncate">Upload failed ({block.error})</span>
-          <Button
-            size="sm"
-            variant="outline"
-            onClick={onRetry}
-          >
-            <RotateCw /> Retry
-          </Button>
-        </div>
-      )}
-    </div>
-  );
-}
-
-type AddBlockButtonsProps = {
-  addText: (i: number) => void;
-  insertAtIndex: number;
-  insertAt: React.RefObject<number>;
-  fileInput: React.RefObject<HTMLInputElement | null>;
-};
-
-function AddBlockButtons({ addText, insertAtIndex, insertAt, fileInput }: AddBlockButtonsProps) {
-  return (
-    <div className="flex w-full flex-row justify-center gap-4 opacity-0 focus-within:opacity-50 hover:opacity-50">
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => addText(insertAtIndex)}
-      >
-        <Type /> Text
-      </Button>
-      <Button
-        variant="ghost"
-        size="sm"
-        onClick={() => {
-          insertAt.current = insertAtIndex;
-          fileInput.current?.click();
-        }}
-      >
-        <ImagePlus /> Image
-      </Button>
-    </div>
+      <SelectTrigger className="w-30 focus-within:opacity-100 hover:opacity-100">
+        <SelectValue placeholder="Size" />
+      </SelectTrigger>
+      <SelectContent>
+        <SelectGroup>
+          {imageSizeItems.map((item) => (
+            <SelectItem
+              key={item.value}
+              value={item.value}
+            >
+              {item.label}
+            </SelectItem>
+          ))}
+        </SelectGroup>
+      </SelectContent>
+    </Select>
   );
 }

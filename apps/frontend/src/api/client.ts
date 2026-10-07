@@ -11,9 +11,7 @@ type ErrorResponse = {
   message: string;
 };
 
-export type APIResponse<T> =
-  | (T & { ok: true })
-  | (ErrorResponse & { ok: false });
+export type APIResponse<T> = (T & { ok: true }) | (ErrorResponse & { ok: false });
 
 export type WithAPIResponse<T> = {
   [K in keyof T]: T[K] extends (...args: infer Args) => Promise<infer Response>

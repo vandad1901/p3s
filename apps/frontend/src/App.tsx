@@ -2,7 +2,7 @@ import { Authentication } from "@/pages/authn/authn";
 import { Home } from "@/pages/home/home";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./layout";
-import { Editor } from "./pages/editor/editor";
+import { EditorPage } from "./pages/editor/editor";
 
 function App() {
   return (
@@ -14,8 +14,12 @@ function App() {
             element={<Home />}
           />
           <Route
-            path="/editor"
-            element={<Editor />}
+            path="/editor/:slug"
+            element={<EditorPage editMode={true} />}
+          />
+          <Route
+            path="/editor/"
+            element={<EditorPage editMode={false} />}
           />
         </Route>
         <Route
