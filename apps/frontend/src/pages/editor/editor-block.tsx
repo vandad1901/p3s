@@ -125,6 +125,7 @@ function MediaView({ block, onRetry }: MediaViewProps) {
     <div className="relative w-full overflow-hidden">
       <img
         src={block.src}
+        srcSet={block.srcSet}
         className={cn(
           "w-full rounded-md object-contain",
           imageSizeItems.find((i) => i.value === block.metadata.size)?.className,

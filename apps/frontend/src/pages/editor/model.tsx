@@ -70,7 +70,8 @@ export type MediaBlock = {
   position: number;
   blockType: BlockType.BLOCK_TYPE_MEDIA;
   file?: File;
-  src: string;
+  src?: string;
+  srcSet: string;
   status: "uploading" | "ready" | "error";
   error?: string;
   metadata: ImageMetadata;
@@ -126,6 +127,7 @@ export const newMedia = (file: File, src: string): MediaBlock => ({
   blockType: BlockType.BLOCK_TYPE_MEDIA,
   file,
   src,
+  srcSet: "",
   status: "uploading",
   metadata: { size: "lg" },
 });

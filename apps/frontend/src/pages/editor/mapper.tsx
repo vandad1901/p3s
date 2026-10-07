@@ -7,12 +7,19 @@ import {
   type PostBlock,
   type UpdateRequest,
 } from "@gen/api/postpb/v1/post";
+import type { MediaInfo } from "@gen/media/mediapb/v1/media";
 import type { Block, Doc } from "./model";
 
 const PositionGap = 1000;
 const INT32_MAX = 2 ** 31 - 1;
 
-export function mapRemoteToDoc(res: GetResponse): Doc {
+type EnrichedPostBlock = PostBlock & { mediaInfo?: MediaInfo };
+
+export type EnrichedGetResponse = Omit<GetResponse, "postBlocks"> & {
+  postBlocks: EnrichedPostBlock[];
+};
+
+export function mapRemoteToDoc(res: EnrichedGetResponse): Doc {
   const { post: remotePost, postBlocks: remotePostBlocks } = res;
 
   return {
@@ -29,12 +36,16 @@ export function mapRemoteToDoc(res: GetResponse): Doc {
           metadata: JSON.parse(b.metadata || "{}"),
         };
       } else if (b.blockType === BlockType.BLOCK_TYPE_MEDIA) {
+        const srcSet = b.mediaInfo?.derivatives.map((d) => `${d.url} ${d.width}w`).join(", ") || "";
+        debugger;
+
         return {
           remoteID: b.id,
           id: b.media || crypto.randomUUID(),
           position: b.position,
           blockType: b.blockType,
-          src: `/api/v1/media/${b.media}`,
+          src: undefined,
+          srcSet,
           status: "ready",
           metadata: JSON.parse(b.metadata || "{}"),
         };
