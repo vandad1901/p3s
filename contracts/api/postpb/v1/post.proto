@@ -20,7 +20,7 @@ service PostService {
   rpc Get (GetRequest) returns (GetResponse)
   {
     option (google.api.http) = {
-      get: "/api/v1/post/{id}"
+      get: "/api/v1/post/{slug}"
     };
   };
   rpc Update (UpdateRequest) returns (UpdateResponse) {

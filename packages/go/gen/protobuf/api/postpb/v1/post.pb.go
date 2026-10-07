@@ -815,10 +815,10 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\tBlockType\x12\x1a\n" +
 	"\x16BLOCK_TYPE_UNSPECIFIED\x10\x00\x12\x13\n" +
 	"\x0fBLOCK_TYPE_TEXT\x10\x01\x12\x14\n" +
-	"\x10BLOCK_TYPE_MEDIA\x10\x022\x88\x03\n" +
+	"\x10BLOCK_TYPE_MEDIA\x10\x022\x8a\x03\n" +
 	"\vPostService\x12^\n" +
-	"\x06Create\x12\x1c.api.postpb.v1.CreateRequest\x1a\x1d.api.postpb.v1.CreateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/api/v1/post\x12W\n" +
-	"\x03Get\x12\x19.api.postpb.v1.GetRequest\x1a\x1a.api.postpb.v1.GetResponse\"\x19\x82\xd3\xe4\x93\x02\x13\x12\x11/api/v1/post/{id}\x12^\n" +
+	"\x06Create\x12\x1c.api.postpb.v1.CreateRequest\x1a\x1d.api.postpb.v1.CreateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*\"\f/api/v1/post\x12Y\n" +
+	"\x03Get\x12\x19.api.postpb.v1.GetRequest\x1a\x1a.api.postpb.v1.GetResponse\"\x1b\x82\xd3\xe4\x93\x02\x15\x12\x13/api/v1/post/{slug}\x12^\n" +
 	"\x06Update\x12\x1c.api.postpb.v1.UpdateRequest\x1a\x1d.api.postpb.v1.UpdateResponse\"\x17\x82\xd3\xe4\x93\x02\x11:\x01*2\f/api/v1/post\x12`\n" +
 	"\x06Delete\x12\x1c.api.postpb.v1.DeleteRequest\x1a\x1d.api.postpb.v1.DeleteResponse\"\x19\x82\xd3\xe4\x93\x02\x13*\x11/api/v1/post/{id}BIZGgithub.com/vandad1901/p3s/packages/go/gen/protobuf/api/postpb/v1;postpbb\x06proto3"
 
