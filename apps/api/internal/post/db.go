@@ -90,6 +90,7 @@ func dbGetPostBlocks(_ context.Context, db *gorm.DB, postID int64) ([]*PostBlock
 
 	err := db.Table("post_block").
 		Where("post_id = ?", postID).
+		Order("position ASC").
 		Find(&res).Error
 	if err != nil {
 		return nil, err

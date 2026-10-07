@@ -114,12 +114,14 @@ func validatePostStatus(status PostStatus) error {
 }
 
 func validatePostBlocks(postBlocks []*PostBlock) error {
-	for i, item := range postBlocks {
-		if i != 0 {
-			if postBlocks[i-1].Position >= item.Position {
-				return errValidationBadOrdering
-			}
+	seenPositions := make(map[int32]struct{})
+
+	for _, item := range postBlocks {
+		if _, ok := seenPositions[item.Position]; ok {
+			return errValidationBadOrdering
 		}
+
+		seenPositions[item.Position] = struct{}{}
 
 		err := validatePostBlockFields(item)
 		if err != nil {
