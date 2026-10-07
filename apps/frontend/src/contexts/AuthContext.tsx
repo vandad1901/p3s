@@ -68,7 +68,6 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     userRef.current = updatedUser;
     setUser(updatedUser);
     setAccessToken(newJWT);
-    setLoading(false);
   };
 
   useEffect(() => {
@@ -83,6 +82,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         })
         .catch((error) => {
           console.error("Failed to restore session", error);
+        })
+        .finally(() => {
+          setLoading(false);
         });
     } else {
       setLoading(false);
