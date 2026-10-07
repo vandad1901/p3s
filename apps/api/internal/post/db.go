@@ -140,24 +140,65 @@ func dbUpdatePostBlocks(_ context.Context, db *gorm.DB, items []*PostBlock) erro
 	}
 
 	for _, item := range items {
-		res := db.Model(PostBlock{}).
-			Where("id = ?", item.ID).
-			Where("post_id = ?", item.PostID).
-			Where("block_type = ?", BlockTypeText). // maybe just Text-like blocks?
-			Updates(map[string]any{
-				"position": item.Position,
-
-				"text_content":  item.TextContent,
-				"media_content": item.MediaContent,
-				"metadata":      item.Metadata,
-			})
-		if res.Error != nil {
-			return res.Error
+		switch item.BlockType {
+		case BlockTypeText:
+			err := dbUpdateTextPostBlock(db, item)
+			if err != nil {
+				return err
+			}
+		case BlockTypeMedia:
+			err := dbUpdateMediaPostBlock(db, item)
+			if err != nil {
+				return err
+			}
+		case BlockTypeUnspecified:
+			return errInvalidStatus
+		default:
+			return errInvalidStatus
 		}
+	}
 
-		if res.RowsAffected != 1 {
-			return ErrPostNotFount
-		}
+	return nil
+}
+
+func dbUpdateTextPostBlock(db *gorm.DB, item *PostBlock) error {
+	res := db.Model(PostBlock{}).
+		Where("id = ?", item.ID).
+		Where("post_id = ?", item.PostID).
+		Where("block_type = ?", BlockTypeText).
+		Updates(map[string]any{
+			"position": item.Position,
+
+			"text_content": item.TextContent,
+			"metadata":     item.Metadata,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected != 1 {
+		return ErrPostNotFount
+	}
+
+	return nil
+}
+
+func dbUpdateMediaPostBlock(db *gorm.DB, item *PostBlock) error {
+	res := db.Model(PostBlock{}).
+		Where("id = ?", item.ID).
+		Where("post_id = ?", item.PostID).
+		Where("block_type = ?", BlockTypeMedia).
+		Updates(map[string]any{
+			"position": item.Position,
+
+			"metadata": item.Metadata,
+		})
+	if res.Error != nil {
+		return res.Error
+	}
+
+	if res.RowsAffected != 1 {
+		return ErrPostNotFount
 	}
 
 	return nil
