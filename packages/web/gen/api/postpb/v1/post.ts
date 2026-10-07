@@ -10,10 +10,10 @@ import type { IDVersion } from "../../../commonpb/v1/common";
 export const protobufPackage = "api.postpb.v1";
 
 export const PostStatus = {
-  POST_STATUS_UNSPECIFIED: 0,
-  POST_STATUS_DRAFT: 1,
-  POST_STATUS_PUBLISHED: 2,
-  UNRECOGNIZED: -1,
+  POST_STATUS_UNSPECIFIED: "POST_STATUS_UNSPECIFIED",
+  POST_STATUS_DRAFT: "POST_STATUS_DRAFT",
+  POST_STATUS_PUBLISHED: "POST_STATUS_PUBLISHED",
+  UNRECOGNIZED: "UNRECOGNIZED",
 } as const;
 
 export type PostStatus = typeof PostStatus[keyof typeof PostStatus];
@@ -26,10 +26,10 @@ export namespace PostStatus {
 }
 
 export const BlockType = {
-  BLOCK_TYPE_UNSPECIFIED: 0,
-  BLOCK_TYPE_TEXT: 1,
-  BLOCK_TYPE_MEDIA: 2,
-  UNRECOGNIZED: -1,
+  BLOCK_TYPE_UNSPECIFIED: "BLOCK_TYPE_UNSPECIFIED",
+  BLOCK_TYPE_TEXT: "BLOCK_TYPE_TEXT",
+  BLOCK_TYPE_MEDIA: "BLOCK_TYPE_MEDIA",
+  UNRECOGNIZED: "UNRECOGNIZED",
 } as const;
 
 export type BlockType = typeof BlockType[keyof typeof BlockType];

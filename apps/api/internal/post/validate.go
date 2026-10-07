@@ -34,6 +34,11 @@ func validatePostFields(ctx context.Context, db *gorm.DB, post *Post) error {
 		return err
 	}
 
+	err = validatePostStatus(post.Status)
+	if err != nil {
+		return err
+	}
+
 	return nil
 }
 
@@ -99,13 +104,24 @@ func validateSlugUniqueness(ctx context.Context, db *gorm.DB, postID int64, slug
 	return nil
 }
 
+func validatePostStatus(status PostStatus) error {
+	switch status {
+	case PostStatusDraft, PostStatusPublished, PostStatusUnspecified:
+		return nil
+	default:
+		return errInvalidStatus
+	}
+}
+
 func validatePostBlocks(postBlocks []*PostBlock) error {
-	for i, item := range postBlocks {
-		if i != 0 {
-			if postBlocks[i-1].Position >= item.Position {
-				return errValidationBadOrdering
-			}
+	seenPositions := make(map[int32]struct{})
+
+	for _, item := range postBlocks {
+		if _, ok := seenPositions[item.Position]; ok {
+			return errValidationBadOrdering
 		}
+
+		seenPositions[item.Position] = struct{}{}
 
 		err := validatePostBlockFields(item)
 		if err != nil {
