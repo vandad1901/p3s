@@ -13,11 +13,17 @@ import type { Block, Doc } from "./model";
 const PositionGap = 1000;
 const INT32_MAX = 2 ** 31 - 1;
 
-type EnrichedPostBlock = PostBlock & { mediaInfo?: MediaInfo };
+export type EnrichedPostBlock = PostBlock & { mediaInfo?: MediaInfo };
 
 export type EnrichedGetResponse = Omit<GetResponse, "postBlocks"> & {
   postBlocks: EnrichedPostBlock[];
 };
+
+export function getSrcSet(mediaInfo: MediaInfo | undefined): string {
+  if (!mediaInfo) return "";
+
+  return mediaInfo.derivatives.map((d) => `${d.url} ${d.width}w`).join(", ");
+}
 
 export function mapRemoteToDoc(res: EnrichedGetResponse): Doc {
   const { post: remotePost, postBlocks: remotePostBlocks } = res;
@@ -36,7 +42,7 @@ export function mapRemoteToDoc(res: EnrichedGetResponse): Doc {
           metadata: JSON.parse(b.metadata || "{}"),
         };
       } else if (b.blockType === BlockType.BLOCK_TYPE_MEDIA) {
-        const srcSet = b.mediaInfo?.derivatives.map((d) => `${d.url} ${d.width}w`).join(", ") || "";
+        const srcSet = getSrcSet(b.mediaInfo);
         debugger;
 
         return {
