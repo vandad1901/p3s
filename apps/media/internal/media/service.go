@@ -2,23 +2,25 @@ package media
 
 import (
 	"context"
+	"fmt"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
-	"github.com/vandad1901/p3s/packages/go/idv"
 	"gorm.io/gorm"
 )
 
 type Service struct {
-	s3Client *s3.Client
-	db       *gorm.DB
+	s3ExternalEndpoint string
+	db                 *gorm.DB
+	s3Client           *s3.Client
 }
 
-func NewService(db *gorm.DB, s3Client *s3.Client) *Service {
+func NewService(s3ExternalEndpoint string, db *gorm.DB, s3Client *s3.Client) *Service {
 	return &Service{
-		db:       db,
-		s3Client: s3Client,
+		s3ExternalEndpoint: s3ExternalEndpoint,
+		db:                 db,
+		s3Client:           s3Client,
 	}
 }
 
@@ -39,6 +41,37 @@ func (s *Service) MediaIngested(ctx context.Context, keys []string) (int64, erro
 	})
 	if txErr != nil {
 		return 0, txErr
+	}
+
+	return res, nil
+}
+
+func (s *Service) GetMediaInfos(ctx context.Context, keys []string) ([]MediaInfo, error) {
+	db := s.db.WithContext(ctx)
+
+	var (
+		res []MediaInfo
+		err error
+	)
+
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		res, err = dbGetMediaInfos(ctx, tx, keys)
+		if err != nil {
+			return err
+		}
+
+		for _, media := range res {
+			for i := range media.Derivatives {
+				media.Derivatives[i].URL = fmt.Sprintf("%s/%s/%s.%d.png",
+					s.s3ExternalEndpoint,
+					s3Bucket, media.MediaKey, media.Derivatives[i].Width)
+			}
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	return res, nil
