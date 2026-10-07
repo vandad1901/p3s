@@ -3,6 +3,7 @@ package app
 import (
 	"github.com/vandad1901/p3s/apps/upload/internal/config"
 	uploadrpc "github.com/vandad1901/p3s/apps/upload/internal/upload/rpc"
+	"github.com/vandad1901/p3s/packages/go/apperror"
 	"github.com/vandad1901/p3s/packages/go/authguard"
 	"github.com/vandad1901/p3s/packages/go/envutil"
 	"google.golang.org/grpc"
@@ -12,7 +13,9 @@ import (
 )
 
 func initializeServers(a *App, cfg *config.Config) {
-	a.grpcServer = grpc.NewServer(grpc.UnaryInterceptor(authguard.GRPCAuthGuard(a.logger, a.parser, a.keyfunc)))
+	a.grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(
+		apperror.GRPCMiddleware(a.logger),
+		authguard.GRPCAuthGuard(a.logger, a.parser, a.keyfunc)))
 	registerGRPCServers(a, cfg)
 }
 
