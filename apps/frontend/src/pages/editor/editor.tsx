@@ -1,4 +1,5 @@
 import { postService } from "@/api/api.service";
+import { mediaService } from "@/api/media.service";
 import { uploadMedia } from "@/api/upload.service";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -28,7 +29,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
+import { BlockType } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
 import { GripVertical, Loader2, Redo, Undo } from "lucide-react";
 import {
@@ -41,7 +42,12 @@ import {
 } from "react";
 import { useNavigate, useParams } from "react-router-dom";
 import { AddBlockButtons, SortableBlock } from "./editor-block";
-import { mapRemoteToDoc, toCreateRequest, toUpdateRequest } from "./mapper";
+import {
+  mapRemoteToDoc,
+  toCreateRequest,
+  toUpdateRequest,
+  type EnrichedGetResponse,
+} from "./mapper";
 import {
   MAX_IMAGE_BYTES,
   imageSizeItems,
@@ -81,20 +87,39 @@ function focusBlock(root: HTMLElement | null, id: string) {
   elem?.setSelectionRange(elem.value.length, elem.value.length);
 }
 
+async function loadFullPost(slug: string): Promise<EnrichedGetResponse> {
+  const res = await postService.Get({ slug });
+  if (!res.ok) throw new Error(res.message);
+
+  const mediaKeys = res.postBlocks
+    .filter((b) => b.blockType === BlockType.BLOCK_TYPE_MEDIA)
+    .map((b) => `${res.post?.createdBy}/${b.media}`);
+
+  const mediaInfo = await mediaService.GetMedia({ mediaKeys: mediaKeys });
+  if (!mediaInfo.ok) throw new Error(mediaInfo.message);
+
+  const enrichedBlocks = res.postBlocks.map((b) => {
+    if (b.blockType === BlockType.BLOCK_TYPE_MEDIA) {
+      const info = mediaInfo.media.find((m) => m.mediaKey === `${res.post?.createdBy}/${b.media}`);
+      return { ...b, mediaInfo: info };
+    }
+    return b;
+  });
+
+  return { ...res, postBlocks: enrichedBlocks };
+}
+
 export function EditorPage({ editMode }: { editMode: boolean }) {
   const { slug } = useParams();
 
-  const [initialDoc, setInitialDoc] = useState<GetResponse | undefined>(undefined);
+  const [initialDoc, setInitialDoc] = useState<EnrichedGetResponse | undefined>(undefined);
 
   useEffect(() => {
     if (!editMode) return;
     if (!slug) throw new Error("Missing slug parameter");
 
-    postService
-      .Get({ slug })
+    loadFullPost(slug)
       .then((res) => {
-        if (!res.ok) throw new Error(res.message);
-
         setInitialDoc(res);
       })
       .catch((err) => {
@@ -118,7 +143,7 @@ export function EditorPage({ editMode }: { editMode: boolean }) {
   );
 }
 
-export function Editor({ remoteResponse }: { remoteResponse?: GetResponse }) {
+export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetResponse }) {
   const navigate = useNavigate();
 
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
@@ -538,6 +563,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: GetResponse }) {
               ) : (
                 <img
                   src={activeBlock.src}
+                  srcSet={activeBlock.srcSet}
                   className={cn(
                     "max-w-full min-w-0 flex-1 rounded-md object-contain pr-8",
                     imageSizeItems.find((i) => i.value === activeBlock.metadata.size)?.className,
