@@ -15,7 +15,10 @@ import (
 func initializeServers(a *App, cfg *config.Config) {
 	a.grpcServer = grpc.NewServer(grpc.ChainUnaryInterceptor(
 		apperror.GRPCMiddleware(a.logger),
-		authguard.GRPCAuthGuard(a.logger, a.parser, a.keyfunc)))
+		authguard.GRPCAuthGuardWithExceptions(a.logger, a.parser, a.keyfunc, map[string]struct{}{
+			"/media.mediapb.v1.MediaService/GetMedia": {},
+		}),
+	))
 	registerGRPCServers(a, cfg)
 }
 
