@@ -22,7 +22,7 @@ static_resources:
                       cors:
                         allow_origin_string_match:
                           - exact: "http://localhost:5173"
-                        allow_methods: "GET, POST, PUT, DELETE, OPTIONS"
+                        allow_methods: "GET, POST, PUT, DELETE, OPTIONS, PATCH"
                         allow_headers: "content-type,authorization"
                         expose_headers: "grpc-status,grpc-message"
                         max_age: "86400"
