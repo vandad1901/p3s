@@ -61,6 +61,7 @@ import {
   type TextBlock,
   type TextSizeType,
 } from "./model";
+import type { APIResponse } from "@/api/client";
 
 function validate(doc: Doc): string | null {
   if (!doc.title.trim()) return "Add a title.";
@@ -87,16 +88,20 @@ function focusBlock(root: HTMLElement | null, id: string) {
   elem?.setSelectionRange(elem.value.length, elem.value.length);
 }
 
-export async function loadFullPost(slug: string): Promise<EnrichedGetResponse> {
+export async function loadFullPost(slug: string): Promise<APIResponse<EnrichedGetResponse>> {
   const res = await postService.Get({ slug });
-  if (!res.ok) throw new Error(res.message);
+  if (!res.ok) {
+    return { ok: false, message: res.message, code: res.code };
+  }
 
   const mediaKeys = res.postBlocks
     .filter((b) => b.blockType === BlockType.BLOCK_TYPE_MEDIA)
     .map((b) => `${res.post?.createdBy}/${b.media}`);
 
   const mediaInfo = await mediaService.GetMedia({ mediaKeys: mediaKeys });
-  if (!mediaInfo.ok) throw new Error(mediaInfo.message);
+  if (!mediaInfo.ok) {
+    return { ok: false, message: mediaInfo.message, code: mediaInfo.code };
+  }
 
   const enrichedBlocks = res.postBlocks.map((b) => {
     if (b.blockType === BlockType.BLOCK_TYPE_MEDIA) {
