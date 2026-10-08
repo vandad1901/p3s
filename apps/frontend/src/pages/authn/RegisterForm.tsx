@@ -56,7 +56,7 @@ export function RegisterForm() {
         user: {
           email: value.email,
           username: value.username,
-          id: 0,
+          id: "0",
         },
         password: value.password,
       });
