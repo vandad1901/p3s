@@ -55,6 +55,9 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 	if err != nil {
 		return fmt.Errorf("getting media from S3: %w", err)
 	}
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	img, derivatives, err := IngestMedia(ctx, res.Body, *res.ContentLength)
 	if err != nil {
@@ -86,7 +89,7 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		MediaKey: key,
 
 		Width:  int32(img.Bounds().Dx()), //nolint:gosec // G115: limited by maxDimension
-		Height: int32(img.Bounds().Dx()), //nolint:gosec // G115: limited by maxDimension
+		Height: int32(img.Bounds().Dy()), //nolint:gosec // G115: limited by maxDimension
 
 		LeasedAt: leasedAt,
 	}, derivatives)
@@ -112,6 +115,10 @@ func IngestMedia(ctx context.Context, file io.Reader, contentLength int64,
 	if err != nil {
 		return nil, nil, fmt.Errorf("creating temp file: %w", err)
 	}
+	defer func() {
+		_ = tempFile.Close()
+		_ = os.Remove(tempFile.Name())
+	}()
 
 	img, formatStr, err := parseAndValidateImage(ctx, tempFile)
 	if err != nil {
@@ -171,16 +178,6 @@ func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image,
 		return nil, "", fmt.Errorf("seeking temp file: %w", err)
 	}
 
-	img, _, err := image.Decode(tempFile)
-	if err != nil {
-		return nil, "", fmt.Errorf("decoding image: %w", err)
-	}
-
-	_, err = tempFile.Seek(0, io.SeekStart)
-	if err != nil {
-		return nil, "", fmt.Errorf("seeking temp file: %w", err)
-	}
-
 	cfg, format, err := image.DecodeConfig(tempFile)
 	if err != nil {
 		return nil, "", fmt.Errorf("decoding image config: %w", err)
@@ -189,6 +186,16 @@ func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image,
 	err = validateImage(cfg, format)
 	if err != nil {
 		return nil, "", err
+	}
+
+	_, err = tempFile.Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, "", fmt.Errorf("seeking temp file: %w", err)
+	}
+
+	img, _, err := image.Decode(tempFile)
+	if err != nil {
+		return nil, "", fmt.Errorf("decoding image: %w", err)
 	}
 
 	return img, format, nil
