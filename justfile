@@ -74,3 +74,9 @@ set shell := ["sh", "-cu"]
     sudo chown 65532:65532 /etc/p3s/jwt_private_key.pem
     sudo chmod 400 /etc/p3s/jwt_private_key.pem
     sudo chmod 700 /etc/p3s
+
+@generate-secrets-ci:
+    openssl genpkey \
+    -algorithm EC \
+    -pkeyopt ec_paramgen_curve:P-256 \
+    -out apps/auth/jwt_private_key.pem
