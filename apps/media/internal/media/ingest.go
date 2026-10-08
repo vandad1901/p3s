@@ -55,6 +55,9 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 	if err != nil {
 		return fmt.Errorf("getting media from S3: %w", err)
 	}
+	defer func() {
+		_ = res.Body.Close()
+	}()
 
 	img, derivatives, err := IngestMedia(ctx, res.Body, *res.ContentLength)
 	if err != nil {
@@ -112,6 +115,10 @@ func IngestMedia(ctx context.Context, file io.Reader, contentLength int64,
 	if err != nil {
 		return nil, nil, fmt.Errorf("creating temp file: %w", err)
 	}
+	defer func() {
+		_ = tempFile.Close()
+		_ = os.Remove(tempFile.Name())
+	}()
 
 	img, formatStr, err := parseAndValidateImage(ctx, tempFile)
 	if err != nil {
