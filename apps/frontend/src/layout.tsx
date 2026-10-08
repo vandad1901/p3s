@@ -1,13 +1,15 @@
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { cn } from "cn";
-import { LogOut, PenLine } from "lucide-react";
+import { LogOut, Moon, PenLine, Sun } from "lucide-react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
+import { useTheme } from "./contexts/ThemeContext";
 
 const YEAR = new Date().getFullYear();
 
 export function Layout() {
   const { user, setUserFromAuth } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   function logout() {
@@ -78,6 +80,25 @@ export function Layout() {
                 Sign up
               </Link>
             </>
+          )}
+          {theme === "dark" ? (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Switch to light mode"
+              onClick={() => toggleTheme()}
+            >
+              <Sun />
+            </Button>
+          ) : (
+            <Button
+              variant="ghost"
+              size="icon"
+              aria-label="Switch to dark mode"
+              onClick={() => toggleTheme()}
+            >
+              <Moon />
+            </Button>
           )}
         </nav>
       </header>
