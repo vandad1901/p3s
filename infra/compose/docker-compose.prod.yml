@@ -1,0 +1,302 @@
+name: p3s-prod
+
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-app: &app
+  restart: unless-stopped
+  healthcheck:
+    test: [ "CMD", "/app/healthcheck" ]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 10s
+  init: true
+  read_only: true
+  cap_drop: [ ALL ]
+  security_opt: [ no-new-privileges:true ]
+  tmpfs:
+    - /tmp
+  logging: *logging
+
+x-api-db-envs: &api-db-envs
+  API_PG_HOST: pg
+  API_PG_PORT: "5432"
+  API_PG_USER: ${API_PG_USER:?set in .env.production}
+  API_PG_PASSWORD: ${API_PG_PASSWORD:?set in .env.production}
+  API_PG_DATABASE: ${API_PG_DATABASE:?set in .env.production}
+
+x-jwks-envs: &jwks-envs
+  AUTH_JWKS_ADDRESS: http://auth:50151/.well-known/jwks.json
+
+x-s3-envs: &s3-envs
+  S3_ENDPOINT: http://silo:9000
+  S3_EXTERNAL_ENDPOINT: ${S3_EXTERNAL_ENDPOINT:?set in .env.production}
+  S3_ROOT_USERNAME: ${S3_ROOT_USERNAME:?set in .env.production}
+  S3_ROOT_PASSWORD: ${S3_ROOT_PASSWORD:?set in .env.production}
+
+x-rmq-envs: &rmq-envs
+  RMQ_ENDPOINT: amqp://${RMQ_USERNAME:?set in .env.production}:${RMQ_PASSWORD:?set in .env.production}@rmq:5672
+
+x-migrate-service: &migrate-service
+  image: migrate/migrate:v4.19.1@sha256:cc4ad8e19d66791e3689405d9a028ce6e9614f32032db14acda1469f7201d6e4
+  restart: "no"
+  networks: [ core ]
+  logging: *logging
+  depends_on:
+    pg:
+      condition: service_healthy
+
+networks:
+  edge: {}
+  core:
+    internal: true
+
+volumes:
+  pg_data:
+  rmq_data:
+  silo_data:
+
+services:
+  # Stateful Services
+  pg:
+    image: postgres:17@sha256:2d2b8998d31037bf721cfdf764d76ba74171b4fab3431b7f72c27c56ddbdf9e3
+    restart: unless-stopped
+    networks: [ core ]
+    volumes:
+      - pg_data:/var/lib/postgresql/data
+      - ./initdb:/docker-entrypoint-initdb.d:ro
+    environment:
+      POSTGRES_USER: ${PG_ADMIN_USER:?set in .env.production}
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD:?set in .env.production}
+      # initdb script
+      AUTH_PG_USER: ${AUTH_PG_USER:?set in .env.production}
+      AUTH_PG_PASSWORD: ${AUTH_PG_PASSWORD:?set in .env.production}
+      AUTH_PG_DATABASE: ${AUTH_PG_DATABASE:?set in .env.production}
+      API_PG_USER: ${API_PG_USER:?set in .env.production}
+      API_PG_PASSWORD: ${API_PG_PASSWORD:?set in .env.production}
+      API_PG_DATABASE: ${API_PG_DATABASE:?set in .env.production}
+    healthcheck:
+      test: [ "CMD-SHELL", "pg_isready -U \"$${POSTGRES_USER}\" -d postgres" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+    cap_drop: [ ALL ]
+    cap_add: [ CHOWN, FOWNER, DAC_OVERRIDE, SETUID, SETGID ]
+    security_opt: [ no-new-privileges:true ]
+    mem_limit: 1g
+    pids_limit: 200
+    logging: *logging
+
+  rmq:
+    image: rabbitmq:3.13@sha256:87178a0ee3e2f52980ba356d38646ed1056705ff2d5ff281f8965456eaa0c1e3
+    restart: unless-stopped
+    networks: [ core ]
+    volumes:
+      - rmq_data:/var/lib/rabbitmq
+    environment:
+      RABBITMQ_DEFAULT_USER: ${RMQ_USERNAME:?set in .env.production}
+      RABBITMQ_DEFAULT_PASS: ${RMQ_PASSWORD:?set in .env.production}
+    healthcheck:
+      test: [ "CMD", "rabbitmq-diagnostics", "-q", "ping" ]
+      interval: 15s
+      timeout: 10s
+      retries: 5
+      start_period: 40s
+    cap_drop: [ ALL ]
+    cap_add: [ CHOWN, FOWNER, DAC_OVERRIDE, SETUID, SETGID ]
+    security_opt: [ no-new-privileges:true ]
+    mem_limit: 512m
+    pids_limit: 200
+    logging: *logging
+
+  silo:
+    image: pgsty/silo:distroless@sha256:32a8a777d90f3296294c9a57da5e8d397121187c4b868b2a7fc7874c726c0291
+    restart: unless-stopped
+    networks: [ edge, core ]
+    command: server /data
+    volumes:
+      - silo_data:/data
+    environment:
+      MINIO_ROOT_USER: ${S3_ROOT_USERNAME:?set in .env.production}
+      MINIO_ROOT_PASSWORD: ${S3_ROOT_PASSWORD:?set in .env.production}
+      MINIO_BROWSER: "off"
+      MINIO_API_CORS_ALLOW_ORIGIN: ${PUBLIC_ORIGIN:?set in .env.production}
+    ports:
+      - "${SILO_HOST_IP:?set SILO_HOST_IP in .env.production}:9000:9000"
+    healthcheck:
+      test: [ "CMD", "silo", "healthcheck", "ready" ]
+      interval: 15s
+      timeout: 5s
+      retries: 5
+      start_period: 10s
+    cap_drop: [ ALL ]
+    security_opt: [ no-new-privileges:true ]
+    mem_limit: 512m
+    pids_limit: 200
+    logging: *logging
+
+  # Migrations
+  migrate-auth:
+    <<: *migrate-service
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://${AUTH_PG_USER}:${AUTH_PG_PASSWORD}@pg:5432/${AUTH_PG_DATABASE}?sslmode=disable"
+      - "up"
+    volumes:
+      - ../../apps/auth/migrations:/migrations:ro
+
+  migrate-api:
+    <<: *migrate-service
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://${API_PG_USER}:${API_PG_PASSWORD}@pg:5432/${API_PG_DATABASE}?sslmode=disable&x-migrations-table=api_schema_migrations"
+      - "up"
+    volumes:
+      - ../../apps/api/migrations:/migrations:ro
+
+  migrate-upload:
+    <<: *migrate-service
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://${API_PG_USER}:${API_PG_PASSWORD}@pg:5432/${API_PG_DATABASE}?sslmode=disable&x-migrations-table=upload_schema_migrations"
+      - "up"
+    volumes:
+      - ../../apps/upload/migrations:/migrations:ro
+
+  migrate-media:
+    <<: *migrate-service
+    command:
+      - "-path=/migrations"
+      - "-database=postgres://${API_PG_USER}:${API_PG_PASSWORD}@pg:5432/${API_PG_DATABASE}?sslmode=disable&x-migrations-table=media_schema_migrations"
+      - "up"
+    volumes:
+      - ../../apps/media/migrations:/migrations:ro
+
+  # Apps
+  auth:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: apps/auth/dockerfile
+    networks: [ core ]
+    environment:
+      APP_ENV: production
+      AUTH_PG_HOST: pg
+      AUTH_PG_PORT: "5432"
+      AUTH_PG_USER: ${AUTH_PG_USER}
+      AUTH_PG_PASSWORD: ${AUTH_PG_PASSWORD}
+      AUTH_PG_DATABASE: ${AUTH_PG_DATABASE}
+      JWT_PRIVATE_KEY_PATH: /app/jwt_private_key.pem
+      KEYSET_KEY_ID: ${KEYSET_KEY_ID:?set in .env.production}
+    volumes:
+      - ${JWT_PRIVATE_KEY_FILE:?set in .env.production}:/app/jwt_private_key.pem:ro
+    depends_on:
+      pg:
+        condition: service_healthy
+      migrate-auth:
+        condition: service_completed_successfully
+    mem_limit: 256m
+    pids_limit: 100
+
+  api:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: apps/api/dockerfile
+    networks: [ core ]
+    environment:
+      <<: [ *api-db-envs, *jwks-envs ]
+      APP_ENV: production
+    depends_on:
+      auth:
+        condition: service_healthy
+      migrate-api:
+        condition: service_completed_successfully
+    mem_limit: 256m
+    pids_limit: 100
+
+  upload:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: apps/upload/dockerfile
+    networks: [ core ]
+    environment:
+      <<: [ *api-db-envs, *jwks-envs, *s3-envs, *rmq-envs ]
+      APP_ENV: production
+    depends_on:
+      auth:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      rmq:
+        condition: service_healthy
+      migrate-upload:
+        condition: service_completed_successfully
+    mem_limit: 256m
+    pids_limit: 100
+
+  media:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: apps/media/dockerfile
+    networks: [ core ]
+    environment:
+      <<: [ *api-db-envs, *jwks-envs, *s3-envs, *rmq-envs ]
+      APP_ENV: production
+    depends_on:
+      auth:
+        condition: service_healthy
+      silo:
+        condition: service_healthy
+      rmq:
+        condition: service_healthy
+      migrate-media:
+        condition: service_completed_successfully
+    mem_limit: 512m
+    pids_limit: 100
+
+  # Edge
+  envoy:
+    image: envoyproxy/envoy:v1.31.3@sha256:cf1278a7d05cd4fecf89ca508af1931cc26d67f21a20aa14dc9d39f7381465eb
+    restart: unless-stopped
+    networks: [ edge, core ]
+    user: "101:101"
+    command: [ "-c", "/etc/envoy/envoy.yaml", "--log-level", "warning" ]
+    volumes:
+      - ../../apps/envoy:/etc/envoy:ro
+    ports:
+      - "${ENVOY_HOST_IP:?set ENVOY_HOST_IP in .env.production}:8080:8080"
+    read_only: true
+    tmpfs:
+      - /tmp
+    cap_drop: [ ALL ]
+    security_opt: [ no-new-privileges:true ]
+    depends_on:
+      - auth
+      - api
+      - upload
+      - media
+    mem_limit: 256m
+    pids_limit: 100
+    logging: *logging
+
+  pgadmin:
+    profiles: [ debug ]
+    image: dpage/pgadmin4:8@sha256:8a68677a97b8c8d1427dc915672a26d2c4a04376916a68256f53d669d6171be7
+    restart: unless-stopped
+    networks: [ core, edge ]
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_EMAIL:?set in .env.production}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_PASSWORD:?set in .env.production}
+    ports:
+      - "127.0.0.1:8885:80" # loopback only; SSH -L to reach it
+    mem_limit: 256m
+    pids_limit: 100
+    logging: *logging

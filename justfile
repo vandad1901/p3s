@@ -11,30 +11,26 @@ set shell := ["sh", "-cu"]
 @start:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
-        up -d --remove-orphans --wait
+        --profile apps up -d --remove-orphans --wait
 
 @build:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
-        up -d --build --remove-orphans --wait
+        --profile apps up -d --remove-orphans --wait --build
 
 @stop:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
-        down
+        --profile apps down
 
 @dev:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        up -d --build --remove-orphans --wait
+        up -d --remove-orphans --wait --build
 
 @compose-exec *ARGS:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
         exec {{ ARGS }}
 
 @db-up:
@@ -69,4 +65,12 @@ set shell := ["sh", "-cu"]
         -o apps/envoy/descriptor.pb
 
 @generate-secrets:
-    openssl genpkey -algorithm EC -pkeyopt ec_paramgen_curve:P-256 -out apps/auth/jwt_private_key.pem
+    sudo mkdir -p /etc/p3s
+    sudo openssl genpkey \
+    -algorithm EC \
+    -pkeyopt ec_paramgen_curve:P-256 \
+    -out /etc/p3s/jwt_private_key.pem
+
+    sudo chown 65532:65532 /etc/p3s/jwt_private_key.pem
+    sudo chmod 400 /etc/p3s/jwt_private_key.pem
+    sudo chmod 700 /etc/p3s
