@@ -1,4 +1,5 @@
 import { postService } from "@/api/api.service";
+import type { APIResponse } from "@/api/client";
 import { mediaService } from "@/api/media.service";
 import { uploadMedia } from "@/api/upload.service";
 import { Button } from "@/components/ui/button";
@@ -61,7 +62,6 @@ import {
   type TextBlock,
   type TextSizeType,
 } from "./model";
-import type { APIResponse } from "@/api/client";
 
 function validate(doc: Doc): string | null {
   if (!doc.title.trim()) return "Add a title.";
@@ -349,7 +349,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
   return (
     <div
       ref={root}
-      className="mx-auto flex max-w-2xl flex-col items-center pb-12"
+      className="mx-auto flex w-full max-w-2xl flex-col items-center pb-12"
       onPaste={onPaste}
       onDragOver={(e) => e.dataTransfer.types.includes("Files") && e.preventDefault()}
       onDrop={(e) => {

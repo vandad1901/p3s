@@ -4,6 +4,8 @@ import { cn } from "cn";
 import { LogOut, PenLine } from "lucide-react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 
+const YEAR = new Date().getFullYear();
+
 export function Layout() {
   const { user, setUserFromAuth } = useAuth();
   const navigate = useNavigate();
@@ -80,9 +82,14 @@ export function Layout() {
         </nav>
       </header>
 
-      <main className="flex-1">
+      <main className="flex flex-1 flex-col">
         <Outlet />
       </main>
+      <footer className="border-t">
+        <div className="text-muted-foreground mx-auto flex h-12 max-w-5xl items-center justify-center gap-2 px-4 text-sm">
+          <span>© {YEAR} p3s.vandaddelavari.ir - All Rights Reserved</span>
+        </div>
+      </footer>
     </div>
   );
 }

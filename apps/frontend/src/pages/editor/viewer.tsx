@@ -5,7 +5,7 @@ import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } 
 
 export function Viewer({ doc }: { doc: GetResponse }) {
   return (
-    <div className="mx-auto flex max-w-2xl flex-col items-center pb-12">
+    <div className="mx-auto flex w-full max-w-2xl flex-col items-center pb-12">
       <div className="bg-background sticky top-0 z-5 w-full border-b px-2 md:px-0">
         <h1
           dir="auto"
@@ -53,7 +53,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
       <img
         srcSet={getSrcSet(block.mediaInfo)}
         className={cn(
-          "rounded-md w-full object-contain",
+          "w-full rounded-md object-contain",
           imageSizeItems.find((i) => i.value === imageMeta.size)?.className,
         )}
       />
