@@ -6,13 +6,7 @@ import * as z from "zod";
 import { authnService } from "@/api/authn.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
@@ -79,8 +73,7 @@ export function LoginForm() {
             <form.Field
               name="username"
               children={(field) => {
-                const isInvalid =
-                  !field.state.meta.isValid || !!serverErrors.username;
+                const isInvalid = !field.state.meta.isValid || !!serverErrors.username;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>Username</FieldLabel>
@@ -111,8 +104,7 @@ export function LoginForm() {
             <form.Field
               name="password"
               children={(field) => {
-                const isInvalid =
-                  !field.state.meta.isValid || !!serverErrors.password;
+                const isInvalid = !field.state.meta.isValid || !!serverErrors.password;
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>password</FieldLabel>
@@ -140,7 +132,11 @@ export function LoginForm() {
               }}
             />
             <Field>
-              <Button type="submit" form="login-form" size={"lg"}>
+              <Button
+                type="submit"
+                form="login-form"
+                size={"lg"}
+              >
                 Login
               </Button>
             </Field>
