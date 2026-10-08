@@ -1,6 +1,8 @@
 package session
 
 import (
+	"time"
+
 	"gorm.io/gorm"
 )
 
@@ -23,7 +25,9 @@ func dbCheckRefreshTokenHash(tx *gorm.DB,
 	q := tx.Model(Session{}).
 		Where("id = ?", sessionID).
 		Where("user_id = ?", userID).
-		Where("refresh_token_hash = ?", refreshTokenHash)
+		Where("refresh_token_hash = ?", refreshTokenHash).
+		Where("status = ?", SessionStatusActive).
+		Where("expires_at > ?", time.Now())
 
 	var valid bool
 
