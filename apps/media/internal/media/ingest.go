@@ -86,7 +86,7 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		MediaKey: key,
 
 		Width:  int32(img.Bounds().Dx()), //nolint:gosec // G115: limited by maxDimension
-		Height: int32(img.Bounds().Dx()), //nolint:gosec // G115: limited by maxDimension
+		Height: int32(img.Bounds().Dy()), //nolint:gosec // G115: limited by maxDimension
 
 		LeasedAt: leasedAt,
 	}, derivatives)
