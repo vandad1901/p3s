@@ -1,5 +1,29 @@
 name: p3s
 
+x-logging: &logging
+  driver: json-file
+  options:
+    max-size: "10m"
+    max-file: "3"
+
+x-app: &app
+  profiles:
+    - "apps"
+  restart: unless-stopped
+  healthcheck:
+    test: [ "CMD", "/app/healthcheck" ]
+    interval: 30s
+    timeout: 5s
+    retries: 3
+    start_period: 5s
+  init: true
+  read_only: true
+  cap_drop: [ ALL ]
+  security_opt: [ no-new-privileges:true ]
+  tmpfs:
+    - /tmp
+  logging: *logging
+
 services:
   pgadmin:
     image: docker.io/dpage/pgadmin4
@@ -20,7 +44,7 @@ services:
       POSTGRES_PASSWORD: ${AUTH_PG_PASSWORD:-postgres}
     ports:
       - "5432:5432"
-    healthcheck: 
+    healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${AUTH_PG_USER:-postgres}" ]
       interval: 30s
       start_period: 10s
@@ -68,6 +92,74 @@ services:
       test: [ "CMD", "rabbitmqctl", "status" ]
       interval: 30s
       start_period: 20s
+
+  auth:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: ./apps/auth/dockerfile
+    restart: unless-stopped
+    environment:
+      - AUTH_PG_HOST=pg
+      - APP_ENV=development
+    env_file:
+      - ../../apps/auth/.env
+    volumes:
+      - ../../apps/auth/jwt_private_key.pem:/app/jwt_private_key.pem
+    depends_on:
+      - pg
+  api:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: ./apps/api/dockerfile
+    restart: unless-stopped
+    environment:
+      - API_PG_HOST=pg
+      - APP_ENV=development
+      - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
+    env_file:
+      - ../../apps/api/.env
+    depends_on:
+      - auth
+      - pg
+  upload:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: ./apps/upload/dockerfile
+    restart: unless-stopped
+    environment:
+      - API_PG_HOST=pg
+      - APP_ENV=development
+      - S3_ENDPOINT=http://silo:9000
+      - RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
+      - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
+    env_file:
+      - ../../apps/upload/.env
+    depends_on:
+      - auth
+      - silo
+      - rmq
+  media:
+    <<: *app
+    build:
+      context: ../..
+      dockerfile: ./apps/media/dockerfile
+    restart: unless-stopped
+    environment:
+      - API_PG_HOST=pg
+      - APP_ENV=development
+      - S3_ENDPOINT=http://silo:9000
+      - RMQ_ENDPOINT=amqp://rmq-user:rmq-password@rmq:5672
+      - AUTH_JWKS_ADDRESS=http://auth:50151/.well-known/jwks.json
+    env_file:
+      - ../../apps/media/.env
+    depends_on:
+      - pg
+      - silo
+      - rmq
+      - auth
 
 volumes:
   pg_data:

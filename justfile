@@ -17,24 +17,21 @@ set shell := ["sh", "-cu"]
 @build:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
-        up -d --build --remove-orphans --wait
+        --profile apps up -d --remove-orphans --wait --build
 
 @stop:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
-        down
+        --profile apps down
 
 @dev:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        up -d --build --remove-orphans --wait
+        up -d --remove-orphans --wait --build
 
 @compose-exec *ARGS:
     docker compose \
         -f ./infra/compose/docker-compose.dev.yml \
-        -f ./infra/compose/docker-compose.yml \
         exec {{ ARGS }}
 
 @db-up:
