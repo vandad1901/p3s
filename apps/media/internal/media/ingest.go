@@ -171,16 +171,6 @@ func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image,
 		return nil, "", fmt.Errorf("seeking temp file: %w", err)
 	}
 
-	img, _, err := image.Decode(tempFile)
-	if err != nil {
-		return nil, "", fmt.Errorf("decoding image: %w", err)
-	}
-
-	_, err = tempFile.Seek(0, io.SeekStart)
-	if err != nil {
-		return nil, "", fmt.Errorf("seeking temp file: %w", err)
-	}
-
 	cfg, format, err := image.DecodeConfig(tempFile)
 	if err != nil {
 		return nil, "", fmt.Errorf("decoding image config: %w", err)
@@ -189,6 +179,16 @@ func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image,
 	err = validateImage(cfg, format)
 	if err != nil {
 		return nil, "", err
+	}
+
+	_, err = tempFile.Seek(0, io.SeekStart)
+	if err != nil {
+		return nil, "", fmt.Errorf("seeking temp file: %w", err)
+	}
+
+	img, _, err := image.Decode(tempFile)
+	if err != nil {
+		return nil, "", fmt.Errorf("decoding image: %w", err)
 	}
 
 	return img, format, nil
