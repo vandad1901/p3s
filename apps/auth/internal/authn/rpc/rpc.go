@@ -5,6 +5,7 @@ import (
 	"errors"
 	"fmt"
 	"net/http"
+	"time"
 
 	"github.com/vandad1901/p3s/apps/auth/internal/authn"
 	"github.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1"
@@ -19,8 +20,9 @@ type AuthnRPCServer struct {
 }
 
 const (
-	refreshCookieName  = "refresh_token"
-	refreshTokenMaxAge = 86400
+	refreshCookieName     = "refresh_token"
+	refreshTokenAgeMonths = 30
+	refreshTokenMaxAge    = (time.Hour * 24 * refreshTokenAgeMonths)
 )
 
 func Register(s *grpc.Server,
@@ -35,7 +37,7 @@ func SetRefreshCookie(ctx context.Context, value string) error {
 		Name:     refreshCookieName,
 		Value:    value,
 		Path:     "/auth/v1/authn/refresh",
-		MaxAge:   refreshTokenMaxAge,
+		MaxAge:   int(refreshTokenMaxAge.Seconds()),
 		HttpOnly: true,
 		Secure:   true,
 		SameSite: http.SameSiteStrictMode,
