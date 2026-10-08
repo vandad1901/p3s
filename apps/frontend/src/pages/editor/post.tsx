@@ -1,10 +1,11 @@
-import { Loader2 } from "lucide-react";
+import { FileQuestionMark, Home, Loader2 } from "lucide-react";
 import { useState, useEffect, type ReactNode } from "react";
-import { useParams, Navigate, useLocation } from "react-router-dom";
+import { useParams, Navigate, useLocation, Link } from "react-router-dom";
 import { loadFullPost, Editor } from "./editor";
 import type { EnrichedGetResponse } from "./mapper";
 import { Viewer } from "./viewer";
 import { useAuth } from "@/contexts/AuthContext";
+import { buttonVariants } from "@/components/ui/button";
 
 export function PostPage(props: { editMode: boolean }) {
   const { pathname } = useLocation();
@@ -36,12 +37,36 @@ function PostLoader({ editMode }: { editMode: boolean }) {
       />
     );
 
-  if (result && "error" in result)
+  if (result && "error" in result) {
+    let msg = result.error;
+
+    if (result.error === "post.NotFound") {
+      msg = "The post you are looking for does not exist.";
+      return (
+        <div className="flex w-full flex-1 flex-col items-center justify-center gap-4 px-4 text-center">
+          <p className="text-muted-foreground text-sm font-medium">
+            <FileQuestionMark className="text-muted-foreground size-12" />
+          </p>
+          <h1 className="text-3xl font-bold tracking-tight">Post not found</h1>
+          <p className="text-muted-foreground max-w-sm">
+            This post doesn't exist, or it may have been moved or deleted.
+          </p>
+          <Link
+            to="/"
+            className={buttonVariants({ variant: "outline" })}
+          >
+            <Home />
+            Back to home
+          </Link>
+        </div>
+      );
+    }
     return (
       <Centered>
-        <p className="text-red-500">{result.error}</p>
+        <p className="text-red-500">{msg}</p>
       </Centered>
     );
+  }
 
   if (slug && !result)
     return (
@@ -55,5 +80,5 @@ function PostLoader({ editMode }: { editMode: boolean }) {
 }
 
 const Centered = ({ children }: { children: ReactNode }) => (
-  <div className="flex h-screen w-full items-center justify-center">{children}</div>
+  <div className="flex w-full flex-1 items-center justify-center">{children}</div>
 );
