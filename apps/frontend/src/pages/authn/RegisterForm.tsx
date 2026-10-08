@@ -6,13 +6,7 @@ import * as z from "zod";
 import { authnService } from "@/api/authn.service";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
-import {
-  Field,
-  FieldDescription,
-  FieldError,
-  FieldGroup,
-  FieldLabel,
-} from "@/components/ui/field";
+import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
@@ -99,11 +93,13 @@ export function RegisterForm() {
             <form.Field
               name="email"
               children={(field) => {
-                const isInvalid =
-                  !field.state.meta.isValid || !!serverErrors.email;
+                const isInvalid = !field.state.meta.isValid || !!serverErrors.email;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name} required>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      required
+                    >
                       Email
                     </FieldLabel>
                     <Input
@@ -133,11 +129,13 @@ export function RegisterForm() {
             <form.Field
               name="username"
               children={(field) => {
-                const isInvalid =
-                  !field.state.meta.isValid || !!serverErrors.username;
+                const isInvalid = !field.state.meta.isValid || !!serverErrors.username;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name} required>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      required
+                    >
                       Username
                     </FieldLabel>
                     <Input
@@ -170,7 +168,10 @@ export function RegisterForm() {
                 const isInvalid = !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name} required>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      required
+                    >
                       Password
                     </FieldLabel>
                     <Input
@@ -183,9 +184,7 @@ export function RegisterForm() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
                     />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
@@ -197,7 +196,10 @@ export function RegisterForm() {
                 const isInvalid = !field.state.meta.isValid;
                 return (
                   <Field data-invalid={isInvalid}>
-                    <FieldLabel htmlFor={field.name} required>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      required
+                    >
                       Confirm Your Password
                     </FieldLabel>
                     <Input
@@ -210,16 +212,18 @@ export function RegisterForm() {
                       onChange={(e) => field.handleChange(e.target.value)}
                       aria-invalid={isInvalid}
                     />
-                    {isInvalid && (
-                      <FieldError errors={field.state.meta.errors} />
-                    )}
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
             />
 
             <Field>
-              <Button type="submit" form="register-form" size={"lg"}>
+              <Button
+                type="submit"
+                form="register-form"
+                size={"lg"}
+              >
                 Sign Up
               </Button>
             </Field>

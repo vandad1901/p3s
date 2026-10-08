@@ -12,9 +12,7 @@ export function Authentication({ mode }: { mode: "login" | "register" }) {
 
   return (
     <div className="flex min-h-svh w-full items-center justify-center p-6 md:p-1">
-      <div className="w-full max-w-sm">
-        {mode === "login" ? <LoginForm /> : <RegisterForm />}
-      </div>
+      <div className="w-full max-w-sm">{mode === "login" ? <LoginForm /> : <RegisterForm />}</div>
     </div>
   );
 }
