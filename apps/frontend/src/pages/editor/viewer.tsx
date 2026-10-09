@@ -1,13 +1,6 @@
-import { useAuth } from "@/contexts/AuthContext";
-import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
-import { cn } from "cn";
-import { getSrcSet, type EnrichedPostBlock } from "./mapper";
-import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
-import { Link, useNavigate } from "react-router-dom";
-import { Button, buttonVariants } from "@/components/ui/button";
+import { postService } from "@/api/api.service";
 import {
   AlertDialog,
-  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -16,8 +9,14 @@ import {
   AlertDialogTitle,
   AlertDialogTrigger,
 } from "@/components/ui/alert-dialog";
-import { postService } from "@/api/api.service";
+import { Button, buttonVariants } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
+import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
+import { cn } from "cn";
 import { useState } from "react";
+import { Link, useNavigate } from "react-router-dom";
+import { getSrcSet, type EnrichedPostBlock } from "./mapper";
+import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
 
 export function Viewer({ doc }: { doc: GetResponse }) {
   const { user } = useAuth();
