@@ -7,8 +7,9 @@ import (
 type Config struct {
 	Environment envutil.Environment
 
-	JWTConfig *JWTConfig
-	DSN       string
+	JWTConfig          *JWTConfig
+	ClosedRegistration bool
+	DSN                string
 
 	GRPCListenAddress string
 	HTTPListenAddress string
@@ -24,6 +25,7 @@ func LoadConfig() *Config {
 	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
 	cfg.JWTConfig = loadJWTConfig()
+	cfg.ClosedRegistration = envutil.MustGetBool("CLOSED_REGISTRATION")
 	cfg.DSN = getDSN()
 
 	switch cfg.Environment {
