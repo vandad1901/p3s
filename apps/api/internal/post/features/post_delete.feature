@@ -1,8 +1,8 @@
 Feature: Post Delete
     Background:
         Given user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent                 | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is a text block.       | {"header": "3"} |

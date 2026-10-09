@@ -1,8 +1,8 @@
 Feature: Post Create
     Scenario: Create a post
         Given user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent                 | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is a text block.       | {"header": "3"} |
@@ -16,8 +16,8 @@ Feature: Post Create
             | $Post1 |
     Scenario: Create a post with empty title
         Given user defines post with the following data
-            | Key    | Title    | Slug          |
-            | $Post1 | {$empty} | my-blog-{64d} |
+            | Key    | Title    | Slug          | Status |
+            | $Post1 | {$empty} | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent           | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is a text block. | {"header": "3"} |
@@ -31,8 +31,8 @@ Feature: Post Create
             """
     Scenario: Create a post with empty slug
         Given user defines post with the following data
-            | Key    | Title         | Slug     |
-            | $Post1 | My First Post | {$empty} |
+            | Key    | Title         | Slug     | Status |
+            | $Post1 | My First Post | {$empty} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent           | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is a text block. | {"header": "3"} |
@@ -46,8 +46,8 @@ Feature: Post Create
             """
     Scenario: Create a post with invalid slug
         Given user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-BLOG-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-BLOG-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent           | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is a text block. | {"header": "3"} |
@@ -61,8 +61,8 @@ Feature: Post Create
             """
     Scenario: Create a post with duplicate slug
         Given user creates post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
 
         When user creates post with the following data expecting error
             | Key    | Title         | Slug          |
@@ -74,8 +74,8 @@ Feature: Post Create
             """
     Scenario: Create a text post block with media
         When user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | MediaContent        | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | abcd-123812-asbdasd | {"header": "3"} |
@@ -89,8 +89,8 @@ Feature: Post Create
             """
     Scenario: Create a media post block with text
         When user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent           | Metadata          |
             | $Block1 | 10       | $Post1    | $media    | This is a text block. | {"type": "video"} |
@@ -104,8 +104,8 @@ Feature: Post Create
             """
     Scenario: Create a post block with invalid metadata
         When user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent           | Metadata         |
             | $Block1 | 10       | $Post1    | $media    | This is a text block. | invalid metadata |
@@ -119,8 +119,8 @@ Feature: Post Create
             """
     Scenario: Create a post with duplicate position in post blocks
         Given user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent                    | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is the first text block.  | {"header": "3"} |
