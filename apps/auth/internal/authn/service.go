@@ -17,17 +17,19 @@ import (
 )
 
 type Service struct {
-	db *gorm.DB
+	closedRegistration bool
+	db                 *gorm.DB
 
 	identityService *identity.Service
 	sessionService  *session.Service
 	tokenService    *token.Service
 }
 
-func NewAuthNService(db *gorm.DB,
+func NewAuthNService(closedRegistration bool, db *gorm.DB,
 	identityService *identity.Service, sessionService *session.Service, tokenService *token.Service) *Service {
 	return &Service{
-		db: db,
+		closedRegistration: closedRegistration,
+		db:                 db,
 
 		identityService: identityService,
 		sessionService:  sessionService,
@@ -37,6 +39,10 @@ func NewAuthNService(db *gorm.DB,
 
 func (s *Service) Register(ctx context.Context, user *identity.User, password string,
 ) (*session.SessionResponse, error) {
+	if s.closedRegistration {
+		return nil, errClosedRegistration
+	}
+
 	db := s.db.WithContext(ctx)
 
 	err := identity.ValidateUser(ctx, user)
