@@ -5,6 +5,7 @@ import { LogOut, Moon, PenLine, Sun } from "lucide-react";
 import { Link, NavLink, Outlet, useNavigate } from "react-router-dom";
 import { useTheme } from "./contexts/ThemeContext";
 
+const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION === "true";
 const YEAR = new Date().getFullYear();
 
 export function Layout() {
@@ -69,16 +70,18 @@ export function Layout() {
             <>
               <Link
                 to="/login"
-                className={buttonVariants({ variant: "ghost", size: "lg" })}
+                className={cn(buttonVariants({ variant: "outline", size: "lg" }))}
               >
                 Log in
               </Link>
-              <Link
-                to="/signup"
-                className={buttonVariants({ size: "lg" })}
-              >
-                Sign up
-              </Link>
+              {!RegistrationClosed && (
+                <Link
+                  to="/signup"
+                  className={cn(buttonVariants({ size: "lg" }))}
+                >
+                  Sign up
+                </Link>
+              )}
             </>
           )}
           {theme === "dark" ? (
