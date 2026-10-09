@@ -476,7 +476,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
             </div>
           </div>
           <p
-            className="text-destructive text-sm"
+            className="text-destructive/80 text-sm"
             aria-live="polite"
           >
             {error}
