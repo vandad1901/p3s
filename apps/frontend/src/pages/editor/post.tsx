@@ -1,11 +1,11 @@
+import { buttonVariants } from "@/components/ui/button";
+import { useAuth } from "@/contexts/AuthContext";
 import { FileQuestionMark, Home, Loader2 } from "lucide-react";
-import { useState, useEffect, type ReactNode } from "react";
-import { useParams, Navigate, useLocation, Link } from "react-router-dom";
-import { loadFullPost, Editor } from "./editor";
+import { useEffect, useState, type ReactNode } from "react";
+import { Link, Navigate, useLocation, useParams } from "react-router-dom";
+import { Editor, loadFullPost } from "./editor";
 import type { EnrichedGetResponse } from "./mapper";
 import { Viewer } from "./viewer";
-import { useAuth } from "@/contexts/AuthContext";
-import { buttonVariants } from "@/components/ui/button";
 
 export function PostPage(props: { editMode: boolean }) {
   const { pathname } = useLocation();
