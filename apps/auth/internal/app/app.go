@@ -54,7 +54,7 @@ func Boot(cfg *config.Config, logger *slog.Logger) (*App, error) {
 		return nil, fmt.Errorf("initialize dependencies: %w", err)
 	}
 
-	initializeServices(a, cfg.JWTConfig)
+	initializeServices(a, cfg, cfg.JWTConfig)
 
 	if cfg.Environment != envutil.Test {
 		initializeServers(a, cfg)
