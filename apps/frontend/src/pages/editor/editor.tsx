@@ -30,7 +30,7 @@ import {
   sortableKeyboardCoordinates,
   verticalListSortingStrategy,
 } from "@dnd-kit/sortable";
-import { BlockType } from "@gen/api/postpb/v1/post";
+import { BlockType, PostStatus } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
 import { GripVertical, Redo, Undo } from "lucide-react";
 import {
@@ -454,22 +454,33 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
                     ? `${failed} upload${failed > 1 ? "s" : ""} failed`
                     : `${words} word${words === 1 ? "" : "s"}`}
               </p>
-              <Button
-                variant={"outline"}
-                onClick={() => submit(false)}
-                disabled={busy}
-              >
-                Draft
-              </Button>
+              {remoteResponse?.post?.postStatus !== PostStatus.POST_STATUS_PUBLISHED && (
+                <Button
+                  variant={"outline"}
+                  onClick={() => submit(false)}
+                  disabled={busy}
+                >
+                  {remoteResponse === undefined ? "Save draft" : "Update draft"}
+                </Button>
+              )}
               <Button
                 onClick={() => submit(true)}
                 disabled={busy}
               >
-                Publish
+                {remoteResponse === undefined
+                  ? "Publish"
+                  : remoteResponse.post?.postStatus === PostStatus.POST_STATUS_PUBLISHED
+                    ? "Update"
+                    : "Publish"}
               </Button>
             </div>
           </div>
-          <p className="text-destructive/80 text-sm">{error}</p>
+          <p
+            className="text-destructive text-sm"
+            aria-live="polite"
+          >
+            {error}
+          </p>
         </div>
       </div>
       <DndContext
