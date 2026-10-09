@@ -25,7 +25,7 @@ func LoadConfig() *Config {
 	cfg.Environment = envutil.MustGetEnvironment("APP_ENV")
 
 	cfg.JWTConfig = loadJWTConfig()
-	cfg.ClosedRegistration = envutil.MustGetBool("CLOSE_REGISTRATION")
+	cfg.ClosedRegistration = envutil.MustGetBool("CLOSED_REGISTRATION")
 	cfg.DSN = getDSN()
 
 	switch cfg.Environment {
