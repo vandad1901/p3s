@@ -264,8 +264,18 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
     if (remoteResponse === undefined) {
       try {
         const res = await postService.Create(toCreateRequest(doc, publish));
-        if (res.ok) navigate(`/post/${doc.slug}`);
-        else setError(`couldn't save the post (${res.message}).`);
+        if (res.ok) {
+          navigate(`/post/${doc.slug}`);
+          return;
+        }
+
+        switch (res.message) {
+          case "post.validation.SlugConflict":
+            setError("Slug already exists. Please choose another one.");
+            break;
+          default:
+            setError(`couldn't save the post (${res.message}).`);
+        }
       } catch {
         setError("couldn't reach the server. Try again later.");
       } finally {
