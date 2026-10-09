@@ -46,9 +46,9 @@ export interface Post {
   title: string;
   slug: string;
   postStatus: PostStatus;
-  createdAt: Date | undefined;
+  createdAt: string | undefined;
   createdBy: string;
-  updatedAt: Date | undefined;
+  updatedAt: string | undefined;
   updatedBy: string;
 }
 
@@ -97,7 +97,7 @@ export interface UpdateResponse {
 
 export interface DeleteRequest {
   id: string;
-  updatedAt: Date | undefined;
+  updatedAt: string | undefined;
 }
 
 export interface DeleteResponse {
