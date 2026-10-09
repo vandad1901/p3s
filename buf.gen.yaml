@@ -20,3 +20,4 @@ plugins:
       - enumsAsLiterals=true
       - forceLong=string
       - stringEnums=true
+      - useDate=string
