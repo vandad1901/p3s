@@ -13,6 +13,8 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Link } from "react-router";
 
+const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION === "true";
+
 const formSchema = z.object({
   username: z.string().min(5, "Username must be at least 5 characters."),
   password: z.string().min(12, "Password must be at least 12 characters."),
@@ -140,10 +142,14 @@ export function LoginForm() {
                 Login
               </Button>
             </Field>
-            <Separator />
-            <FieldDescription className="text-center">
-              Don&apos;t have an account? <Link to="/signup">Sign up</Link>
-            </FieldDescription>
+            {!RegistrationClosed && (
+              <>
+                <Separator />
+                <FieldDescription className="text-center">
+                  Don&apos;t have an account? <Link to="/signup">Sign up</Link>
+                </FieldDescription>
+              </>
+            )}
           </FieldGroup>
         </form>
       </CardContent>

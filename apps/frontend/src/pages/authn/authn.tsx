@@ -3,11 +3,22 @@ import { Navigate } from "react-router-dom";
 import { LoginForm } from "./LoginForm";
 import { RegisterForm } from "./RegisterForm";
 
+const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION === "true";
+
 export function Authentication({ mode }: { mode: "login" | "register" }) {
   const { user } = useAuth();
 
   if (user !== null) {
     return <Navigate to="/"></Navigate>;
+  }
+
+  if (mode === "register" && RegistrationClosed) {
+    return (
+      <Navigate
+        to="/login"
+        replace
+      ></Navigate>
+    );
   }
 
   return (
