@@ -1,8 +1,8 @@
 Feature: Post Update
     Background:
         Given user defines post with the following data
-            | Key    | Title         | Slug          |
-            | $Post1 | My First Post | my-blog-{64d} |
+            | Key    | Title         | Slug          | Status |
+            | $Post1 | My First Post | my-blog-{64d} | $draft |
         And user adds post blocks with the following data
             | Key     | Position | HeaderKey | BlockType | TextContent                 | Metadata        |
             | $Block1 | 10       | $Post1    | $text     | This is a text block.       | {"header": "3"} |
@@ -64,8 +64,8 @@ Feature: Post Update
             """
     Scenario: Update a post with duplicate slug
         And user creates post with the following data
-            | Key    | Title          | Slug          |
-            | $Post2 | My Second Post | my-blog-{64d} |
+            | Key    | Title          | Slug          | Status |
+            | $Post2 | My Second Post | my-blog-{64d} | $draft |
 
         When user updates post with the following data expecting error
             | Key    | Slug          |
@@ -158,6 +158,28 @@ Feature: Post Update
         Then user should get the following error
             """
             post.validation.BadOrdering
+            """
+    Scenario: Update a post with invalid status
+        When user updates post with the following data expecting error
+            | Key    | Status       |
+            | $Post1 | $unspecified |
+
+        Then user should get the following error
+            """
+            post.validation.InvalidStatus
+            """
+    Scenario: Update a post with status transition from published to draft
+        Given user updates post with the following data
+            | Key    | Status     |
+            | $Post1 | $published |
+
+        When user updates post with the following data expecting error
+            | Key    | Status |
+            | $Post1 | $draft |
+
+        Then user should get the following error
+            """
+            post.validation.InvalidStatusTransition
             """
     Scenario: Update a post with invalid UpdatedAt
         When user updates post with the following data expecting error
