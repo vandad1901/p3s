@@ -36,7 +36,7 @@ async function UpdatePost(request: UpdateRequest): Promise<APIResponse<UpdateRes
 
 async function DeletePost(request: DeleteRequest): Promise<APIResponse<DeleteResponse>> {
   return await api(
-    `/api/v1/post/${request.id}?updatedAt=${encodeURIComponent(request.updatedAt!.toISOString())}`,
+    `/api/v1/post/${request.id}?updatedAt=${encodeURIComponent(request.updatedAt!)}`,
     {
       method: "DELETE",
       authenticated: true,
