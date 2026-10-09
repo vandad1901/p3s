@@ -106,11 +106,21 @@ func validateSlugUniqueness(ctx context.Context, db *gorm.DB, postID int64, slug
 
 func validatePostStatus(status PostStatus) error {
 	switch status {
-	case PostStatusDraft, PostStatusPublished, PostStatusUnspecified:
+	case PostStatusDraft, PostStatusPublished:
 		return nil
+	case PostStatusUnspecified:
+		return errInvalidStatus
 	default:
 		return errInvalidStatus
 	}
+}
+
+func validatePostStatusForUpdate(currentStatus, targetStatus PostStatus) error {
+	if currentStatus == PostStatusPublished && targetStatus == PostStatusDraft {
+		return errInvalidStatusTransition
+	}
+
+	return nil
 }
 
 func validatePostBlocks(postBlocks []*PostBlock) error {
@@ -160,12 +170,22 @@ func validatePostForUpdate(ctx context.Context, db *gorm.DB, post *Post, mutateL
 		return err
 	}
 
+	currentPost, err := dbGetPostByID(ctx, db, post.ID)
+	if err != nil {
+		return err
+	}
+
 	finalPostBlocks, err := mutatelist.MergeItems(currentPostBlocks, mutateList)
 	if err != nil {
 		return err
 	}
 
 	err = validatePost(ctx, db, post, finalPostBlocks)
+	if err != nil {
+		return err
+	}
+
+	err = validatePostStatusForUpdate(currentPost.Status, post.Status)
 	if err != nil {
 		return err
 	}
