@@ -17,7 +17,7 @@ export interface RegisterRequest {
 export interface AuthSessionResponse {
   sessionId: string;
   jwt: string;
-  accessExpiresAt: Date | undefined;
+  accessExpiresAt: string | undefined;
 }
 
 export interface RegisterResponse {
