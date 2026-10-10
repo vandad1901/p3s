@@ -2,6 +2,7 @@ mod auth "apps/auth"
 mod api "apps/api"
 mod upload "apps/upload"
 mod media "apps/media"
+mod frontend "apps/frontend"
 
 set shell := ["sh", "-cu"]
 

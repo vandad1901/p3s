@@ -1,0 +1,23 @@
+set shell := ["sh", "-cu"]
+set dotenv-load
+
+### Style
+
+RED := '\033[0;31m'
+GREEN := '\033[0;32m'
+YELLOW := '\033[1;33m'
+BLUE := '\033[0;34m'
+NORMAL := '\033[0m'
+
+@deploy:
+    echo "{{ BLUE }}Deploying frontend...{{ NORMAL }}"
+    bun run build
+    sudo mkdir -p /var/www/p3s
+    sudo mv dist /var/www/p3s
+    echo "{{ GREEN }}Frontend deployed successfully!{{ NORMAL }}"
+    echo "{{ YELLOW }}The back-end is expected to be running with URL: {{ BLUE }}${VITE_API_URL}{{ NORMAL }}"
+    if [ ${VITE_CLOSED_REGISTRATION} = "true" ]; then \
+        echo "{{ YELLOW }}The front-end is expected to be running with {{ BLUE }}closed{{ YELLOW }} registration.{{ NORMAL }}"; \
+    else \
+        echo "{{ YELLOW }}The front-end is expected to be running with {{ BLUE }}open{{ YELLOW }} registration.{{ NORMAL }}"; \
+    fi
