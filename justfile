@@ -11,7 +11,7 @@ set shell := ["sh", "-cu"]
 @prod:
     docker compose \
         -f ./infra/compose/docker-compose.prod.yml \
-        up -d --remove-orphans --wait
+        --env-file .env.production up -d --build --remove-orphans --wait
 
 @prod-down:
     docker compose \
