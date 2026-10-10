@@ -62,9 +62,10 @@ func (s *Service) GetMediaInfos(ctx context.Context, keys []string) ([]MediaInfo
 
 		for _, media := range res {
 			for i := range media.Derivatives {
-				media.Derivatives[i].URL = fmt.Sprintf("%s/%s/%s.%d.png",
+				media.Derivatives[i].URL = fmt.Sprintf("%s/%s/%s.%d.%s",
 					s.s3ExternalEndpoint,
-					s3Bucket, media.MediaKey, media.Derivatives[i].Width)
+					s3Bucket,
+					media.MediaKey, media.Derivatives[i].Width, media.Derivatives[i].Ext)
 			}
 		}
 

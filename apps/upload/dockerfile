@@ -1,4 +1,4 @@
-FROM golang:1.26.3-alpine AS builder
+FROM golang:1.26.3-alpine@sha256:91eda9776261207ea25fd06b5b7fed8d397dd2c0a283e77f2ab6e91bfa71079d AS builder
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -14,7 +14,7 @@ RUN --mount=type=cache,target=/go/pkg/mod \
     go build -ldflags="-w -s" -o main ./apps/upload/cmd/server && \
     go build -ldflags="-w -s" -o healthcheck ./apps/upload/cmd/healthcheck
 
-FROM gcr.io/distroless/static-debian13:nonroot
+FROM gcr.io/distroless/static-debian13:nonroot@sha256:e2e927ec666bae08560abb3c55d0659eceabb657f56b6782ab500a9fc7f555e3
 WORKDIR /app
 
 COPY --from=builder /app/main /app/main
