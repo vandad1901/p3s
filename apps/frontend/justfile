@@ -12,7 +12,8 @@ NORMAL := '\033[0m'
 @deploy:
     echo "{{ BLUE }}Deploying frontend...{{ NORMAL }}"
     bun run build
-    sudo mkdir -p /var/www/p3s
+    sudo rm -rf /var/www/p3s
+    sudo mkdir -p /var/www
     sudo mv dist /var/www/p3s
     echo "{{ GREEN }}Frontend deployed successfully!{{ NORMAL }}"
     echo "{{ YELLOW }}The back-end is expected to be running with URL: {{ BLUE }}${VITE_API_URL}{{ NORMAL }}"
