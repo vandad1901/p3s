@@ -1,11 +1,13 @@
 import { buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { FileQuestionMark, Home, Loader2 } from "lucide-react";
-import { useEffect, useState, type ReactNode } from "react";
+import { Suspense, lazy, useEffect, useState, type ReactNode } from "react";
 import { Link, Navigate, useLocation, useParams } from "react-router-dom";
-import { Editor, loadFullPost } from "./editor";
+import { loadFullPost } from "./load";
 import type { EnrichedGetResponse } from "./mapper";
 import { Viewer } from "./viewer";
+
+const Editor = lazy(() => import("./editor").then((m) => ({ default: m.Editor })));
 
 export function PostPage(props: { editMode: boolean }) {
   const { pathname } = useLocation();
@@ -76,7 +78,19 @@ function PostLoader({ editMode }: { editMode: boolean }) {
     );
 
   const doc = result?.doc;
-  return editMode ? <Editor remoteResponse={doc} /> : <Viewer doc={doc!} />;
+  return editMode ? (
+    <Suspense
+      fallback={
+        <Centered>
+          <Loader2 className="size-10 animate-spin" />
+        </Centered>
+      }
+    >
+      <Editor remoteResponse={doc} />
+    </Suspense>
+  ) : (
+    <Viewer doc={doc!} />
+  );
 }
 
 const Centered = ({ children }: { children: ReactNode }) => (

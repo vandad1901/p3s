@@ -1,40 +1,46 @@
-import { Authentication } from "@/pages/authn/authn";
 import { Home } from "@/pages/home/home";
+import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./layout";
 import { PostPage } from "./pages/editor/post";
 
+const Authentication = lazy(() =>
+  import("@/pages/authn/authn").then((m) => ({ default: m.Authentication })),
+);
+
 function App() {
   return (
     <BrowserRouter>
-      <Routes>
-        <Route element={<Layout />}>
+      <Suspense fallback={null}>
+        <Routes>
+          <Route element={<Layout />}>
+            <Route
+              path="/"
+              element={<Home />}
+            />
+            <Route
+              path="/editor/:slug"
+              element={<PostPage editMode={true} />}
+            />
+            <Route
+              path="/editor/"
+              element={<PostPage editMode={true} />}
+            />
+            <Route
+              path="/post/:slug"
+              element={<PostPage editMode={false} />}
+            />
+          </Route>
           <Route
-            path="/"
-            element={<Home />}
+            path="/login"
+            element={<Authentication mode="login" />}
           />
           <Route
-            path="/editor/:slug"
-            element={<PostPage editMode={true} />}
+            path="/signup"
+            element={<Authentication mode="register" />}
           />
-          <Route
-            path="/editor/"
-            element={<PostPage editMode={true} />}
-          />
-          <Route
-            path="/post/:slug"
-            element={<PostPage editMode={false} />}
-          />
-        </Route>
-        <Route
-          path="/login"
-          element={<Authentication mode="login" />}
-        />
-        <Route
-          path="/signup"
-          element={<Authentication mode="register" />}
-        />
-      </Routes>
+        </Routes>
+      </Suspense>
     </BrowserRouter>
   );
 }

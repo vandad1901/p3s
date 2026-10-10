@@ -1,6 +1,4 @@
 import { postService } from "@/api/api.service";
-import type { APIResponse } from "@/api/client";
-import { mediaService } from "@/api/media.service";
 import { uploadMedia } from "@/api/upload.service";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
@@ -86,32 +84,6 @@ function focusBlock(root: HTMLElement | null, id: string) {
   const elem = root?.querySelector<HTMLInputElement | HTMLTextAreaElement>(`[data-focus="${id}"]`);
   elem?.focus();
   elem?.setSelectionRange(elem.value.length, elem.value.length);
-}
-
-export async function loadFullPost(slug: string): Promise<APIResponse<EnrichedGetResponse>> {
-  const res = await postService.Get({ slug });
-  if (!res.ok) {
-    return { ok: false, message: res.message, code: res.code };
-  }
-
-  const mediaKeys = res.postBlocks
-    .filter((b) => b.blockType === BlockType.BLOCK_TYPE_MEDIA)
-    .map((b) => `${res.post?.createdBy}/${b.media}`);
-
-  const mediaInfo = await mediaService.GetMedia({ mediaKeys: mediaKeys });
-  if (!mediaInfo.ok) {
-    return { ok: false, message: mediaInfo.message, code: mediaInfo.code };
-  }
-
-  const enrichedBlocks = res.postBlocks.map((b) => {
-    if (b.blockType === BlockType.BLOCK_TYPE_MEDIA) {
-      const info = mediaInfo.media.find((m) => m.mediaKey === `${res.post?.createdBy}/${b.media}`);
-      return { ...b, mediaInfo: info };
-    }
-    return b;
-  });
-
-  return { ...res, postBlocks: enrichedBlocks };
 }
 
 export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetResponse }) {
