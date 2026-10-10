@@ -264,7 +264,7 @@ services:
 
   # Edge
   envoy:
-    image: envoyproxy/envoy:v1.31.3@sha256:cf1278a7d05cd4fecf89ca508af1931cc26d67f21a20aa14dc9d39f7381465eb
+    image: envoyproxy/envoy:distroless-v1.39.3@sha256:1aa2c5baa5a184944bcb630101b64b1b751d7e4f6ff6746b107019b735ad4520
     restart: unless-stopped
     networks: [ edge, core ]
     user: "101:101"
