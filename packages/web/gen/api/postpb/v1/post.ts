@@ -80,6 +80,17 @@ export interface GetResponse {
   postBlocks: PostBlock[];
 }
 
+export interface GetPostsRequest {
+  authorId: string;
+  limit: number;
+  offset: number;
+  createdBefore: string | undefined;
+}
+
+export interface GetPostsResponse {
+  posts: Post[];
+}
+
 export interface PostBlockUpdateRequest {
   inserted: PostBlock[];
   updated: PostBlock[];
@@ -106,6 +117,7 @@ export interface DeleteResponse {
 export interface PostService {
   Create(request: CreateRequest): Promise<CreateResponse>;
   Get(request: GetRequest): Promise<GetResponse>;
+  GetPosts(request: GetPostsRequest): Promise<GetPostsResponse>;
   Update(request: UpdateRequest): Promise<UpdateResponse>;
   Delete(request: DeleteRequest): Promise<DeleteResponse>;
 }

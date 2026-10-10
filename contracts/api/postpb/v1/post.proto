@@ -23,6 +23,12 @@ service PostService {
       get: "/api/v1/post/{slug}"
     };
   };
+  rpc GetPosts (GetPostsRequest) returns (GetPostsResponse)
+  {
+    option (google.api.http) = {
+      get: "/api/v1/posts"
+    };
+  };
   rpc Update (UpdateRequest) returns (UpdateResponse) {
     option (google.api.http) = {
       patch: "/api/v1/post"
@@ -89,6 +95,18 @@ message GetRequest {
 message GetResponse {
   Post               post        = 1;
   repeated PostBlock post_blocks = 2;
+}
+
+message GetPostsRequest {
+  int64 author_id = 2;
+
+  int32                     limit          = 3;
+  int32                     offset         = 4;
+  google.protobuf.Timestamp created_before = 5;
+}
+
+message GetPostsResponse {
+  repeated Post posts = 1;
 }
 
 message PostBlockUpdateRequest {
