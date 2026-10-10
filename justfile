@@ -5,6 +5,9 @@ mod media "apps/media"
 
 set shell := ["sh", "-cu"]
 
+@default:
+    just --list
+
 @prod:
     docker compose \
         -f ./infra/compose/docker-compose.prod.yml \
@@ -14,7 +17,7 @@ set shell := ["sh", "-cu"]
     docker compose \
         -f ./infra/compose/docker-compose.prod.yml \
         down
-        
+
 @generate-secrets-prod:
     sudo mkdir -p /etc/p3s
     sudo openssl genpkey \
@@ -36,9 +39,6 @@ set shell := ["sh", "-cu"]
         -e "s|PGADMIN_EMAIL=.*|PGADMIN_EMAIL=admin@admin.com|" \
         -e "s|PGADMIN_PASSWORD=.*|PGADMIN_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
         .env.production
-
-@default:
-    just --list
 
 @start: skip-prod
     docker compose \
