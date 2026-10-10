@@ -30,27 +30,30 @@ func GRPCAuthGuardWithExceptions(logger *slog.Logger, parser *jwt.Parser, k keyf
 			return handler(ctx, req)
 		}
 
-		if _, ok := exceptions[info.FullMethod]; ok {
-			return handler(ctx, req)
-		}
+		userID, err := func() (int64, error) {
+			md, ok := metadata.FromIncomingContext(ctx)
+			if !ok {
+				return 0, ErrInvalidAuth
+			}
 
-		md, ok := metadata.FromIncomingContext(ctx)
-		if !ok {
-			return nil, ErrInvalidAuth
-		}
+			authHeader, ok := md["authorization"]
+			if !ok || len(authHeader) == 0 {
+				return 0, ErrInvalidAuth
+			}
 
-		authHeader, ok := md["authorization"]
-		if !ok || len(authHeader) == 0 {
-			return nil, ErrInvalidAuth
-		}
+			userID, err := HandleToken(ctx, authHeader[0], parser, k)
+			if err != nil {
+				return 0, ErrInvalidAuth
+			}
 
-		userID, err := HandleToken(ctx, authHeader[0], parser, k)
+			return userID, nil
+		}()
 		if err != nil {
-			logger.ErrorContext(ctx, "failed to handle token",
-				"error", err,
-				"method", info.FullMethod)
+			if _, ok := exceptions[info.FullMethod]; ok {
+				return handler(ctx, req)
+			}
 
-			return nil, ErrInvalidAuth
+			return nil, err
 		}
 
 		newCtx := usercontext.CtxWithUser(ctx, userID)
