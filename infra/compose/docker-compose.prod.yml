@@ -193,6 +193,7 @@ services:
       AUTH_PG_DATABASE: ${AUTH_PG_DATABASE}
       JWT_PRIVATE_KEY_PATH: /app/jwt_private_key.pem
       KEYSET_KEY_ID: ${KEYSET_KEY_ID:?set in .env.production}
+      CLOSED_REGISTRATION: ${CLOSED_REGISTRATION:?set in .env.production}
     volumes:
       - ${JWT_PRIVATE_KEY_FILE:?set in .env.production}:/app/jwt_private_key.pem:ro
     depends_on:
