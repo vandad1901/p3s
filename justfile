@@ -17,7 +17,7 @@ set shell := ["sh", "-cu"]
 @prod-down:
     docker compose \
         -f ./infra/compose/docker-compose.prod.yml \
-        down
+        --env-file .env.production down
 
 @generate-secrets-prod:
     sudo mkdir -p /etc/p3s
