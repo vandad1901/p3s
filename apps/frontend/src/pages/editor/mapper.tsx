@@ -43,7 +43,6 @@ export function mapRemoteToDoc(res: EnrichedGetResponse): Doc {
         };
       } else if (b.blockType === BlockType.BLOCK_TYPE_MEDIA) {
         const srcSet = getSrcSet(b.mediaInfo);
-        debugger;
 
         return {
           remoteID: b.id,
