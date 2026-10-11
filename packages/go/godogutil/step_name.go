@@ -51,3 +51,7 @@ func DefineStep(s *SharedData, ctx *godog.ScenarioContext, expr string) {
 func ReturnedErrorStep(ctx *godog.ScenarioContext, s *SharedData) {
 	ctx.Step("^user should get the following error$", AssertErrorStep(s))
 }
+
+func LoginAsUserStep(ctx *godog.ScenarioContext, s *SharedData) {
+	ctx.Step("^user logs in as the following user$", LoginAsUserStepFunc(s))
+}
