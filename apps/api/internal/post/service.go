@@ -112,7 +112,7 @@ func (s *Service) UpdatePost(ctx context.Context, post *Post, mutateRequest *Pos
 
 		return nil
 	})
-	if err != nil {
+	if txErr != nil {
 		return nil, nil, txErr
 	}
 
