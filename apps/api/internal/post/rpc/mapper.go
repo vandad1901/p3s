@@ -54,6 +54,7 @@ func mapToPostPB(in *post.Post) *postpb.Post {
 		Slug:       in.Slug,
 		PostStatus: postpb.PostStatus(in.Status),
 
+		CreatedAt: timestamppb.New(in.CreatedAt),
 		CreatedBy: in.CreatedBy,
 		UpdatedAt: timestamppb.New(in.UpdatedAt),
 	}
