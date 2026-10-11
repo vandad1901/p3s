@@ -4,6 +4,8 @@ import type {
   CreateResponse,
   DeleteRequest,
   DeleteResponse,
+  GetPostsRequest,
+  GetPostsResponse,
   GetRequest,
   GetResponse,
   PostService,
@@ -24,6 +26,15 @@ async function GetPost(request: GetRequest): Promise<APIResponse<GetResponse>> {
     method: "GET",
     authenticated: true,
   });
+}
+async function GetPosts(request: GetPostsRequest): Promise<APIResponse<GetPostsResponse>> {
+  return await api(
+    `/api/v1/posts?authorId=${request.authorId}&limit=${request.limit}&offset=${request.offset}&createdBefore=${encodeURIComponent(request.createdBefore ?? "")}`,
+    {
+      method: "GET",
+      authenticated: true,
+    },
+  );
 }
 
 async function UpdatePost(request: UpdateRequest): Promise<APIResponse<UpdateResponse>> {
@@ -47,6 +58,7 @@ async function DeletePost(request: DeleteRequest): Promise<APIResponse<DeleteRes
 export const postService = {
   Create: CreatePost,
   Get: GetPost,
+  GetPosts: GetPosts,
   Update: UpdatePost,
   Delete: DeletePost,
 } satisfies WithAPIResponse<PostService>;
