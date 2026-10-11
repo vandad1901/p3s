@@ -118,16 +118,15 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     const textMeta: TextMetadata = JSON.parse(block.metadata || "{}");
 
     return (
-      <textarea
+      <p
         dir="auto"
-        readOnly
         className={cn(
-          "placeholder:text-muted-foreground/60 field-sizing-content w-full flex-1 resize-none overflow-hidden outline-none",
+          "w-full flex-1 resize-none overflow-hidden whitespace-pre-wrap outline-none",
           textSizeItems.find((i) => i.value === textMeta.size)?.className,
         )}
       >
         {block.text}
-      </textarea>
+      </p>
     );
   }
 
