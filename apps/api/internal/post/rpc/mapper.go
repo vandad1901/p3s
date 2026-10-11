@@ -75,3 +75,12 @@ func mapToPostBlockPB(in []*post.PostBlock) []*postpb.PostBlock {
 
 	return res
 }
+
+func mapToPostPBs(in []*post.Post) []*postpb.Post {
+	res := make([]*postpb.Post, len(in))
+	for i, item := range in {
+		res[i] = mapToPostPB(item)
+	}
+
+	return res
+}

@@ -11,7 +11,7 @@ import (
 )
 
 type RPCServer struct {
-	postpb.UnimplementedPostServiceServer
+	postpb.UnsafePostServiceServer
 
 	postService *post.Service
 }
@@ -45,6 +45,23 @@ func (s *RPCServer) Get(ctx context.Context, req *postpb.GetRequest) (*postpb.Ge
 	return &postpb.GetResponse{
 		Post:       mapToPostPB(post),
 		PostBlocks: mapToPostBlockPB(postBlocks),
+	}, nil
+}
+
+func (s *RPCServer) GetPosts(ctx context.Context, req *postpb.GetPostsRequest) (*postpb.GetPostsResponse, error) {
+	posts, err := s.postService.GetPosts(ctx, post.PostsQuery{
+		AuthorID: req.GetAuthorId(),
+
+		Limit:         req.GetLimit(),
+		Offset:        req.GetOffset(),
+		CreatedBefore: req.GetCreatedBefore().AsTime(),
+	})
+	if err != nil {
+		return nil, fmt.Errorf("error getting posts: %w", err)
+	}
+
+	return &postpb.GetPostsResponse{
+		Posts: mapToPostPBs(posts),
 	}, nil
 }
 
