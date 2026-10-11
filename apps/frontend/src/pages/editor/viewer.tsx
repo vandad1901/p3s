@@ -29,7 +29,7 @@ export function Viewer({ doc }: { doc: GetResponse }) {
         <div className="flex items-end justify-between">
           <h1
             dir="auto"
-            className="placeholder:text-muted-foreground/60 resize-none text-3xl font-bold outline-none"
+            className="placeholder:text-muted-foreground/60 w-full resize-none text-3xl font-bold outline-none"
             aria-label="Post title"
           >
             {doc.post?.title}

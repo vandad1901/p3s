@@ -343,7 +343,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
       <div className="bg-background sticky top-0 z-5 w-full border-b px-2 md:px-0">
         <Input
           dir="auto"
-          className="placeholder:text-muted-foreground/60 mt-10 resize-none text-3xl font-bold outline-none"
+          className="placeholder:text-muted-foreground/60 mt-10 w-full resize-none text-3xl font-bold outline-none"
           aria-label="Post title"
           placeholder="Title"
           maxLength={200}
