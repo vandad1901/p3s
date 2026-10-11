@@ -110,7 +110,7 @@ func checkContext(ctx context.Context) error {
 }
 
 func IngestMedia(ctx context.Context, file io.Reader, contentLength int64,
-) (image.Image, []derivativeAsset, error) {
+) (image.Image, []*derivativeAsset, error) {
 	tempFile, err := createTempFile(ctx, file, contentLength)
 	if err != nil {
 		return nil, nil, fmt.Errorf("creating temp file: %w", err)
@@ -223,13 +223,13 @@ func validateImage(cfg image.Config, format string) error {
 	return nil
 }
 
-func createDerivatives(ctx context.Context, img image.Image, formatStr string) ([]derivativeAsset, error) {
+func createDerivatives(ctx context.Context, img image.Image, formatStr string) ([]*derivativeAsset, error) {
 	err := checkContext(ctx)
 	if err != nil {
 		return nil, err
 	}
 
-	derivatives := []derivativeAsset{}
+	derivatives := []*derivativeAsset{}
 	srcWidth := img.Bounds().Dx()
 
 	sizes := []int{smallWidth, mediumWidth, largeWidth}
@@ -247,7 +247,7 @@ func createDerivatives(ctx context.Context, img image.Image, formatStr string) (
 			return nil, fmt.Errorf("encoding for storage: %w", err)
 		}
 
-		derivatives = append(derivatives, derivativeAsset{
+		derivatives = append(derivatives, &derivativeAsset{
 			file:      bytes.NewReader(encodedImage.Bytes()),
 			width:     int32(outWidth), //nolint:gosec // G115: limited by maxDimension
 			Extension: ext,

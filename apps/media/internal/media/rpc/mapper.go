@@ -5,7 +5,7 @@ import (
 	"github.com/vandad1901/p3s/packages/go/gen/protobuf/media/mediapb/v1"
 )
 
-func mapToMediaInfoPBs(mediaInfos []media.MediaInfo) []*mediapb.MediaInfo {
+func mapToMediaInfoPBs(mediaInfos []*media.MediaInfo) []*mediapb.MediaInfo {
 	res := make([]*mediapb.MediaInfo, len(mediaInfos))
 	for i, mediaInfo := range mediaInfos {
 		res[i] = mapToMediaInfoPB(mediaInfo)
@@ -14,7 +14,7 @@ func mapToMediaInfoPBs(mediaInfos []media.MediaInfo) []*mediapb.MediaInfo {
 	return res
 }
 
-func mapToMediaInfoPB(mediaInfo media.MediaInfo) *mediapb.MediaInfo {
+func mapToMediaInfoPB(mediaInfo *media.MediaInfo) *mediapb.MediaInfo {
 	derivatives := make([]*mediapb.Derivative, len(mediaInfo.Derivatives))
 	for i, derivative := range mediaInfo.Derivatives {
 		derivatives[i] = &mediapb.Derivative{

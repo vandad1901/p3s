@@ -46,11 +46,11 @@ func (s *Service) MediaIngested(ctx context.Context, keys []string) (int64, erro
 	return res, nil
 }
 
-func (s *Service) GetMediaInfos(ctx context.Context, keys []string) ([]MediaInfo, error) {
+func (s *Service) GetMediaInfos(ctx context.Context, keys []string) ([]*MediaInfo, error) {
 	db := s.db.WithContext(ctx)
 
 	var (
-		res []MediaInfo
+		res []*MediaInfo
 		err error
 	)
 
@@ -102,7 +102,7 @@ func (s *Service) takeLease(ctx context.Context, key string) (time.Time, error) 
 }
 
 func (s *Service) finalizeIngest(ctx context.Context,
-	media *Media, derivatives []derivativeAsset,
+	media *Media, derivatives []*derivativeAsset,
 ) error {
 	db := s.db.WithContext(ctx)
 

@@ -29,8 +29,8 @@ const (
 	ingestTimeout = 1 * time.Minute
 )
 
-func dbGetMediaInfos(_ context.Context, db *gorm.DB, keys []string) ([]MediaInfo, error) {
-	var res []Media
+func dbGetMediaInfos(_ context.Context, db *gorm.DB, keys []string) ([]*MediaInfo, error) {
+	var res []*Media
 
 	err := db.Model(&Media{}).
 		Where("media_key IN ?", keys).
@@ -39,7 +39,7 @@ func dbGetMediaInfos(_ context.Context, db *gorm.DB, keys []string) ([]MediaInfo
 		return nil, err
 	}
 
-	var derivatives []Derivative
+	var derivatives []*Derivative
 
 	err = db.Model(&Derivative{}).
 		Where("media_key IN ?", keys).
@@ -48,13 +48,13 @@ func dbGetMediaInfos(_ context.Context, db *gorm.DB, keys []string) ([]MediaInfo
 		return nil, err
 	}
 
-	mediaMap := make(map[string]MediaInfo)
+	mediaMap := make(map[string]*MediaInfo)
 	for _, media := range res {
-		mediaMap[media.MediaKey] = MediaInfo{
+		mediaMap[media.MediaKey] = &MediaInfo{
 			MediaKey:    media.MediaKey,
 			Width:       media.Width,
 			Height:      media.Height,
-			Derivatives: []Derivative{},
+			Derivatives: []*Derivative{},
 		}
 	}
 
@@ -146,10 +146,10 @@ func dbFinalizeIngest(_ context.Context, db *gorm.DB,
 
 func dbCreateDerivatives(_ context.Context, db *gorm.DB,
 	mediaID int64,
-	mediaKey string, derivatives []derivativeAsset) error {
-	items := make([]Derivative, len(derivatives))
+	mediaKey string, derivatives []*derivativeAsset) error {
+	items := make([]*Derivative, len(derivatives))
 	for i, derivative := range derivatives {
-		items[i] = Derivative{
+		items[i] = &Derivative{
 			MediaID:  mediaID,
 			MediaKey: mediaKey,
 

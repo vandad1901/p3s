@@ -52,5 +52,5 @@ type MediaInfo struct {
 	MediaKey    string
 	Width       int32
 	Height      int32
-	Derivatives []Derivative
+	Derivatives []*Derivative
 }
