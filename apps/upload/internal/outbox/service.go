@@ -71,9 +71,9 @@ func (s *Service) ProcessQueue(ctx context.Context) (int, int, error) {
 	return successCount, failCount, nil
 }
 
-func getOutgoing(db *gorm.DB) ([]Message, string, error) {
+func getOutgoing(db *gorm.DB) ([]*Message, string, error) {
 	var (
-		outgoing []Message
+		outgoing []*Message
 		claimID  string
 		err      error
 	)
@@ -100,7 +100,7 @@ func getOutgoing(db *gorm.DB) ([]Message, string, error) {
 
 func send(ctx context.Context, db *gorm.DB, logger *slog.Logger,
 	publisher *rabbitmq.Publisher,
-	outgoing []Message, claimID string) (int, int, error) {
+	outgoing []*Message, claimID string) (int, int, error) {
 	var (
 		failed = make([]int64, 0)
 	)

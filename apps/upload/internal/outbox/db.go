@@ -26,8 +26,8 @@ func dbEnqueue(db *gorm.DB, msg *Message) error {
 	return nil
 }
 
-func dbGetOutgoing(db *gorm.DB) ([]Message, error) {
-	var outgoing []Message
+func dbGetOutgoing(db *gorm.DB) ([]*Message, error) {
+	var outgoing []*Message
 
 	err := db.
 		Clauses(clause.Locking{
@@ -50,7 +50,7 @@ func dbGetOutgoing(db *gorm.DB) ([]Message, error) {
 	return outgoing, nil
 }
 
-func dbMarkForTransit(db *gorm.DB, messages []Message) (string, error) {
+func dbMarkForTransit(db *gorm.DB, messages []*Message) (string, error) {
 	if len(messages) == 0 {
 		return "", nil
 	}
