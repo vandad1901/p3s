@@ -8,10 +8,17 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Field, FieldDescription, FieldError, FieldGroup, FieldLabel } from "@/components/ui/field";
 import { Input } from "@/components/ui/input";
+import {
+  InputGroup,
+  InputGroupAddon,
+  InputGroupButton,
+  InputGroupInput,
+} from "@/components/ui/input-group";
 import { Separator } from "@/components/ui/separator";
 import { useAuth } from "@/contexts/AuthContext";
 import { useState } from "react";
 import { Link } from "react-router";
+import { EyeIcon, EyeOffIcon } from "lucide-react";
 
 const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION === "true";
 
@@ -26,6 +33,7 @@ export function LoginForm() {
     username?: string;
     password?: string;
   }>({});
+  const [showPassword, setShowPassword] = useState(false);
 
   const form = useForm({
     defaultValues: {
@@ -110,16 +118,26 @@ export function LoginForm() {
                 return (
                   <Field data-invalid={isInvalid}>
                     <FieldLabel htmlFor={field.name}>password</FieldLabel>
-                    <Input
-                      required
-                      id={field.name}
-                      name={field.name}
-                      value={field.state.value}
-                      type="password"
-                      onBlur={field.handleBlur}
-                      onChange={(e) => field.handleChange(e.target.value)}
-                      aria-invalid={isInvalid}
-                    />
+                    <InputGroup>
+                      <InputGroupInput
+                        required
+                        id={field.name}
+                        name={field.name}
+                        value={field.state.value}
+                        type={showPassword ? "text" : "password"}
+                        onBlur={field.handleBlur}
+                        onChange={(e) => field.handleChange(e.target.value)}
+                        aria-invalid={isInvalid}
+                      />
+                      <InputGroupAddon align={"inline-end"}>
+                        <InputGroupButton
+                          type="button"
+                          onClick={() => setShowPassword(!showPassword)}
+                        >
+                          {showPassword ? <EyeOffIcon /> : <EyeIcon />}
+                        </InputGroupButton>
+                      </InputGroupAddon>
+                    </InputGroup>
                     {isInvalid && (
                       <FieldError
                         errors={
