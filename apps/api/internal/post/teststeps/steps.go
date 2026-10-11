@@ -4,6 +4,7 @@ import (
 	"context"
 	"slices"
 	"strconv"
+	"time"
 
 	"github.com/cucumber/godog"
 	"github.com/vandad1901/p3s/apps/api/internal/post"
@@ -66,6 +67,57 @@ func GetStep(s *scenario.Scenario) func(context.Context, string, *godog.Table) {
 
 			assertPost(s, rowPost, actualPost)
 			assertPostBlocks(s, rowPostBlocks, actualPostBlocks)
+		}
+	}
+}
+
+func GetPostsStep(s *scenario.Scenario) func(context.Context, string, *godog.Table) {
+	return func(ctx context.Context, expectError string, table *godog.Table) {
+		currentMap := s.SyncTableToMap(table)
+
+		for _, row := range currentMap {
+			actualPosts, err := s.A.PostService.GetPosts(ctx, post.PostsQuery{
+				AuthorID: godogutil.ResolveInt64(s.SharedData, row, "AuthorID"),
+
+				CreatedBefore: time.Now(),
+			})
+			if expectError != "" {
+				s.Require.Error(err)
+				s.ReturnedError = err
+
+				continue
+			} else {
+				s.Require.NoError(err)
+			}
+
+			ExpectedPostsKeys := godogutil.ResolveCommaSeparatedValues(s.SharedData, row, "ExpectedPosts")
+			MissingPostsKeys := godogutil.ResolveCommaSeparatedValues(s.SharedData, row, "MissingPosts")
+
+			ExpectedPosts := make([]*post.Post, len(ExpectedPostsKeys))
+			for i, key := range ExpectedPostsKeys {
+				ExpectedPosts[i] = resolvePost(s.SharedData, s.DataMap[key])
+			}
+
+			MissingPosts := make([]*post.Post, len(MissingPostsKeys))
+			for i, key := range MissingPostsKeys {
+				MissingPosts[i] = resolvePost(s.SharedData, s.DataMap[key])
+			}
+
+			for _, expected := range ExpectedPosts {
+				actualIndex := slices.IndexFunc(actualPosts, func(candidate *post.Post) bool {
+					return expected.ID == candidate.ID
+				})
+
+				s.Require.NotEqual(-1, actualIndex)
+			}
+
+			for _, missing := range MissingPosts {
+				actualIndex := slices.IndexFunc(actualPosts, func(candidate *post.Post) bool {
+					return missing.ID == candidate.ID
+				})
+
+				s.Require.Equal(-1, actualIndex)
+			}
 		}
 	}
 }

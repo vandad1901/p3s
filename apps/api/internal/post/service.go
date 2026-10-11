@@ -2,6 +2,7 @@ package post
 
 import (
 	"context"
+	"time"
 
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
 	"github.com/vandad1901/p3s/packages/go/idv"
@@ -88,6 +89,37 @@ func GetTx(ctx context.Context, tx *gorm.DB, postSlug string) (*Post, []*PostBlo
 	}
 
 	return post, postBlocks, nil
+}
+
+type PostsQuery struct {
+	AuthorID int64
+
+	Limit         int32
+	Offset        int32
+	CreatedBefore time.Time
+}
+
+func (s *Service) GetPosts(ctx context.Context, query PostsQuery) ([]*Post, error) {
+	db := s.db.WithContext(ctx)
+
+	var (
+		posts []*Post
+		err   error
+	)
+
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		posts, err = dbGetPosts(ctx, tx, query)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return nil, txErr
+	}
+
+	return posts, nil
 }
 
 func (s *Service) UpdatePost(ctx context.Context, post *Post, mutateRequest *PostBlockMutateRequest,

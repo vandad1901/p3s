@@ -41,11 +41,13 @@ func InitializeScenario(t *testing.T, ctx *godog.ScenarioContext) {
 	}
 
 	godogutil.DefineStep(s.SharedData, ctx, "post")
+	godogutil.LoginAsUserStep(ctx, s.SharedData)
 	godogutil.AddStep(ctx, "post blocks", godogutil.AddToHeaderStep(s.SharedData, teststeps.AddedPostBlocksKey))
 	godogutil.EditStep(ctx, "post blocks", godogutil.AddToHeaderStep(s.SharedData, teststeps.EditedPostBlocksKey))
 	godogutil.RemoveStep(ctx, "post blocks", godogutil.AddToHeaderStep(s.SharedData, teststeps.RemovedPostBlocksKey))
 	godogutil.CreateStep(ctx, "post", teststeps.CreateStep(s))
 	godogutil.GetStep(ctx, "post", teststeps.GetStep(s))
+	godogutil.GetStep(ctx, "posts", teststeps.GetPostsStep(s))
 	godogutil.MustBeDeleted(ctx, "post", teststeps.MustBeDeletedStep(s))
 	godogutil.UpdateStep(ctx, "post", teststeps.UpdateStep(s))
 	godogutil.DeleteStep(ctx, "post", teststeps.DeleteStep(s))
