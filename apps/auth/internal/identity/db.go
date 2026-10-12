@@ -65,7 +65,7 @@ func dbGetUserByID(_ context.Context, tx *gorm.DB, id int64) (*User, error) {
 func dbGetUsersByIDs(_ context.Context, tx *gorm.DB, ids []int64) ([]*UserGetResponse, error) {
 	var res []*UserGetResponse
 
-	err := tx.
+	err := tx.Model(&User{}).
 		Where("id IN ?", ids).
 		Select(`
 			id,

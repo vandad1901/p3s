@@ -4,6 +4,7 @@ import (
 	"github.com/labstack/echo/v4"
 	authnrpc "github.com/vandad1901/p3s/apps/auth/internal/authn/rpc"
 	"github.com/vandad1901/p3s/apps/auth/internal/config"
+	identityrpc "github.com/vandad1901/p3s/apps/auth/internal/identity/rpc"
 	jwkshttp "github.com/vandad1901/p3s/apps/auth/internal/jwks/http"
 	"github.com/vandad1901/p3s/packages/go/apperror"
 	"github.com/vandad1901/p3s/packages/go/envutil"
@@ -26,6 +27,7 @@ func initializeGRPC(a *App, cfg *config.Config) {
 func registerGRPCServers(a *App, grpcServer *grpc.Server, cfg *config.Config) {
 	healthpb.RegisterHealthServer(grpcServer, health.NewServer())
 	authnrpc.Register(grpcServer, a.AuthnService)
+	identityrpc.Register(grpcServer, a.identityService)
 
 	if cfg.Environment == envutil.Development {
 		reflection.Register(grpcServer)
