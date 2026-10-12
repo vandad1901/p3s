@@ -134,7 +134,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
         <Markdown
           allowedElements={
             textMeta.size === "p"
-              ? ["p", "strong", "em", "a", "br", "code", "pre"]
+              ? ["p", "strong", "em", "a", "br", "code", "pre", "ul", "ol", "li"]
               : ["p", "strong", "em", "a", "br", "code"]
           }
           unwrapDisallowed
@@ -190,6 +190,33 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
                 />
               );
             },
+            ul: ({ node, ...props }) => (
+              <ul
+                dir="auto"
+                className={cn(
+                  "flex list-inside list-disc flex-col py-1 whitespace-pre-wrap",
+                  textClassName,
+                )}
+                {...props}
+              />
+            ),
+            ol: ({ node, ...props }) => (
+              <ol
+                dir="auto"
+                className={cn(
+                  "flex list-inside list-decimal flex-col py-1 whitespace-pre-wrap",
+                  textClassName,
+                )}
+                {...props}
+              />
+            ),
+            li: ({ node, ...props }) => (
+              <li
+                dir="auto"
+                className={cn("resize-none whitespace-pre-wrap", textClassName)}
+                {...props}
+              />
+            ),
           }}
         >
           {processedText}
