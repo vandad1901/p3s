@@ -17,7 +17,6 @@ async function fetchPosts(
   page: number,
   loadTime: string,
 ): Promise<APIResponse<{ data: EnrichedPost[]; total: number }>> {
-  debugger;
   const res = await postService.GetPosts({
     authorId: "0",
     limit: perPage,
