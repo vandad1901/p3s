@@ -15,14 +15,20 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
-import { isValidElement, useState, type ComponentProps, type ReactNode } from "react";
+import {
+  isValidElement,
+  lazy,
+  Suspense,
+  useState,
+  type ComponentProps,
+  type ReactNode,
+} from "react";
 import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
-import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
-import oneDark from "react-syntax-highlighter/dist/esm/styles/prism/one-dark";
-import oneLight from "react-syntax-highlighter/dist/esm/styles/prism/one-light";
 import { getSrcSet, type EnrichedPostBlock } from "./mapper";
 import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
+
+const CodeBlock = lazy(() => import("./code-block"));
 
 export function Viewer({ doc }: { doc: GetResponse }) {
   const { user } = useAuth();
@@ -127,6 +133,7 @@ export function Viewer({ doc }: { doc: GetResponse }) {
 }
 
 function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number }) {
+  const { theme } = useTheme();
   if (block.blockType === BlockType.BLOCK_TYPE_TEXT) {
     const textMeta: TextMetadata = JSON.parse(block.metadata || "{}");
     const textClassName = textSizeItems.find((i) => i.value === textMeta.size)!.className;
@@ -186,12 +193,24 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
               const child = props.children;
               if (!isValidElement<ComponentProps<"code">>(child)) return null;
               const language = /language-([\w+-]+)/.exec(child.props.className ?? "")?.[1];
+              const code = String(child.props.children! ?? "").replace(/\n$/, "");
 
               return (
-                <CodeBlock
-                  code={String(child.props.children! ?? "")}
-                  language={language ?? ""}
-                />
+                <Suspense
+                  fallback={
+                    <pre
+                      className="my-2 overflow-x-auto rounded-[0.3em] p-4"
+                      style={{ backgroundColor: theme === "dark" ? "#282c34" : "#fafafa" }}
+                    >
+                      <code>{code}</code>
+                    </pre>
+                  }
+                >
+                  <CodeBlock
+                    code={code}
+                    language={language ?? ""}
+                  />
+                </Suspense>
               );
             },
             ul: ({ node, ...props }) => (
@@ -305,19 +324,5 @@ function ExternalURLWarning({ url, children }: { url: string; children: ReactNod
 function InlineCode({ code, textClass }: { code: string; textClass: string }) {
   return (
     <code className={cn("bg-muted text-muted-foreground rounded-md px-1", textClass)}>{code}</code>
-  );
-}
-
-function CodeBlock({ code, language }: { code: string; language: string }) {
-  const { theme } = useTheme();
-  const lang = language && language.toLowerCase();
-
-  return (
-    <SyntaxHighlighter
-      language={lang}
-      style={theme === "dark" ? oneDark : oneLight}
-    >
-      {code}
-    </SyntaxHighlighter>
   );
 }
