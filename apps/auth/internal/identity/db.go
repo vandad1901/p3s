@@ -1,6 +1,7 @@
 package identity
 
 import (
+	"context"
 	"time"
 
 	"github.com/vandad1901/p3s/packages/go/dbpattern"
@@ -39,6 +40,45 @@ func dbCreateUser(tx *gorm.DB, user *User) (*commonpb.IDVersion, error) {
 		UpdatedAt: timestamppb.New(currentTime)}, nil
 }
 
+func dbGetUserByID(_ context.Context, tx *gorm.DB, id int64) (*User, error) {
+	var res *User
+
+	err := tx.
+		Where("id IN ?", id).
+		Select(`
+			id,
+
+			username,
+			email,
+			salt,
+			password_hash,
+			display_name
+		`).
+		Find(&res).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
+func dbGetUsersByIDs(_ context.Context, tx *gorm.DB, ids []int64) ([]*UserGetResponse, error) {
+	var res []*UserGetResponse
+
+	err := tx.
+		Where("id IN ?", ids).
+		Select(`
+			id,
+			display_name
+		`).
+		Find(&res).Error
+	if err != nil {
+		return nil, err
+	}
+
+	return res, nil
+}
+
 func dbGetUserByUsername(tx *gorm.DB, username string) (*User, error) {
 	user := new(User)
 
@@ -61,4 +101,20 @@ func dbGetUserByUsername(tx *gorm.DB, username string) (*User, error) {
 	}
 
 	return user, nil
+}
+
+func dbUpdateUser(_ context.Context, tx *gorm.DB, user *User) error {
+	currentTime := time.Now()
+
+	err := tx.Model(&User{}).
+		Where("id = ?", user.ID).
+		Updates(map[string]any{
+			"display_name": user.DisplayName,
+			"updated_at":   currentTime,
+		}).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
 }

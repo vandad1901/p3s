@@ -1,0 +1,4 @@
+-- Active: 1764395470652@@127.0.0.1@5432@auth
+ALTER TABLE user_t
+    ADD COLUMN IF NOT EXISTS display_name varchar(256) NOT NULL DEFAULT 'CHANGE_ME';
+
