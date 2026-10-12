@@ -1,4 +1,4 @@
-import { postService } from "@/api/api.service";
+import { postService } from "@/api/post.service";
 import {
   AlertDialog,
   AlertDialogCancel,

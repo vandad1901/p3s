@@ -1,4 +1,4 @@
-import { postService } from "@/api/api.service";
+import { postService } from "@/api/post.service";
 import type { APIResponse } from "@/api/client";
 import { mediaService } from "@/api/media.service";
 import { BlockType } from "@gen/api/postpb/v1/post";

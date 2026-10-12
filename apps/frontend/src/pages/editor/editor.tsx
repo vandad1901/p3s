@@ -1,4 +1,4 @@
-import { postService } from "@/api/api.service";
+import { postService } from "@/api/post.service";
 import { uploadMedia } from "@/api/upload.service";
 import { Button } from "@/components/ui/button";
 import { ButtonGroup } from "@/components/ui/button-group";
