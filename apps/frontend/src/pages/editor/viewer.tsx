@@ -110,11 +110,12 @@ export function Viewer({ doc }: { doc: GetResponse }) {
       </div>
       <ul className="flex w-full flex-col gap-4 px-4 pt-6 md:px-0">
         {doc.postBlocks.map((block, index) => (
-          <PostBlockComponent
-            index={index}
-            block={block}
-            key={block.id}
-          />
+          <li key={block.id}>
+            <PostBlockComponent
+              index={index}
+              block={block}
+            />
+          </li>
         ))}
       </ul>
     </div>
