@@ -1,8 +1,8 @@
 Feature: Authn Refresh JWT
     Background:
         Given user registers with the following data
-            | Key    | Username      | Email                     | Password       |
-            | $User1 | johndoe-{16c} | johndoe-{16c}@example.com | p@ssw0rd-{16c} |
+            | Key    | Username      | Email                     | DisplayName | Password       |
+            | $User1 | johndoe-{16c} | johndoe-{16c}@example.com | {16c}       | p@ssw0rd-{16c} |
         And user should receive valid JWT with the following data
             | Key    |
             | $User1 |

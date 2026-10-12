@@ -12,6 +12,7 @@ func resolveUser(s *godogutil.SharedData, row map[string]string) *identity.User 
 
 	u.Username = godogutil.ResolveString(s, row, "Username")
 	u.Email = godogutil.ResolveString(s, row, "Email")
+	u.DisplayName = godogutil.ResolveString(s, row, "DisplayName")
 
 	return u
 }

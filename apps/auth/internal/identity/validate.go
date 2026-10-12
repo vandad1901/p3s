@@ -6,16 +6,17 @@ import (
 )
 
 const (
-	MinUsernameLength = 5
+	MinUsernameLength    = 5
+	MinDisplayNameLength = 3
 )
 
 func ValidateUser(ctx context.Context, user *User) error {
-	if user.Username == "" {
-		return errEmptyUsername
-	}
-
 	if len(user.Username) < MinUsernameLength {
 		return errInvalidUsername
+	}
+
+	if len(user.DisplayName) < MinDisplayNameLength {
+		return errInvalidDisplayName
 	}
 
 	if user.Email == "" {

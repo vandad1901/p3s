@@ -12,8 +12,8 @@ var (
 )
 
 var (
-	errEmptyUsername   = errors.New("identity.validation.emptyUsername")
-	errInvalidUsername = errors.New("identity.validation.invalidUsername")
-	errEmptyEmail      = errors.New("identity.validation.emptyEmail")
-	errInvalidEmail    = errors.New("identity.validation.invalidEmail")
+	errInvalidUsername    = errors.New("identity.validation.invalidUsername")
+	errInvalidDisplayName = errors.New("identity.validation.invalidDisplayName")
+	errEmptyEmail         = errors.New("identity.validation.emptyEmail")
+	errInvalidEmail       = errors.New("identity.validation.invalidEmail")
 )

@@ -10,9 +10,10 @@ import (
 
 func mapToUser(in *userpb.User) *identity.User {
 	return &identity.User{
-		ID:       in.GetId(),
-		Username: in.GetUsername(),
-		Email:    in.GetEmail(),
+		ID:          in.GetId(),
+		Username:    in.GetUsername(),
+		DisplayName: in.GetDisplayName(),
+		Email:       in.GetEmail(),
 	}
 }
 
