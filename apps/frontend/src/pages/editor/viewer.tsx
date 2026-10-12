@@ -12,11 +12,15 @@ import {
 } from "@/components/ui/alert-dialog";
 import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
+import { useTheme } from "@/contexts/ThemeContext";
 import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
 import { isValidElement, useState, type ComponentProps, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
+import { PrismAsyncLight as SyntaxHighlighter } from "react-syntax-highlighter";
+import oneDark from "react-syntax-highlighter/dist/esm/styles/prism/one-dark";
+import oneLight from "react-syntax-highlighter/dist/esm/styles/prism/one-light";
 import { getSrcSet, type EnrichedPostBlock } from "./mapper";
 import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
 
@@ -180,13 +184,13 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
             },
             pre: ({ node, ...props }) => {
               const child = props.children;
-
               if (!isValidElement<ComponentProps<"code">>(child)) return null;
+              const language = /language-([\w+-]+)/.exec(child.props.className ?? "")?.[1];
 
               return (
                 <CodeBlock
                   code={String(child.props.children! ?? "")}
-                  textClass={textClassName}
+                  language={language ?? ""}
                 />
               );
             },
@@ -304,10 +308,16 @@ function InlineCode({ code, textClass }: { code: string; textClass: string }) {
   );
 }
 
-function CodeBlock({ code, textClass }: { code: string; textClass: string }) {
+function CodeBlock({ code, language }: { code: string; language: string }) {
+  const { theme } = useTheme();
+  const lang = language && language.toLowerCase();
+
   return (
-    <pre className="bg-muted my-2 w-full overflow-x-auto rounded-md p-4">
-      <code className={cn("text-muted-foreground text-sm", textClass)}>{code}</code>
-    </pre>
+    <SyntaxHighlighter
+      language={lang}
+      style={theme === "dark" ? oneDark : oneLight}
+    >
+      {code}
+    </SyntaxHighlighter>
   );
 }
