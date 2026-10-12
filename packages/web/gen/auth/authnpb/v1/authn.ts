@@ -42,8 +42,17 @@ export interface RefreshJWTResponse {
   jwt: string;
 }
 
+export interface LogoutRequest {
+  userId: string;
+  sessionId: string;
+}
+
+export interface LogoutResponse {
+}
+
 export interface AuthnService {
   Register(request: RegisterRequest): Promise<RegisterResponse>;
   Login(request: LoginRequest): Promise<LoginResponse>;
   RefreshJWT(request: RefreshJWTRequest): Promise<RefreshJWTResponse>;
+  Logout(request: LogoutRequest): Promise<LogoutResponse>;
 }

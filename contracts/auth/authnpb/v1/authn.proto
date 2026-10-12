@@ -29,6 +29,12 @@ service AuthnService {
       body: "*"
     };
   };
+  rpc Logout (LogoutRequest) returns (LogoutResponse) {
+    option (google.api.http) = {
+      post: "/auth/v1/authn/logout"
+      body: "*"
+    };
+  };
 }
 
 message RegisterRequest {
@@ -70,3 +76,10 @@ message RefreshJWTRequest {
 message RefreshJWTResponse {
   string jwt = 1;
 }
+
+message LogoutRequest {
+  int64 user_id    = 1;
+  int64 session_id = 2;
+}
+
+message LogoutResponse {}

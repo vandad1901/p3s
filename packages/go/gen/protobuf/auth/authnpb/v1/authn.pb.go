@@ -372,6 +372,94 @@ func (x *RefreshJWTResponse) GetJwt() string {
 	return ""
 }
 
+type LogoutRequest struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	UserId        int64                  `protobuf:"varint,1,opt,name=user_id,json=userId,proto3" json:"user_id,omitempty"`
+	SessionId     int64                  `protobuf:"varint,2,opt,name=session_id,json=sessionId,proto3" json:"session_id,omitempty"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutRequest) Reset() {
+	*x = LogoutRequest{}
+	mi := &file_auth_authnpb_v1_authn_proto_msgTypes[7]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutRequest) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutRequest) ProtoMessage() {}
+
+func (x *LogoutRequest) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_authnpb_v1_authn_proto_msgTypes[7]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutRequest.ProtoReflect.Descriptor instead.
+func (*LogoutRequest) Descriptor() ([]byte, []int) {
+	return file_auth_authnpb_v1_authn_proto_rawDescGZIP(), []int{7}
+}
+
+func (x *LogoutRequest) GetUserId() int64 {
+	if x != nil {
+		return x.UserId
+	}
+	return 0
+}
+
+func (x *LogoutRequest) GetSessionId() int64 {
+	if x != nil {
+		return x.SessionId
+	}
+	return 0
+}
+
+type LogoutResponse struct {
+	state         protoimpl.MessageState `protogen:"open.v1"`
+	unknownFields protoimpl.UnknownFields
+	sizeCache     protoimpl.SizeCache
+}
+
+func (x *LogoutResponse) Reset() {
+	*x = LogoutResponse{}
+	mi := &file_auth_authnpb_v1_authn_proto_msgTypes[8]
+	ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+	ms.StoreMessageInfo(mi)
+}
+
+func (x *LogoutResponse) String() string {
+	return protoimpl.X.MessageStringOf(x)
+}
+
+func (*LogoutResponse) ProtoMessage() {}
+
+func (x *LogoutResponse) ProtoReflect() protoreflect.Message {
+	mi := &file_auth_authnpb_v1_authn_proto_msgTypes[8]
+	if x != nil {
+		ms := protoimpl.X.MessageStateOf(protoimpl.Pointer(x))
+		if ms.LoadMessageInfo() == nil {
+			ms.StoreMessageInfo(mi)
+		}
+		return ms
+	}
+	return mi.MessageOf(x)
+}
+
+// Deprecated: Use LogoutResponse.ProtoReflect.Descriptor instead.
+func (*LogoutResponse) Descriptor() ([]byte, []int) {
+	return file_auth_authnpb_v1_authn_proto_rawDescGZIP(), []int{8}
+}
+
 var File_auth_authnpb_v1_authn_proto protoreflect.FileDescriptor
 
 const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
@@ -397,12 +485,18 @@ const file_auth_authnpb_v1_authn_proto_rawDesc = "" +
 	"\n" +
 	"session_id\x18\x02 \x01(\x03R\tsessionId\"&\n" +
 	"\x12RefreshJWTResponse\x12\x10\n" +
-	"\x03jwt\x18\x01 \x01(\tR\x03jwt2\xe6\x02\n" +
+	"\x03jwt\x18\x01 \x01(\tR\x03jwt\"G\n" +
+	"\rLogoutRequest\x12\x17\n" +
+	"\auser_id\x18\x01 \x01(\x03R\x06userId\x12\x1d\n" +
+	"\n" +
+	"session_id\x18\x02 \x01(\x03R\tsessionId\"\x10\n" +
+	"\x0eLogoutResponse2\xd3\x03\n" +
 	"\fAuthnService\x12s\n" +
 	"\bRegister\x12 .auth.authnpb.v1.RegisterRequest\x1a!.auth.authnpb.v1.RegisterResponse\"\"\x82\xd3\xe4\x93\x02\x1c:\x01*\"\x17/auth/v1/authn/register\x12g\n" +
 	"\x05Login\x12\x1d.auth.authnpb.v1.LoginRequest\x1a\x1e.auth.authnpb.v1.LoginResponse\"\x1f\x82\xd3\xe4\x93\x02\x19:\x01*\"\x14/auth/v1/authn/login\x12x\n" +
 	"\n" +
-	"RefreshJWT\x12\".auth.authnpb.v1.RefreshJWTRequest\x1a#.auth.authnpb.v1.RefreshJWTResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/auth/v1/authn/refreshBLZJgithub.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1;authnpbb\x06proto3"
+	"RefreshJWT\x12\".auth.authnpb.v1.RefreshJWTRequest\x1a#.auth.authnpb.v1.RefreshJWTResponse\"!\x82\xd3\xe4\x93\x02\x1b:\x01*\"\x16/auth/v1/authn/refresh\x12k\n" +
+	"\x06Logout\x12\x1e.auth.authnpb.v1.LogoutRequest\x1a\x1f.auth.authnpb.v1.LogoutResponse\" \x82\xd3\xe4\x93\x02\x1a:\x01*\"\x15/auth/v1/authn/logoutBLZJgithub.com/vandad1901/p3s/packages/go/gen/protobuf/auth/authnpb/v1;authnpbb\x06proto3"
 
 var (
 	file_auth_authnpb_v1_authn_proto_rawDescOnce sync.Once
@@ -416,7 +510,7 @@ func file_auth_authnpb_v1_authn_proto_rawDescGZIP() []byte {
 	return file_auth_authnpb_v1_authn_proto_rawDescData
 }
 
-var file_auth_authnpb_v1_authn_proto_msgTypes = make([]protoimpl.MessageInfo, 7)
+var file_auth_authnpb_v1_authn_proto_msgTypes = make([]protoimpl.MessageInfo, 9)
 var file_auth_authnpb_v1_authn_proto_goTypes = []any{
 	(*RegisterRequest)(nil),       // 0: auth.authnpb.v1.RegisterRequest
 	(*AuthSessionResponse)(nil),   // 1: auth.authnpb.v1.AuthSessionResponse
@@ -425,25 +519,29 @@ var file_auth_authnpb_v1_authn_proto_goTypes = []any{
 	(*LoginResponse)(nil),         // 4: auth.authnpb.v1.LoginResponse
 	(*RefreshJWTRequest)(nil),     // 5: auth.authnpb.v1.RefreshJWTRequest
 	(*RefreshJWTResponse)(nil),    // 6: auth.authnpb.v1.RefreshJWTResponse
-	(*v1.User)(nil),               // 7: auth.userpb.v1.User
-	(*timestamppb.Timestamp)(nil), // 8: google.protobuf.Timestamp
+	(*LogoutRequest)(nil),         // 7: auth.authnpb.v1.LogoutRequest
+	(*LogoutResponse)(nil),        // 8: auth.authnpb.v1.LogoutResponse
+	(*v1.User)(nil),               // 9: auth.userpb.v1.User
+	(*timestamppb.Timestamp)(nil), // 10: google.protobuf.Timestamp
 }
 var file_auth_authnpb_v1_authn_proto_depIdxs = []int32{
-	7, // 0: auth.authnpb.v1.RegisterRequest.user:type_name -> auth.userpb.v1.User
-	8, // 1: auth.authnpb.v1.AuthSessionResponse.access_expires_at:type_name -> google.protobuf.Timestamp
-	1, // 2: auth.authnpb.v1.RegisterResponse.session:type_name -> auth.authnpb.v1.AuthSessionResponse
-	1, // 3: auth.authnpb.v1.LoginResponse.session:type_name -> auth.authnpb.v1.AuthSessionResponse
-	0, // 4: auth.authnpb.v1.AuthnService.Register:input_type -> auth.authnpb.v1.RegisterRequest
-	3, // 5: auth.authnpb.v1.AuthnService.Login:input_type -> auth.authnpb.v1.LoginRequest
-	5, // 6: auth.authnpb.v1.AuthnService.RefreshJWT:input_type -> auth.authnpb.v1.RefreshJWTRequest
-	2, // 7: auth.authnpb.v1.AuthnService.Register:output_type -> auth.authnpb.v1.RegisterResponse
-	4, // 8: auth.authnpb.v1.AuthnService.Login:output_type -> auth.authnpb.v1.LoginResponse
-	6, // 9: auth.authnpb.v1.AuthnService.RefreshJWT:output_type -> auth.authnpb.v1.RefreshJWTResponse
-	7, // [7:10] is the sub-list for method output_type
-	4, // [4:7] is the sub-list for method input_type
-	4, // [4:4] is the sub-list for extension type_name
-	4, // [4:4] is the sub-list for extension extendee
-	0, // [0:4] is the sub-list for field type_name
+	9,  // 0: auth.authnpb.v1.RegisterRequest.user:type_name -> auth.userpb.v1.User
+	10, // 1: auth.authnpb.v1.AuthSessionResponse.access_expires_at:type_name -> google.protobuf.Timestamp
+	1,  // 2: auth.authnpb.v1.RegisterResponse.session:type_name -> auth.authnpb.v1.AuthSessionResponse
+	1,  // 3: auth.authnpb.v1.LoginResponse.session:type_name -> auth.authnpb.v1.AuthSessionResponse
+	0,  // 4: auth.authnpb.v1.AuthnService.Register:input_type -> auth.authnpb.v1.RegisterRequest
+	3,  // 5: auth.authnpb.v1.AuthnService.Login:input_type -> auth.authnpb.v1.LoginRequest
+	5,  // 6: auth.authnpb.v1.AuthnService.RefreshJWT:input_type -> auth.authnpb.v1.RefreshJWTRequest
+	7,  // 7: auth.authnpb.v1.AuthnService.Logout:input_type -> auth.authnpb.v1.LogoutRequest
+	2,  // 8: auth.authnpb.v1.AuthnService.Register:output_type -> auth.authnpb.v1.RegisterResponse
+	4,  // 9: auth.authnpb.v1.AuthnService.Login:output_type -> auth.authnpb.v1.LoginResponse
+	6,  // 10: auth.authnpb.v1.AuthnService.RefreshJWT:output_type -> auth.authnpb.v1.RefreshJWTResponse
+	8,  // 11: auth.authnpb.v1.AuthnService.Logout:output_type -> auth.authnpb.v1.LogoutResponse
+	8,  // [8:12] is the sub-list for method output_type
+	4,  // [4:8] is the sub-list for method input_type
+	4,  // [4:4] is the sub-list for extension type_name
+	4,  // [4:4] is the sub-list for extension extendee
+	0,  // [0:4] is the sub-list for field type_name
 }
 
 func init() { file_auth_authnpb_v1_authn_proto_init() }
@@ -457,7 +555,7 @@ func file_auth_authnpb_v1_authn_proto_init() {
 			GoPackagePath: reflect.TypeOf(x{}).PkgPath(),
 			RawDescriptor: unsafe.Slice(unsafe.StringData(file_auth_authnpb_v1_authn_proto_rawDesc), len(file_auth_authnpb_v1_authn_proto_rawDesc)),
 			NumEnums:      0,
-			NumMessages:   7,
+			NumMessages:   9,
 			NumExtensions: 0,
 			NumServices:   1,
 		},
