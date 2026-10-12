@@ -64,6 +64,7 @@ static_resources:
                       proto_descriptor: /etc/envoy/descriptor.pb
                       services:
                         - auth.authnpb.v1.AuthnService
+                        - auth.userpb.v1.UserService
                         - api.postpb.v1.PostService
                         - upload.uploadpb.v1.UploadService
                         - media.mediapb.v1.MediaService
@@ -89,7 +90,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: auth
+                      address: host.docker.internal
                       port_value: 50051
     - name: auth_jwks
       connect_timeout: 1s
@@ -102,7 +103,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: auth
+                      address: host.docker.internal
                       port_value: 50151
     - name: api_grpc
       connect_timeout: 1s
@@ -116,7 +117,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: api
+                      address: host.docker.internal
                       port_value: 50052
     - name: upload_grpc
       connect_timeout: 1s
@@ -130,7 +131,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: upload
+                      address: host.docker.internal
                       port_value: 50053
     - name: media_grpc
       connect_timeout: 1s
@@ -144,5 +145,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: media
+                      address: host.docker.internal
                       port_value: 50054
