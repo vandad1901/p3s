@@ -1,6 +1,7 @@
 import { postService } from "@/api/post.service";
 import {
   AlertDialog,
+  AlertDialogAction,
   AlertDialogCancel,
   AlertDialogContent,
   AlertDialogDescription,
@@ -14,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
 import { useState } from "react";
+import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
 import { getSrcSet, type EnrichedPostBlock } from "./mapper";
 import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
@@ -117,6 +119,8 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
   if (block.blockType === BlockType.BLOCK_TYPE_TEXT) {
     const textMeta: TextMetadata = JSON.parse(block.metadata || "{}");
 
+    const processedText = block.text.replace(/^(#{1,6})(?=\s)/gm, "\\$1");
+
     return (
       <p
         dir="auto"
@@ -125,7 +129,38 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
           textSizeItems.find((i) => i.value === textMeta.size)?.className,
         )}
       >
-        {block.text}
+        <Markdown
+          allowedElements={["p", "strong", "em", "a", "br"]}
+          unwrapDisallowed
+          urlTransform={(url) => {
+            if (/^(https?:\/\/|mailto:)/i.test(url)) return url;
+            if (url.startsWith("#")) return url;
+            if (url.startsWith("/")) return url;
+            return "";
+          }}
+          components={{
+            a: ({ node, ...props }) => {
+              const href = props.href || "";
+              if ((href.startsWith("/") && !href.startsWith("//")) || href.startsWith("#")) {
+                return (
+                  <Link
+                    {...props}
+                    to={href}
+                    className="text-primary visited:text-muted-foreground inline cursor-pointer underline"
+                  />
+                );
+              }
+              return (
+                <ExternalURLWarning
+                  url={href}
+                  text={String(props.children)}
+                />
+              );
+            },
+          }}
+        >
+          {processedText}
+        </Markdown>
       </p>
     );
   }
@@ -143,4 +178,64 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
       />
     );
   }
+}
+
+function ExternalURLWarning({ url, text }: { url: string; text: string }) {
+  const [open, setOpen] = useState(false);
+  const [openInNewTab, setOpenInNewTab] = useState(false);
+
+  return (
+    <AlertDialog
+      open={open}
+      onOpenChange={setOpen}
+    >
+      <AlertDialogTrigger
+        render={
+          <a
+            href={url}
+            className="text-primary visited:text-muted-foreground inline cursor-pointer underline"
+            onClick={(e) => {
+              e.preventDefault();
+              setOpen(true);
+              if (e.ctrlKey || e.metaKey) {
+                setOpenInNewTab(true);
+              } else {
+                setOpenInNewTab(false);
+              }
+            }}
+            onAuxClick={(e) => {
+              if (e.button === 1) {
+                e.preventDefault();
+                setOpen(true);
+                setOpenInNewTab(true);
+              }
+            }}
+          />
+        }
+      >
+        {text}
+      </AlertDialogTrigger>
+      <AlertDialogContent>
+        <AlertDialogHeader>
+          <AlertDialogTitle>External Link</AlertDialogTitle>
+          <AlertDialogDescription>
+            You are about to open an external link. Do you want to proceed?
+          </AlertDialogDescription>
+        </AlertDialogHeader>
+        <AlertDialogFooter>
+          <AlertDialogCancel>Cancel</AlertDialogCancel>
+          <AlertDialogAction
+            variant="default"
+            onClick={(e) => {
+              const newTab = openInNewTab || e.ctrlKey || e.metaKey;
+              setOpen(false);
+              window.open(url, newTab ? "_blank" : "_self", "noopener noreferrer");
+            }}
+          >
+            Open Link
+          </AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>
+  );
 }
