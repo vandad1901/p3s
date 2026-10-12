@@ -90,7 +90,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      address: auth
                       port_value: 50051
     - name: auth_jwks
       connect_timeout: 1s
@@ -103,7 +103,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      address: auth
                       port_value: 50151
     - name: api_grpc
       connect_timeout: 1s
@@ -117,7 +117,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      address: api
                       port_value: 50052
     - name: upload_grpc
       connect_timeout: 1s
@@ -131,7 +131,7 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      address: upload
                       port_value: 50053
     - name: media_grpc
       connect_timeout: 1s
@@ -145,5 +145,5 @@ static_resources:
               - endpoint:
                   address:
                     socket_address:
-                      address: host.docker.internal
+                      address: media
                       port_value: 50054
