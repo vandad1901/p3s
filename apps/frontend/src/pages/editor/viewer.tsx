@@ -14,7 +14,7 @@ import { Button, buttonVariants } from "@/components/ui/button";
 import { useAuth } from "@/contexts/AuthContext";
 import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
-import { useState } from "react";
+import { isValidElement, useState, type ComponentProps, type ReactNode } from "react";
 import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
 import { getSrcSet, type EnrichedPostBlock } from "./mapper";
@@ -131,7 +131,11 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     return (
       <div>
         <Markdown
-          allowedElements={["p", "strong", "em", "a", "br"]}
+          allowedElements={
+            textMeta.size === "p"
+              ? ["p", "strong", "em", "a", "br", "code", "pre"]
+              : ["p", "strong", "em", "a", "br", "code"]
+          }
           unwrapDisallowed
           urlTransform={(url) => {
             if (/^(https?:\/\/|mailto:)/i.test(url)) return url;
@@ -164,6 +168,26 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
                 );
               }
               return <ExternalURLWarning url={href}>{props.children}</ExternalURLWarning>;
+            },
+            code: ({ ...props }: ComponentProps<"code">) => {
+              return (
+                <InlineCode
+                  code={String(props.children!)}
+                  textSize={textMeta.size}
+                />
+              );
+            },
+            pre: (props: ComponentProps<"pre">) => {
+              const child = props.children;
+
+              if (!isValidElement<ComponentProps<"code">>(child)) return null;
+
+              return (
+                <CodeBlock
+                  code={String(child.props.children! ?? "")}
+                  textSize={textMeta.size}
+                />
+              );
             },
           }}
         >
@@ -245,5 +269,33 @@ function ExternalURLWarning({ url, children }: { url: string; children: ReactNod
         </AlertDialogFooter>
       </AlertDialogContent>
     </AlertDialog>
+  );
+}
+
+function InlineCode({ code, textSize }: { code: string; textSize: TextMetadata["size"] }) {
+  return (
+    <code
+      className={cn(
+        "bg-muted text-muted-foreground rounded-md px-1",
+        textSizeItems.find((i) => i.value === textSize)?.className,
+      )}
+    >
+      {code}
+    </code>
+  );
+}
+
+function CodeBlock({ code, textSize }: { code: string; textSize: TextMetadata["size"] }) {
+  return (
+    <pre className="bg-muted my-2 w-full overflow-x-auto rounded-md p-4">
+      <code
+        className={cn(
+          "text-muted-foreground text-sm",
+          textSizeItems.find((i) => i.value === textSize)?.className,
+        )}
+      >
+        {code}
+      </code>
+    </pre>
   );
 }
