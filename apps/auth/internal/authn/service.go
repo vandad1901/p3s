@@ -127,15 +127,23 @@ func (s *Service) Login(ctx context.Context, username string, password string) (
 	return res, nil
 }
 
-func (s *Service) RefreshJWT(ctx context.Context, refreshToken string, sessionID, userID int64) (*authnpb.RefreshJWTResponse, error) {
+func (s *Service) RefreshJWT(ctx context.Context, refreshToken string, sessionID, userID int64,
+) (*authnpb.RefreshJWTResponse, error) {
 	db := s.db.WithContext(ctx)
 
 	refreshTokenHash := token.HashRefreshToken(refreshToken)
 
-	valid, err := s.sessionService.CheckRefreshTokenTx(ctx, db,
-		sessionID, userID, refreshTokenHash)
-	if err != nil || !valid {
-		return nil, errInvalidAuthn
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		valid, err := s.sessionService.CheckRefreshTokenTx(ctx, tx,
+			sessionID, userID, refreshTokenHash)
+		if err != nil || !valid {
+			return errInvalidAuthn
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return nil, txErr
 	}
 
 	jwt, err := s.tokenService.GenerateJWT(userID)
@@ -146,4 +154,24 @@ func (s *Service) RefreshJWT(ctx context.Context, refreshToken string, sessionID
 	return &authnpb.RefreshJWTResponse{
 		Jwt: jwt,
 	}, nil
+}
+
+func (s *Service) Logout(ctx context.Context, refreshToken string, sessionID, userID int64) error {
+	db := s.db.WithContext(ctx)
+
+	refreshTokenHash := token.HashRefreshToken(refreshToken)
+
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		err := s.sessionService.DeleteSessionTx(ctx, tx, sessionID, userID, refreshTokenHash)
+		if err != nil {
+			return errInvalidAuthn
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return txErr
+	}
+
+	return nil
 }

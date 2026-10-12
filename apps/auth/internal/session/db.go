@@ -39,3 +39,19 @@ func dbCheckRefreshTokenHash(tx *gorm.DB,
 
 	return valid, nil
 }
+
+func dbDeleteSession(tx *gorm.DB,
+	sessionID, userID int64,
+	refreshTokenHash string) error {
+	err := tx.Model(Session{}).
+		Where("id = ?", sessionID).
+		Where("user_id = ?", userID).
+		Where("refresh_token_hash = ?", refreshTokenHash).
+		Where("status = ?", SessionStatusActive).
+		Delete(&Session{}).Error
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

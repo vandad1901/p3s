@@ -99,3 +99,15 @@ func (s *Service) CheckRefreshTokenTx(ctx context.Context, tx *gorm.DB,
 
 	return valid, nil
 }
+
+func (s *Service) DeleteSessionTx(ctx context.Context, tx *gorm.DB,
+	sessionID, userID int64,
+	refreshTokenHash string,
+) error {
+	err := dbDeleteSession(tx, sessionID, userID, refreshTokenHash)
+	if err != nil {
+		return err
+	}
+
+	return nil
+}

@@ -128,3 +128,18 @@ func (s *AuthnRPCServer) RefreshJWT(ctx context.Context, req *authnpb.RefreshJWT
 
 	return res, nil
 }
+
+func (s *AuthnRPCServer) Logout(ctx context.Context, req *authnpb.LogoutRequest,
+) (*authnpb.LogoutResponse, error) {
+	refreshToken, err := ReadRefreshCookie(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("reading refresh cookie: %w", err)
+	}
+
+	err = s.authnService.Logout(ctx, refreshToken, req.GetSessionId(), req.GetUserId())
+	if err != nil {
+		return nil, fmt.Errorf("authn logout: %w", err)
+	}
+
+	return &authnpb.LogoutResponse{}, nil
+}
