@@ -99,16 +99,17 @@ type PostsQuery struct {
 	CreatedBefore time.Time
 }
 
-func (s *Service) GetPosts(ctx context.Context, query PostsQuery) ([]*Post, error) {
+func (s *Service) GetPosts(ctx context.Context, query PostsQuery) ([]*Post, int64, error) {
 	db := s.db.WithContext(ctx)
 
 	var (
 		posts []*Post
+		total int64
 		err   error
 	)
 
 	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
-		posts, err = dbGetPosts(ctx, tx, query)
+		posts, total, err = dbGetPosts(ctx, tx, query)
 		if err != nil {
 			return err
 		}
@@ -116,10 +117,10 @@ func (s *Service) GetPosts(ctx context.Context, query PostsQuery) ([]*Post, erro
 		return nil
 	})
 	if txErr != nil {
-		return nil, txErr
+		return nil, 0, txErr
 	}
 
-	return posts, nil
+	return posts, total, nil
 }
 
 func (s *Service) UpdatePost(ctx context.Context, post *Post, mutateRequest *PostBlockMutateRequest,

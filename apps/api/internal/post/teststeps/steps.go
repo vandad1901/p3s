@@ -76,7 +76,7 @@ func GetPostsStep(s *scenario.Scenario) func(context.Context, string, *godog.Tab
 		currentMap := s.SyncTableToMap(table)
 
 		for _, row := range currentMap {
-			actualPosts, err := s.A.PostService.GetPosts(ctx, post.PostsQuery{
+			actualPosts, _, err := s.A.PostService.GetPosts(ctx, post.PostsQuery{
 				AuthorID: godogutil.ResolveInt64(s.SharedData, row, "AuthorID"),
 
 				CreatedBefore: time.Now(),

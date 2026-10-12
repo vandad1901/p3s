@@ -108,34 +108,40 @@ func dbGetPostByID(ctx context.Context, db *gorm.DB, postID int64) (*Post, error
 	return res, nil
 }
 
-func dbGetPosts(ctx context.Context, db *gorm.DB, query PostsQuery) ([]*Post, error) {
+func dbGetPosts(ctx context.Context, db *gorm.DB, query PostsQuery) ([]*Post, int64, error) {
 	res := make([]*Post, 0)
 
 	currentUser, err := usercontext.CtxUserOrDefault(ctx)
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
 	q := db.Table("post").
 		Where("created_by = ? OR status = ?", currentUser, PostStatusPublished).
 		Where("created_at < ?", query.CreatedBefore).
-		Order("created_at DESC").
-		Offset(int(query.Offset))
+		Order("created_at DESC")
 
 	if query.AuthorID != 0 {
 		q = q.Where("created_by = ?", query.AuthorID)
+	}
+
+	var total int64
+
+	err = q.Count(&total).Error
+	if err != nil {
+		return nil, 0, err
 	}
 
 	if query.Limit > 0 {
 		q = q.Limit(int(query.Limit))
 	}
 
-	err = q.Find(&res).Error
+	err = q.Offset(int(query.Offset)).Find(&res).Error
 	if err != nil {
-		return nil, err
+		return nil, 0, err
 	}
 
-	return res, nil
+	return res, total, nil
 }
 
 func dbGetPostBlocks(_ context.Context, db *gorm.DB, postID int64) ([]*PostBlock, error) {

@@ -49,7 +49,7 @@ func (s *RPCServer) Get(ctx context.Context, req *postpb.GetRequest) (*postpb.Ge
 }
 
 func (s *RPCServer) GetPosts(ctx context.Context, req *postpb.GetPostsRequest) (*postpb.GetPostsResponse, error) {
-	posts, err := s.postService.GetPosts(ctx, post.PostsQuery{
+	posts, total, err := s.postService.GetPosts(ctx, post.PostsQuery{
 		AuthorID: req.GetAuthorId(),
 
 		Limit:         req.GetLimit(),
@@ -62,6 +62,7 @@ func (s *RPCServer) GetPosts(ctx context.Context, req *postpb.GetPostsRequest) (
 
 	return &postpb.GetPostsResponse{
 		Posts: mapToPostPBs(posts),
+		Total: total,
 	}, nil
 }
 
