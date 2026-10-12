@@ -153,6 +153,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
             ),
             a: ({ node, ...props }) => {
               const href = props.href || "";
+              if (href === "") return "INVALID URL";
               if ((href.startsWith("/") && !href.startsWith("//")) || href.startsWith("#")) {
                 return (
                   <Link
@@ -162,12 +163,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
                   />
                 );
               }
-              return (
-                <ExternalURLWarning
-                  url={href}
-                  text={String(props.children)}
-                />
-              );
+              return <ExternalURLWarning url={href}>{props.children}</ExternalURLWarning>;
             },
           }}
         >
@@ -192,7 +188,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
   }
 }
 
-function ExternalURLWarning({ url, text }: { url: string; text: string }) {
+function ExternalURLWarning({ url, children }: { url: string; children: ReactNode }) {
   const [open, setOpen] = useState(false);
   const [openInNewTab, setOpenInNewTab] = useState(false);
 
@@ -225,7 +221,7 @@ function ExternalURLWarning({ url, text }: { url: string; text: string }) {
           />
         }
       >
-        {text}
+        {children}
       </AlertDialogTrigger>
       <AlertDialogContent>
         <AlertDialogHeader>
