@@ -125,6 +125,7 @@ export function Viewer({ doc }: { doc: GetResponse }) {
 function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number }) {
   if (block.blockType === BlockType.BLOCK_TYPE_TEXT) {
     const textMeta: TextMetadata = JSON.parse(block.metadata || "{}");
+    const textClassName = textSizeItems.find((i) => i.value === textMeta.size)!.className;
 
     const processedText = block.text.replace(/^(#{1,6})(?=\s)/gm, "\\$1");
 
@@ -150,7 +151,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
                 dir="auto"
                 className={cn(
                   "w-full flex-1 resize-none overflow-hidden whitespace-pre-wrap outline-none",
-                  textSizeItems.find((i) => i.value === textMeta.size)?.className,
+                  textClassName,
                 )}
                 {...props}
               />
@@ -169,15 +170,15 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
               }
               return <ExternalURLWarning url={href}>{props.children}</ExternalURLWarning>;
             },
-            code: ({ ...props }: ComponentProps<"code">) => {
+            code: ({ node, ...props }) => {
               return (
                 <InlineCode
                   code={String(props.children!)}
-                  textSize={textMeta.size}
+                  textClass={textClassName}
                 />
               );
             },
-            pre: (props: ComponentProps<"pre">) => {
+            pre: ({ node, ...props }) => {
               const child = props.children;
 
               if (!isValidElement<ComponentProps<"code">>(child)) return null;
@@ -185,7 +186,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
               return (
                 <CodeBlock
                   code={String(child.props.children! ?? "")}
-                  textSize={textMeta.size}
+                  textClass={textClassName}
                 />
               );
             },
@@ -199,14 +200,12 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
 
   if (block.blockType === BlockType.BLOCK_TYPE_MEDIA) {
     const imageMeta: ImageMetadata = JSON.parse(block.metadata || "{}");
+    const imageClassName = imageSizeItems.find((i) => i.value === imageMeta.size)?.className;
 
     return (
       <img
         srcSet={getSrcSet(block.mediaInfo)}
-        className={cn(
-          "w-full rounded-md object-contain",
-          imageSizeItems.find((i) => i.value === imageMeta.size)?.className,
-        )}
+        className={cn("w-full rounded-md object-contain", imageClassName)}
       />
     );
   }
@@ -272,30 +271,16 @@ function ExternalURLWarning({ url, children }: { url: string; children: ReactNod
   );
 }
 
-function InlineCode({ code, textSize }: { code: string; textSize: TextMetadata["size"] }) {
+function InlineCode({ code, textClass }: { code: string; textClass: string }) {
   return (
-    <code
-      className={cn(
-        "bg-muted text-muted-foreground rounded-md px-1",
-        textSizeItems.find((i) => i.value === textSize)?.className,
-      )}
-    >
-      {code}
-    </code>
+    <code className={cn("bg-muted text-muted-foreground rounded-md px-1", textClass)}>{code}</code>
   );
 }
 
-function CodeBlock({ code, textSize }: { code: string; textSize: TextMetadata["size"] }) {
+function CodeBlock({ code, textClass }: { code: string; textClass: string }) {
   return (
     <pre className="bg-muted my-2 w-full overflow-x-auto rounded-md p-4">
-      <code
-        className={cn(
-          "text-muted-foreground text-sm",
-          textSizeItems.find((i) => i.value === textSize)?.className,
-        )}
-      >
-        {code}
-      </code>
+      <code className={cn("text-muted-foreground text-sm", textClass)}>{code}</code>
     </pre>
   );
 }
