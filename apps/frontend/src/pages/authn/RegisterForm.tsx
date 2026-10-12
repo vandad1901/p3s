@@ -24,6 +24,7 @@ const formSchema = z
   .object({
     email: z.string().email("Please enter a valid email address."),
     username: z.string().min(5, "Username must be at least 5 characters."),
+    displayName: z.string().min(3, "Display name must be at least 3 characters."),
     password: z.string().min(12, "Password must be at least 12 characters."),
     passwordConfirm: z.string(),
   })
@@ -45,6 +46,7 @@ export function RegisterForm() {
     defaultValues: {
       email: "",
       username: "",
+      displayName: "",
       password: "",
       passwordConfirm: "",
     },
@@ -58,6 +60,7 @@ export function RegisterForm() {
         user: {
           email: value.email,
           username: value.username,
+          displayName: value.displayName,
           id: "0",
         },
         password: value.password,
@@ -165,6 +168,33 @@ export function RegisterForm() {
                         }
                       />
                     )}
+                  </Field>
+                );
+              }}
+            />
+            <form.Field
+              name="displayName"
+              children={(field) => {
+                const isInvalid = !field.state.meta.isValid || !!serverErrors.username;
+                return (
+                  <Field data-invalid={isInvalid}>
+                    <FieldLabel
+                      htmlFor={field.name}
+                      required
+                    >
+                      Display Name
+                    </FieldLabel>
+                    <Input
+                      required
+                      id={field.name}
+                      name={field.name}
+                      value={field.state.value}
+                      onBlur={field.handleBlur}
+                      onChange={(e) => field.handleChange(e.target.value)}
+                      aria-invalid={isInvalid}
+                      autoComplete="off"
+                    />
+                    {isInvalid && <FieldError errors={field.state.meta.errors} />}
                   </Field>
                 );
               }}
