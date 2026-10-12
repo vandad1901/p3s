@@ -129,13 +129,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     const processedText = block.text.replace(/^(#{1,6})(?=\s)/gm, "\\$1");
 
     return (
-      <p
-        dir="auto"
-        className={cn(
-          "w-full flex-1 resize-none overflow-hidden whitespace-pre-wrap outline-none",
-          textSizeItems.find((i) => i.value === textMeta.size)?.className,
-        )}
-      >
+      <div>
         <Markdown
           allowedElements={["p", "strong", "em", "a", "br"]}
           unwrapDisallowed
@@ -145,7 +139,18 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
             if (url.startsWith("/")) return url;
             return "";
           }}
+
           components={{
+            p: ({ ...props }) => (
+              <p
+                dir="auto"
+                className={cn(
+                  "w-full flex-1 resize-none overflow-hidden whitespace-pre-wrap outline-none",
+                  textSizeItems.find((i) => i.value === textMeta.size)?.className,
+                )}
+                {...props}
+              />
+            ),
             a: ({ node, ...props }) => {
               const href = props.href || "";
               if ((href.startsWith("/") && !href.startsWith("//")) || href.startsWith("#")) {
@@ -168,7 +173,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
         >
           {processedText}
         </Markdown>
-      </p>
+      </div>
     );
   }
 
