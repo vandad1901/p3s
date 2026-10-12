@@ -11,5 +11,41 @@ export const protobufPackage = "auth.userpb.v1";
 export interface User {
   id: string;
   username: string;
+  displayName: string;
   email: string;
+}
+
+export interface GetUserRequest {
+  id: string;
+}
+
+export interface GetUserResponse {
+  user: User | undefined;
+}
+
+export interface GetUsersRequest {
+  userIds: string[];
+}
+
+export interface UserGetResponse {
+  id: string;
+  displayName: string;
+}
+
+export interface GetUsersResponse {
+  users: UserGetResponse[];
+}
+
+export interface UpdateUserRequest {
+  id: string;
+  displayName: string;
+}
+
+export interface UpdateUserResponse {
+}
+
+export interface UserService {
+  GetUser(request: GetUserRequest): Promise<GetUserResponse>;
+  GetUsers(request: GetUsersRequest): Promise<GetUsersResponse>;
+  UpdateUser(request: UpdateUserRequest): Promise<UpdateUserResponse>;
 }
