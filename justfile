@@ -19,6 +19,8 @@ set shell := ["sh", "-cu"]
         -f ./infra/compose/docker-compose.prod.yml \
         --env-file .env.production down
 
+@full-prod: prod-down prod frontend::deploy
+
 @generate-secrets-prod:
     sudo mkdir -p /etc/p3s
     sudo openssl genpkey \

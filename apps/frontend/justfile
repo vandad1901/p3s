@@ -10,6 +10,8 @@ BLUE := '\033[0;34m'
 NORMAL := '\033[0m'
 
 @deploy:
+    echo "{{ BLUE }}Pulling dependencies...{{ NORMAL }}"
+    bun ci
     echo "{{ BLUE }}Deploying frontend...{{ NORMAL }}"
     bun run build
     sudo rm -rf /var/www/p3s
