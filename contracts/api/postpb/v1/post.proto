@@ -107,6 +107,7 @@ message GetPostsRequest {
 
 message GetPostsResponse {
   repeated Post posts = 1;
+  int64         total = 2;
 }
 
 message PostBlockUpdateRequest {

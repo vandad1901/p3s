@@ -577,6 +577,7 @@ func (x *GetPostsRequest) GetCreatedBefore() *timestamppb.Timestamp {
 type GetPostsResponse struct {
 	state         protoimpl.MessageState `protogen:"open.v1"`
 	Posts         []*Post                `protobuf:"bytes,1,rep,name=posts,proto3" json:"posts,omitempty"`
+	Total         int64                  `protobuf:"varint,2,opt,name=total,proto3" json:"total,omitempty"`
 	unknownFields protoimpl.UnknownFields
 	sizeCache     protoimpl.SizeCache
 }
@@ -616,6 +617,13 @@ func (x *GetPostsResponse) GetPosts() []*Post {
 		return x.Posts
 	}
 	return nil
+}
+
+func (x *GetPostsResponse) GetTotal() int64 {
+	if x != nil {
+		return x.Total
+	}
+	return 0
 }
 
 type PostBlockUpdateRequest struct {
@@ -908,9 +916,10 @@ const file_api_postpb_v1_post_proto_rawDesc = "" +
 	"\tauthor_id\x18\x02 \x01(\x03R\bauthorId\x12\x14\n" +
 	"\x05limit\x18\x03 \x01(\x05R\x05limit\x12\x16\n" +
 	"\x06offset\x18\x04 \x01(\x05R\x06offset\x12A\n" +
-	"\x0ecreated_before\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rcreatedBefore\"=\n" +
+	"\x0ecreated_before\x18\x05 \x01(\v2\x1a.google.protobuf.TimestampR\rcreatedBefore\"S\n" +
 	"\x10GetPostsResponse\x12)\n" +
-	"\x05posts\x18\x01 \x03(\v2\x13.api.postpb.v1.PostR\x05posts\"\x9c\x01\n" +
+	"\x05posts\x18\x01 \x03(\v2\x13.api.postpb.v1.PostR\x05posts\x12\x14\n" +
+	"\x05total\x18\x02 \x01(\x03R\x05total\"\x9c\x01\n" +
 	"\x16PostBlockUpdateRequest\x124\n" +
 	"\binserted\x18\x01 \x03(\v2\x18.api.postpb.v1.PostBlockR\binserted\x122\n" +
 	"\aupdated\x18\x02 \x03(\v2\x18.api.postpb.v1.PostBlockR\aupdated\x12\x18\n" +

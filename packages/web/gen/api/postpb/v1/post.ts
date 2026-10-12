@@ -89,6 +89,7 @@ export interface GetPostsRequest {
 
 export interface GetPostsResponse {
   posts: Post[];
+  total: string;
 }
 
 export interface PostBlockUpdateRequest {
