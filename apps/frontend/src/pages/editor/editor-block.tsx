@@ -62,7 +62,7 @@ export function SortableBlock({
           {...attributes}
           {...listeners}
           className={cn(
-            "text-muted-foreground/50 cursor-grab self-start",
+            "text-muted-foreground/50 cursor-grab touch-none self-start p-1 select-none",
             isDragging && "outline-none",
           )}
         >
@@ -85,6 +85,7 @@ export function SortableBlock({
                 text: e.target.value,
               })
             }
+            onFocus={() => setFocusedId(block.id)}
             onKeyDown={(e) => onTextKeyDown(e, index)}
           ></textarea>
         )}
@@ -95,7 +96,7 @@ export function SortableBlock({
           />
         )}
         <Button
-          className="hover:text-destructive text-destructive/80 self-start bg-transparent opacity-0 group-hover:opacity-50 hover:bg-transparent"
+          className="hover:text-destructive text-destructive/80 self-start bg-transparent opacity-50 group-hover:opacity-50 hover:bg-transparent focus:opacity-50 pointer-fine:opacity-0 pointer-fine:group-hover:opacity-50"
           variant={"destructive"}
           onClick={() => {
             dispatch({ type: "remove", id: block.id });
@@ -162,7 +163,7 @@ type AddBlockButtonsProps = {
 
 export function AddBlockButtons({ onTextAdd, onImageAdd }: AddBlockButtonsProps) {
   return (
-    <div className="flex w-full flex-row justify-center gap-4 opacity-0 focus-within:opacity-50 hover:opacity-50">
+    <div className="flex w-full flex-row justify-center gap-4 opacity-50 focus-within:opacity-50 hover:opacity-50 pointer-fine:opacity-0">
       <Button
         variant="ghost"
         size="sm"
