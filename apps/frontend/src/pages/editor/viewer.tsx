@@ -25,6 +25,8 @@ export function Viewer({ doc }: { doc: GetResponse }) {
   const [error, setError] = useState<string | null>(null);
   const navigate = useNavigate();
 
+  const [deleteDialogueOpen, setDeleteDialogueOpen] = useState(false);
+
   return (
     <div className="mx-auto flex w-full max-w-2xl flex-col items-center pb-12">
       <div className="bg-background sticky top-0 z-5 flex w-full flex-col gap-2 border-b px-2 pt-6 pb-3 md:px-0">
@@ -44,7 +46,10 @@ export function Viewer({ doc }: { doc: GetResponse }) {
               >
                 Edit
               </Link>
-              <AlertDialog>
+              <AlertDialog
+                open={deleteDialogueOpen}
+                onOpenChange={setDeleteDialogueOpen}
+              >
                 <AlertDialogTrigger render={<Button variant="destructive" />}>
                   Delete
                 </AlertDialogTrigger>
@@ -57,9 +62,10 @@ export function Viewer({ doc }: { doc: GetResponse }) {
                   </AlertDialogHeader>
                   <AlertDialogFooter>
                     <AlertDialogCancel>Cancel</AlertDialogCancel>
-                    <AlertDialogCancel
+                    <AlertDialogAction
                       variant="destructive"
                       onClick={async () => {
+                        setDeleteDialogueOpen(false);
                         try {
                           const res = await postService.Delete({
                             id: doc.post!.id!,
@@ -86,7 +92,7 @@ export function Viewer({ doc }: { doc: GetResponse }) {
                       }}
                     >
                       Delete
-                    </AlertDialogCancel>
+                    </AlertDialogAction>
                   </AlertDialogFooter>
                 </AlertDialogContent>
               </AlertDialog>
