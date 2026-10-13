@@ -31,7 +31,7 @@ function PostLoader({ editMode }: { editMode: boolean }) {
       .catch(() => setResult({ error: "Couldn't reach the server." }));
   }, [slug]);
 
-  if ((!slug && !editMode) || (editMode && !user))
+  if ((!slug && !editMode) || (editMode && !user?.authenticated))
     return (
       <Navigate
         to="/"

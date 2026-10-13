@@ -8,7 +8,7 @@ const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION ===
 export default function Authentication({ mode }: { mode: "login" | "register" }) {
   const { user } = useAuth();
 
-  if (user !== null) {
+  if (user?.authenticated === true) {
     return <Navigate to="/"></Navigate>;
   }
 

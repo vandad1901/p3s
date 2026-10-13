@@ -91,15 +91,6 @@ export default function Editor({ remoteResponse }: { remoteResponse?: EnrichedGe
   const navigate = useNavigate();
   const { user } = useAuth();
 
-  if (remoteResponse && remoteResponse.post?.createdBy !== user?.userId) {
-    return (
-      <Navigate
-        to="/"
-        replace
-      />
-    );
-  }
-
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     past: [],
     future: [],
@@ -337,6 +328,19 @@ export default function Editor({ remoteResponse }: { remoteResponse?: EnrichedGe
     const to = doc.blocks.findIndex((b) => b.id === over.id);
     if (from === -1 || to === -1) return;
     dispatch({ type: "move", from, to });
+  }
+
+  if (
+    user &&
+    (user.authenticated !== true ||
+      (remoteResponse && remoteResponse.post?.createdBy !== user?.userId))
+  ) {
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    );
   }
 
   return (

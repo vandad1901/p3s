@@ -82,6 +82,7 @@ export function RegisterForm() {
       }
 
       setUserFromAuth({
+        authenticated: true,
         sessionId: res.session?.sessionId.toString() ?? "",
         name: value.username,
 

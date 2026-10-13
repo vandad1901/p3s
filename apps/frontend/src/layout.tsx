@@ -9,12 +9,12 @@ const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION ===
 const YEAR = new Date().getFullYear();
 
 export function Layout() {
-  const { user, setUserFromAuth } = useAuth();
+  const { user, logoutFromAuth } = useAuth();
   const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
 
   function logout() {
-    setUserFromAuth(null);
+    logoutFromAuth();
     navigate("/");
   }
 
@@ -32,7 +32,7 @@ export function Layout() {
             p3s
           </Link>
 
-          {user ? (
+          {user?.authenticated ? (
             <>
               <NavLink
                 to="/editor"
@@ -66,7 +66,7 @@ export function Layout() {
                 </Button>
               </div>
             </>
-          ) : (
+          ) : user ? (
             <>
               <Link
                 to="/login"
@@ -83,7 +83,7 @@ export function Layout() {
                 </Link>
               )}
             </>
-          )}
+          ) : null}
           {theme === "dark" ? (
             <Button
               variant="ghost"

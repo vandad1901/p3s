@@ -52,7 +52,7 @@ export function Viewer({ doc }: { doc: GetResponse }) {
           >
             {doc.post?.title}
           </h1>
-          {user && user.userId === doc.post?.createdBy && (
+          {user && user.authenticated && user.userId === doc.post?.createdBy && (
             <div className="flex items-center gap-2">
               <Link
                 to={`/editor/${doc.post?.slug}`}
@@ -317,6 +317,7 @@ function ExternalURLWarning({ url, children }: { url: string; children: ReactNod
             }}
           />
         }
+        nativeButton={false}
       >
         {children}
       </AlertDialogTrigger>

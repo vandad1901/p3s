@@ -1,10 +1,10 @@
 import { authnService } from "@/api/authn.service";
 import { setAccessToken } from "@/api/client";
 import { jwtDecode } from "jwt-decode";
-import { Loader2 } from "lucide-react";
 import { createContext, useContext, useEffect, useRef, useState, type ReactNode } from "react";
 
-type UIUser = {
+type AuthenticatedUser = {
+  authenticated: true;
   userId: string;
   sessionId: string;
   name: string;
@@ -12,36 +12,36 @@ type UIUser = {
   jwt: string;
 };
 
+type UIUser =
+  | AuthenticatedUser
+  | {
+      authenticated: false;
+    };
+
 type AuthContextValue = {
-  user: UIUser | null;
-  setUserFromAuth: (user: Omit<UIUser, "userId"> | null) => void;
+  user: UIUser | null; // null means we haven't checked yet
+  setUserFromAuth: (user: Omit<AuthenticatedUser, "userId"> | { authenticated: false }) => void;
+  logoutFromAuth: () => void;
 };
 
 export const AuthContext = createContext<AuthContextValue | null>(null);
 
-async function refreshJWT(uiUser: Omit<UIUser, "jwt">): Promise<string> {
-  let res = await authnService.RefreshJWT({
-    userId: uiUser.userId,
-    sessionId: uiUser.sessionId,
-  });
-
-  if (!res.ok) {
-    console.error("Failed to refresh JWT", res.code, res.message);
-    throw new Error("Failed to refresh JWT");
-  }
-
-  return res.jwt;
-}
-
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<UIUser | null>(null);
-  const [loading, setLoading] = useState<boolean>(true);
   const userRef = useRef<UIUser | null>(null);
 
-  const setUserFromAuth = (authUser: Omit<UIUser, "userId"> | null) => {
-    if (!authUser) {
-      userRef.current = null;
-      setUser(null);
+  const updateUser = (newUser: UIUser | null) => {
+    userRef.current = newUser;
+    setUser(newUser);
+  };
+
+  const setUserFromAuth = (
+    authUser: Omit<AuthenticatedUser, "userId"> | { authenticated: false },
+  ) => {
+    if (authUser.authenticated === false) {
+      updateUser({
+        authenticated: false,
+      });
       setAccessToken(null);
       localStorage.removeItem("user");
       return;
@@ -54,19 +54,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       ...authUser,
     };
 
-    userRef.current = user;
-    setUser(user);
+    updateUser(user);
     setAccessToken(user.jwt);
 
     const { jwt, ...userWithoutToken } = user;
     localStorage.setItem("user", JSON.stringify(userWithoutToken));
   };
 
-  const setUserFromRefresh = (user: Omit<UIUser, "jwt">, newJWT: string) => {
+  const setUserFromRefresh = (user: Omit<AuthenticatedUser, "jwt">, newJWT: string) => {
     const updatedUser = { ...user, jwt: newJWT };
 
-    userRef.current = updatedUser;
-    setUser(updatedUser);
+    updateUser(updatedUser);
     setAccessToken(newJWT);
   };
 
@@ -74,35 +72,44 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const storedUser = localStorage.getItem("user");
 
     if (storedUser) {
-      let user = JSON.parse(storedUser) as Omit<UIUser, "jwt">;
+      const user = JSON.parse(storedUser) as Omit<AuthenticatedUser, "jwt">;
 
-      refreshJWT(user)
-        .then((newJWT) => {
-          setUserFromRefresh(user, newJWT);
+      authnService
+        .RefreshJWT({
+          userId: user.userId,
+          sessionId: user.sessionId,
         })
-        .catch((error) => {
-          setUserFromAuth(null);
-          console.error("Failed to restore session", error);
-        })
-        .finally(() => {
-          setLoading(false);
+        .then((res) => {
+          if (!res.ok) {
+            setUserFromAuth({ authenticated: false });
+            return;
+          }
+
+          setUserFromRefresh(user, res.jwt);
         });
     } else {
-      setLoading(false);
+      setUserFromAuth({ authenticated: false });
     }
+  }, []);
 
+  useEffect(() => {
     const tokenRefresher = setInterval(
       async () => {
         const currentUser = userRef.current;
 
-        if (!currentUser) return;
+        if (!currentUser?.authenticated) return;
 
-        try {
-          const newJWT = await refreshJWT(currentUser);
-          setUserFromRefresh(currentUser, newJWT);
-        } catch (error) {
-          console.error("Failed to refresh JWT", error);
+        const res = await authnService.RefreshJWT({
+          userId: currentUser.userId,
+          sessionId: currentUser.sessionId,
+        });
+
+        if (!res.ok) {
+          setUserFromAuth({ authenticated: false });
+          return;
         }
+
+        setUserFromRefresh(currentUser, res.jwt);
       },
       10 * 60 * 1000,
     );
@@ -112,16 +119,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     };
   }, []);
 
-  if (loading) {
-    return (
-      <div className="text-muted-foreground flex h-screen w-full flex-col items-center justify-center gap-4">
-        <Loader2 className="size-10 animate-spin" />
-        <p>Logging you in</p>
-      </div>
-    );
-  }
-
-  return <AuthContext.Provider value={{ user, setUserFromAuth }}>{children}</AuthContext.Provider>;
+  return (
+    <AuthContext.Provider
+      value={{
+        user,
+        setUserFromAuth,
+        logoutFromAuth: () => setUserFromAuth({ authenticated: false }),
+      }}
+    >
+      {children}
+    </AuthContext.Provider>
+  );
 }
 
 export function useAuth() {
