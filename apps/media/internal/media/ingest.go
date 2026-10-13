@@ -69,20 +69,9 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		return fmt.Errorf("closing media body: %w", err)
 	}
 
-	for _, derivative := range derivatives {
-		_, err = derivative.file.Seek(0, io.SeekStart)
-		if err != nil {
-			return fmt.Errorf("seeking derivative file: %w", err)
-		}
-
-		_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
-			Bucket: aws.String(s3Bucket),
-			Key:    aws.String(fmt.Sprintf("%s.%d.%s", key, derivative.width, derivative.Extension)),
-			Body:   derivative.file,
-		})
-		if err != nil {
-			return fmt.Errorf("putting derivative to S3: %w", err)
-		}
+	err = s.replaceOriginalWithDerivatives(ctx, key, derivatives)
+	if err != nil {
+		return err
 	}
 
 	err = s.finalizeIngest(ctx, &Media{
@@ -95,6 +84,35 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 	}, derivatives)
 	if err != nil {
 		return fmt.Errorf("changing media status: %w", err)
+	}
+
+	return nil
+}
+
+func (s *Service) replaceOriginalWithDerivatives(ctx context.Context, key string, derivatives []*derivativeAsset,
+) error {
+	for _, derivative := range derivatives {
+		_, err := derivative.file.Seek(0, io.SeekStart)
+		if err != nil {
+			return fmt.Errorf("seeking derivative file: %w", err)
+		}
+
+		_, err = s.s3Client.PutObject(ctx, &s3.PutObjectInput{
+			Bucket: aws.String(s3Bucket),
+			Key:    aws.String(fmt.Sprintf("%s.%d.%s", key, derivative.width, derivative.Extension)),
+			Body:   derivative.file,
+		})
+		if err != nil {
+			return fmt.Errorf("putting derivative to S3: %w", err)
+		}
+
+		_, err = s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+			Bucket: aws.String(s3Bucket),
+			Key:    aws.String(key),
+		})
+		if err != nil {
+			return fmt.Errorf("deleting original media from S3: %w", err)
+		}
 	}
 
 	return nil
