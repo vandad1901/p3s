@@ -523,7 +523,7 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
         <DragOverlay modifiers={[restrictToVerticalAxis]}>
           {activeBlock ? (
             <div className="bg-background flex w-full rounded-md p-1 opacity-90 shadow-xl">
-              <GripVertical className="text-muted-foreground/50 size-5 shrink-0" />
+              <GripVertical className="text-muted-foreground/50 m-1 size-5 shrink-0" />
               {activeBlock.blockType === BlockType.BLOCK_TYPE_TEXT ? (
                 <textarea
                   readOnly
@@ -536,14 +536,16 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
                   value={activeBlock.text}
                 ></textarea>
               ) : (
-                <img
-                  src={activeBlock.src}
-                  srcSet={activeBlock.srcSet}
-                  className={cn(
-                    "max-w-full min-w-0 flex-1 rounded-md object-contain pr-8",
-                    imageSizeItems.find((i) => i.value === activeBlock.metadata.size)?.className,
-                  )}
-                />
+                <div className="flex w-full justify-center">
+                  <img
+                    src={activeBlock.src}
+                    srcSet={activeBlock.srcSet}
+                    className={cn(
+                      "mr-8 rounded-md object-contain",
+                      imageSizeItems.find((i) => i.value === activeBlock.metadata.size)?.className,
+                    )}
+                  />
+                </div>
               )}
             </div>
           ) : null}

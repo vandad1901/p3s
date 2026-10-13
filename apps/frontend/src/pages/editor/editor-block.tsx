@@ -124,14 +124,16 @@ type MediaViewProps = {
 function MediaView({ block, onRetry }: MediaViewProps) {
   return (
     <div className="relative w-full overflow-hidden">
-      <img
-        src={block.src}
-        srcSet={block.srcSet}
-        className={cn(
-          "w-full rounded-md object-contain",
-          imageSizeItems.find((i) => i.value === block.metadata.size)?.className,
-        )}
-      />
+      <div className="flex w-full justify-center">
+        <img
+          src={block.src}
+          srcSet={block.srcSet}
+          className={cn(
+            "rounded-md object-contain",
+            imageSizeItems.find((i) => i.value === block.metadata.size)?.className,
+          )}
+        />
+      </div>
       {block.status === "uploading" && (
         <div className="absolute inset-0 grid place-items-center">
           <Loader2

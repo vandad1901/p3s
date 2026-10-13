@@ -271,10 +271,12 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     const imageClassName = imageSizeItems.find((i) => i.value === imageMeta.size)?.className;
 
     return (
-      <img
-        srcSet={getSrcSet(block.mediaInfo)}
-        className={cn("w-full rounded-md object-contain", imageClassName)}
-      />
+      <div className="flex w-full justify-center">
+        <img
+          srcSet={getSrcSet(block.mediaInfo)}
+          className={cn("rounded-md object-contain", imageClassName)}
+        />
+      </div>
     );
   }
 }
