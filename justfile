@@ -12,14 +12,19 @@ set shell := ["sh", "-cu"]
 @prod:
     docker compose \
         -f ./infra/compose/docker-compose.prod.yml \
-        --env-file .env.production up -d --build --remove-orphans --wait
+        --env-file .env.production up -d --remove-orphans --wait
+
+@prod-build:
+    docker compose \
+        -f ./infra/compose/docker-compose.prod.yml \
+        --env-file .env.production build
 
 @prod-down:
     docker compose \
         -f ./infra/compose/docker-compose.prod.yml \
         --env-file .env.production down
 
-@full-prod: prod-down prod frontend::deploy
+@full-prod: prod-build prod-down prod frontend::deploy
 
 @generate-secrets-prod:
     sudo mkdir -p /etc/p3s
