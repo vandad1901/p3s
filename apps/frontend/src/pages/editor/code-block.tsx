@@ -7,11 +7,14 @@ export default function CodeBlock({ code, language }: { code: string; language: 
   const { theme } = useTheme();
   const lang = language && language.toLowerCase();
 
-  console.log("CodeBlock", { code, language, lang, theme });
+  const style = theme === "dark" ? oneDark : oneLight;
+
   return (
     <SyntaxHighlighter
       language={lang}
-      style={theme === "dark" ? oneDark : oneLight}
+      style={style}
+      customStyle={{ borderRadius: "0 0.3rem 0.3rem 0.3rem" }}
+      showLineNumbers={true}
     >
       {code}
     </SyntaxHighlighter>

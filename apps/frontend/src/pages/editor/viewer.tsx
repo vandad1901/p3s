@@ -206,21 +206,29 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
               const code = String(child.props.children! ?? "").replace(/\n$/, "");
 
               return (
-                <Suspense
-                  fallback={
-                    <pre
-                      className="my-2 overflow-x-auto rounded-[0.3em] p-4"
-                      style={{ backgroundColor: theme === "dark" ? "#282c34" : "#fafafa" }}
-                    >
-                      <code>{code}</code>
-                    </pre>
-                  }
-                >
-                  <CodeBlock
-                    code={code}
-                    language={language ?? ""}
-                  />
-                </Suspense>
+                <div>
+                  <div
+                    className="text-muted-foreground mt-3 -mb-2 w-fit rounded-t-[0.3rem] px-4 pt-1 text-sm"
+                    style={{ backgroundColor: theme === "dark" ? "#282c34" : "#fafafa" }}
+                  >
+                    {language}
+                  </div>
+                  <Suspense
+                    fallback={
+                      <pre
+                        className="my-2 overflow-x-auto rounded-[0.3em] rounded-tl-none p-4 ps-10"
+                        style={{ backgroundColor: theme === "dark" ? "#282c34" : "#fafafa" }}
+                      >
+                        <code>{code}</code>
+                      </pre>
+                    }
+                  >
+                    <CodeBlock
+                      code={code}
+                      language={language ?? ""}
+                    />
+                  </Suspense>
+                </div>
               );
             },
             ul: ({ node, ...props }) => (
