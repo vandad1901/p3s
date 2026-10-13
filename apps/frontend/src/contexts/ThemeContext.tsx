@@ -18,11 +18,17 @@ export function ThemeProvider({ children }: { children: React.ReactNode }) {
     document.documentElement.classList.toggle("dark", theme === "dark");
   }, [theme]);
 
+  const toggleTheme = () => {
+    const newTheme = theme === "dark" ? "light" : "dark";
+    localStorage.setItem("theme", newTheme);
+    setTheme(newTheme);
+  };
+
   return (
     <ThemeContext.Provider
       value={{
         theme,
-        toggleTheme: () => setTheme((current) => (current === "dark" ? "light" : "dark")),
+        toggleTheme: toggleTheme,
       }}
     >
       {children}
