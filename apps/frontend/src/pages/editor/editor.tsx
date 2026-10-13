@@ -10,6 +10,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { useAuth } from "@/contexts/AuthContext";
 import { Input } from "@base-ui/react/input";
 import {
   DndContext,
@@ -39,7 +40,7 @@ import {
   type ClipboardEvent,
   type KeyboardEvent,
 } from "react";
-import { useNavigate } from "react-router-dom";
+import { Navigate, useNavigate } from "react-router-dom";
 import { AddBlockButtons, SortableBlock } from "./editor-block";
 import {
   mapRemoteToDoc,
@@ -88,6 +89,16 @@ function focusBlock(root: HTMLElement | null, id: string) {
 
 export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetResponse }) {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  if (remoteResponse && remoteResponse.post?.createdBy !== user?.userId) {
+    return (
+      <Navigate
+        to="/"
+        replace
+      />
+    );
+  }
 
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     past: [],
