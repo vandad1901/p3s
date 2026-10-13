@@ -32,13 +32,21 @@ export async function api<T>(
     requestHeaders.set("Authorization", `${accessToken}`);
   }
 
-  const response = await fetch(`${API_URL}${path}`, {
-    ...fetchOptions,
-    headers: requestHeaders,
-  });
+  try {
+    const response = await fetch(`${API_URL}${path}`, {
+      ...fetchOptions,
+      headers: requestHeaders,
+    });
 
-  return {
-    ...(await response.json()),
-    ok: response.ok,
-  };
+    return {
+      ...(await response.json()),
+      ok: response.ok,
+    };
+  } catch (error) {
+    return {
+      ok: false,
+      code: 500,
+      message: "Network error",
+    };
+  }
 }
