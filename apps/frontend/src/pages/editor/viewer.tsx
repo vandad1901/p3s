@@ -167,11 +167,11 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
           }}
 
           components={{
-            p: ({ ...props }) => (
+            p: ({ node, ...props }) => (
               <p
                 dir="auto"
                 className={cn(
-                  "w-full flex-1 resize-none overflow-hidden whitespace-pre-wrap outline-none",
+                  "w-full flex-1 resize-none overflow-hidden text-start whitespace-pre-wrap outline-none",
                   textClassName,
                 )}
                 {...props}
@@ -227,7 +227,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
               <ul
                 dir="auto"
                 className={cn(
-                  "flex list-inside list-disc flex-col py-1 whitespace-pre-wrap",
+                  "flex list-inside list-disc flex-col py-2 whitespace-pre-wrap",
                   textClassName,
                 )}
                 {...props}
@@ -237,7 +237,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
               <ol
                 dir="auto"
                 className={cn(
-                  "flex list-inside list-decimal flex-col py-1 whitespace-pre-wrap",
+                  "flex list-inside list-decimal flex-col py-2 whitespace-pre-wrap",
                   textClassName,
                 )}
                 {...props}
@@ -246,7 +246,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
             li: ({ node, ...props }) => (
               <li
                 dir="auto"
-                className={cn("resize-none whitespace-pre-wrap", textClassName)}
+                className={cn("resize-none text-start whitespace-pre-wrap", textClassName)}
                 {...props}
               />
             ),
