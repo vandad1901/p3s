@@ -25,6 +25,7 @@ import {
 } from "react";
 import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
+import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
 import { getSrcSet, type EnrichedPostBlock } from "./mapper";
 import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
 
@@ -132,6 +133,14 @@ export function Viewer({ doc }: { doc: GetResponse }) {
   );
 }
 
+const schema = {
+  ...defaultSchema,
+  attributes: {
+    ...defaultSchema.attributes,
+    code: [...(defaultSchema.attributes?.code || []), ["className", "math-inline", "math-display"]],
+  },
+};
+
 function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number }) {
   const { theme } = useTheme();
   if (block.blockType === BlockType.BLOCK_TYPE_TEXT) {
@@ -143,6 +152,7 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     return (
       <div>
         <Markdown
+          rehypePlugins={[[rehypeSanitize, schema]]}
           allowedElements={
             textMeta.size === "p"
               ? ["p", "strong", "em", "a", "br", "code", "pre", "ul", "ol", "li"]
