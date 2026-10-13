@@ -15,6 +15,7 @@ import { useAuth } from "@/contexts/AuthContext";
 import { useTheme } from "@/contexts/ThemeContext";
 import { BlockType, type GetResponse } from "@gen/api/postpb/v1/post";
 import { cn } from "cn";
+import "katex/dist/katex.min.css";
 import {
   isValidElement,
   lazy,
@@ -25,7 +26,9 @@ import {
 } from "react";
 import Markdown from "react-markdown";
 import { Link, useNavigate } from "react-router-dom";
+import rehypeKatex from "rehype-katex";
 import rehypeSanitize, { defaultSchema } from "rehype-sanitize";
+import remarkMath from "remark-math";
 import { getSrcSet, type EnrichedPostBlock } from "./mapper";
 import { imageSizeItems, textSizeItems, type ImageMetadata, type TextMetadata } from "./model";
 
@@ -152,12 +155,9 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     return (
       <div>
         <Markdown
-          rehypePlugins={[[rehypeSanitize, schema]]}
-          allowedElements={
-            textMeta.size === "p"
-              ? ["p", "strong", "em", "a", "br", "code", "pre", "ul", "ol", "li"]
-              : ["p", "strong", "em", "a", "br", "code"]
-          }
+          remarkPlugins={[remarkMath]}
+          rehypePlugins={[[rehypeSanitize, schema], rehypeKatex]}
+          disallowedElements={textMeta.size && ["h1", "h2", "h3", "h4", "h5", "h6"]}
           unwrapDisallowed
           urlTransform={(url) => {
             if (/^(https?:\/\/|mailto:)/i.test(url)) return url;
