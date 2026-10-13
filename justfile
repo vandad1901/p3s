@@ -33,14 +33,14 @@ set shell := ["sh", "-cu"]
     sudo chmod 700 /etc/p3s
 
     sed -i.bak \
-        -e "s|PG_ADMIN_PASSWORD=.*|PG_ADMIN_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
-        -e "s|AUTH_PG_PASSWORD=.*|AUTH_PG_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
-        -e "s|API_PG_PASSWORD=.*|API_PG_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
-        -e "s|RMQ_PASSWORD=.*|RMQ_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
-        -e "s|S3_ROOT_USERNAME=.*|S3_ROOT_USERNAME='$(openssl rand -base64 32 | tr -d "=+/")'|" \
-        -e "s|S3_ROOT_PASSWORD=.*|S3_ROOT_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
-        -e "s|PGADMIN_EMAIL=.*|PGADMIN_EMAIL=admin@admin.com|" \
-        -e "s|PGADMIN_PASSWORD=.*|PGADMIN_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^PG_ADMIN_PASSWORD=$|PG_ADMIN_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^AUTH_PG_PASSWORD=$|AUTH_PG_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^API_PG_PASSWORD=$|API_PG_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^RMQ_PASSWORD=$|RMQ_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^S3_ROOT_USERNAME=$|S3_ROOT_USERNAME='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^S3_ROOT_PASSWORD=$|S3_ROOT_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
+        -e "s|^PGADMIN_EMAIL=$|PGADMIN_EMAIL=admin@admin.com|" \
+        -e "s|^PGADMIN_PASSWORD=$|PGADMIN_PASSWORD='$(openssl rand -base64 32 | tr -d "=+/")'|" \
         .env.production
 
 @start: skip-prod
