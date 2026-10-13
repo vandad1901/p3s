@@ -92,6 +92,30 @@ services:
     pids_limit: 200
     logging: *logging
 
+  pg-backup:
+    image: prodrigestivill/postgres-backup-local:17@sha256:e803bd9eb4bfb42e9b3e74ba411227f3d55da292905800395659cc579b6641e8
+    restart: unless-stopped
+    user: postgres:postgres # Optional
+    networks: [ core ]
+    depends_on:
+      pg:
+        condition: service_healthy
+    volumes:
+      - ./backups:/backups
+    environment:
+      POSTGRES_HOST: pg
+      POSTGRES_DB: ${AUTH_PG_DATABASE:?set in .env.production},${API_PG_DATABASE:?set in .env.production}
+      POSTGRES_USER: ${PG_ADMIN_USER:?set in .env.production}
+      POSTGRES_PASSWORD: ${PG_ADMIN_PASSWORD:?set in .env.production}
+      SCHEDULE: "@daily"
+      BACKUP_KEEP_DAYS: 7
+      BACKUP_KEEP_WEEKS: 4
+      BACKUP_KEEP_MONTHS: 6
+    cap_drop: [ ALL ]
+    security_opt: [ no-new-privileges:true ]
+    mem_limit: 512m
+    pids_limit: 200
+
   rmq:
     image: rabbitmq:3.13@sha256:87178a0ee3e2f52980ba356d38646ed1056705ff2d5ff281f8965456eaa0c1e3
     restart: unless-stopped
