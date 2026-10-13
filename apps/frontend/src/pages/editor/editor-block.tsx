@@ -128,6 +128,8 @@ function MediaView({ block, onRetry }: MediaViewProps) {
         <img
           src={block.src}
           srcSet={block.srcSet}
+          width={block.width}
+          height={block.height}
           className={cn(
             "rounded-md object-contain",
             imageSizeItems.find((i) => i.value === block.metadata.size)?.className,

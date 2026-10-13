@@ -273,6 +273,8 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
     return (
       <div className="flex w-full justify-center">
         <img
+          height={block.mediaInfo?.height}
+          width={block.mediaInfo?.width}
           srcSet={getSrcSet(block.mediaInfo)}
           className={cn("rounded-md object-contain", imageClassName)}
         />

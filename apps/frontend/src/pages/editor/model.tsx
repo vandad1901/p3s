@@ -72,6 +72,8 @@ export type MediaBlock = {
   file?: File;
   src?: string;
   srcSet: string;
+  width?: number;
+  height?: number;
   status: "uploading" | "ready" | "error";
   error?: string;
   metadata: ImageMetadata;

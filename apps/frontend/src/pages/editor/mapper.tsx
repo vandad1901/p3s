@@ -51,6 +51,8 @@ export function mapRemoteToDoc(res: EnrichedGetResponse): Doc {
           blockType: b.blockType,
           src: undefined,
           srcSet,
+          width: b.mediaInfo?.width || 0,
+          height: b.mediaInfo?.height || 0,
           status: "ready",
           metadata: JSON.parse(b.metadata || "{}"),
         };
