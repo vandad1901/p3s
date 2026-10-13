@@ -148,7 +148,8 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
   const { theme } = useTheme();
   if (block.blockType === BlockType.BLOCK_TYPE_TEXT) {
     const textMeta: TextMetadata = JSON.parse(block.metadata || "{}");
-    const textClassName = textSizeItems.find((i) => i.value === textMeta.size)!.className;
+    const textClassName =
+      textSizeItems.find((i) => i.value === textMeta.size)?.className || "text-base";
 
     const processedText = block.text.replace(/^(#{1,6})(?=\s)/gm, "\\$1");
 
@@ -268,7 +269,8 @@ function PostBlockComponent({ block }: { block: EnrichedPostBlock; index: number
 
   if (block.blockType === BlockType.BLOCK_TYPE_MEDIA) {
     const imageMeta: ImageMetadata = JSON.parse(block.metadata || "{}");
-    const imageClassName = imageSizeItems.find((i) => i.value === imageMeta.size)?.className;
+    const imageClassName =
+      imageSizeItems.find((i) => i.value === imageMeta.size)?.className || "max-h-128";
 
     return (
       <div className="flex w-full justify-center">
