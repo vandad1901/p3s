@@ -2,11 +2,9 @@ import { Home } from "@/pages/home/home";
 import { Suspense, lazy } from "react";
 import { BrowserRouter, Route, Routes } from "react-router-dom";
 import { Layout } from "./layout";
-import { PostPage } from "./pages/editor/post";
 
-const Authentication = lazy(() =>
-  import("@/pages/authn/authn").then((m) => ({ default: m.Authentication })),
-);
+const Authentication = lazy(() => import("@/pages/authn/authn"));
+const PostPage = lazy(() => import("@/pages/editor/post"));
 
 function App() {
   return (

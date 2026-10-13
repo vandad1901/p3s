@@ -7,9 +7,9 @@ import { loadFullPost } from "./load";
 import type { EnrichedGetResponse } from "./mapper";
 import { Viewer } from "./viewer";
 
-const Editor = lazy(() => import("./editor").then((m) => ({ default: m.Editor })));
+const Editor = lazy(() => import("./editor"));
 
-export function PostPage(props: { editMode: boolean }) {
+export default function PostPage(props: { editMode: boolean }) {
   const { pathname } = useLocation();
   return (
     <PostLoader

@@ -5,7 +5,7 @@ import { RegisterForm } from "./RegisterForm";
 
 const RegistrationClosed: boolean = import.meta.env.VITE_CLOSED_REGISTRATION === "true";
 
-export function Authentication({ mode }: { mode: "login" | "register" }) {
+export default function Authentication({ mode }: { mode: "login" | "register" }) {
   const { user } = useAuth();
 
   if (user !== null) {

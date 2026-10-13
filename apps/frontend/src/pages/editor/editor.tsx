@@ -87,7 +87,7 @@ function focusBlock(root: HTMLElement | null, id: string) {
   elem?.setSelectionRange(elem.value.length, elem.value.length);
 }
 
-export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetResponse }) {
+export default function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetResponse }) {
   const navigate = useNavigate();
   const { user } = useAuth();
 
@@ -540,6 +540,8 @@ export function Editor({ remoteResponse }: { remoteResponse?: EnrichedGetRespons
                   <img
                     src={activeBlock.src}
                     srcSet={activeBlock.srcSet}
+                    width={activeBlock.width}
+                    height={activeBlock.height}
                     className={cn(
                       "mr-8 rounded-md object-contain",
                       imageSizeItems.find((i) => i.value === activeBlock.metadata.size)?.className,
