@@ -61,7 +61,7 @@ func (s *Service) Consume(ctx context.Context, challengeID int64, challengeType 
 			return err
 		}
 
-		if challenge.ExpiresAt.After(currentTime) {
+		if challenge.ExpiresAt.Before(currentTime) {
 			return errExpiredChallenge
 		}
 
