@@ -129,7 +129,7 @@ func dbReleaseLease(_ context.Context, db *gorm.DB,
 		"leased_at": time.Time{},
 	}
 
-	if retryable {
+	if !retryable {
 		newVals["ingest_status"] = MediaIngestStatusFailed
 	}
 

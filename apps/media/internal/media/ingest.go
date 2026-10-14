@@ -44,27 +44,32 @@ const (
 
 const s3Bucket = "p3s-upload-bucket"
 
-func (s *Service) HandleMedia(ctx context.Context, key string) error {
+func (s *Service) handleError(ctx context.Context, key string, leasedAt time.Time, err error) {
+	if err == nil {
+		return
+	}
+
+	const releaseTimeout = 2 * time.Second
+
+	releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), releaseTimeout)
+	defer cancel()
+
+	retryable := !errors.Is(err, ErrIngestFailed)
+
+	err = s.releaseLease(releaseCtx, key, leasedAt, retryable)
+	if err != nil {
+		s.logger.Error("releasing lease", "key", key, "error", err)
+	}
+}
+
+func (s *Service) HandleMedia(ctx context.Context, key string) (err error) {
 	leasedAt, err := s.takeLease(ctx, key)
 	if err != nil {
 		return fmt.Errorf("creating media: %w", err)
 	}
 
-	success := false
 	defer func() {
-		if !success {
-			const releaseTimeout = 2 * time.Second
-
-			releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), releaseTimeout)
-			defer cancel()
-
-			retryable := !errors.Is(err, ErrIngestFailed)
-
-			err := s.releaseLease(releaseCtx, key, leasedAt, retryable)
-			if err != nil {
-				s.logger.Error("releasing lease", "key", key, "error", err)
-			}
-		}
+		s.handleError(ctx, key, leasedAt, err)
 	}()
 
 	res, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
@@ -78,22 +83,15 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		_ = res.Body.Close()
 	}()
 
-	img, derivatives, err := IngestMedia(ctx, res.Body, *res.ContentLength)
+	img, derivatives, err := IngestMedia(ctx, res.Body, aws.ToInt64(res.ContentLength))
 	if err != nil {
 		return err
-	}
-
-	err = res.Body.Close()
-	if err != nil {
-		return fmt.Errorf("closing media body: %w", err)
 	}
 
 	err = s.replaceOriginalWithDerivatives(ctx, key, derivatives)
 	if err != nil {
 		return err
 	}
-
-	success = true
 
 	err = s.finalizeIngest(ctx, &Media{
 		MediaKey: key,
@@ -105,6 +103,14 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 	}, derivatives)
 	if err != nil {
 		return fmt.Errorf("changing media status: %w", err)
+	}
+
+	_, deleteErr := s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s3Bucket),
+		Key:    aws.String(key),
+	})
+	if deleteErr != nil { // only a best effort. No need to mark the ingest as failed.
+		s.logger.Warn("deleting original media; leaving orphan", "key", key, "error", deleteErr)
 	}
 
 	return nil
@@ -126,14 +132,6 @@ func (s *Service) replaceOriginalWithDerivatives(ctx context.Context, key string
 		if err != nil {
 			return fmt.Errorf("putting derivative to S3: %w", err)
 		}
-	}
-
-	_, err := s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
-		Bucket: aws.String(s3Bucket),
-		Key:    aws.String(key),
-	})
-	if err != nil {
-		return fmt.Errorf("deleting original media from S3: %w", err)
 	}
 
 	return nil
@@ -215,7 +213,7 @@ func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image,
 
 	cfg, format, err := image.DecodeConfig(tempFile)
 	if err != nil {
-		return nil, "", fmt.Errorf("decoding image config: %w", err)
+		return nil, "", fmt.Errorf("%w: decoding image config: %w", ErrIngestFailed, err)
 	}
 
 	err = validateImage(cfg, format)
@@ -230,7 +228,7 @@ func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image,
 
 	img, _, err := image.Decode(tempFile)
 	if err != nil {
-		return nil, "", fmt.Errorf("decoding image: %w", err)
+		return nil, "", fmt.Errorf("%w: decoding image: %w", ErrIngestFailed, err)
 	}
 
 	return img, format, nil
