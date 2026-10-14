@@ -1,6 +1,9 @@
 package media
 
-import "errors"
+import (
+	"errors"
+	"fmt"
+)
 
 var (
 	ErrAlreadyProcessing = errors.New("media.ingest.alreadyProcessing")
@@ -9,6 +12,6 @@ var (
 )
 
 var (
-	errInvalidDimension = errors.New("media.ingest.invalidDimension")
-	errInvalidFormat    = errors.New("media.ingest.invalidFormat")
+	errInvalidDimension = fmt.Errorf("%w: invalid dimensions", ErrIngestFailed)
+	errInvalidFormat    = fmt.Errorf("%w: invalid format", ErrIngestFailed)
 )
