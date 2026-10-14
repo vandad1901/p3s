@@ -147,14 +147,20 @@ func checkContext(ctx context.Context) error {
 
 func IngestMedia(ctx context.Context, file io.Reader, contentLength int64,
 ) (image.Image, []*derivativeAsset, error) {
-	tempFile, err := createTempFile(ctx, file, contentLength)
+	tempFile, err := os.CreateTemp("", "media-*")
 	if err != nil {
 		return nil, nil, fmt.Errorf("creating temp file: %w", err)
 	}
+
 	defer func() {
 		_ = tempFile.Close()
 		_ = os.Remove(tempFile.Name())
 	}()
+
+	err = downloadFromS3(ctx, tempFile, file, contentLength)
+	if err != nil {
+		return nil, nil, fmt.Errorf("downloading from S3: %w", err)
+	}
 
 	img, formatStr, err := parseAndValidateImage(ctx, tempFile)
 	if err != nil {
@@ -179,28 +185,18 @@ func IngestMedia(ctx context.Context, file io.Reader, contentLength int64,
 	return img, derivatives, nil
 }
 
-func createTempFile(ctx context.Context, file io.Reader, contentLength int64) (*os.File, error) {
+func downloadFromS3(ctx context.Context, tempFile *os.File, file io.Reader, contentLength int64) error {
 	err := checkContext(ctx)
 	if err != nil {
-		return nil, err
-	}
-
-	tempFile, err := os.CreateTemp("", "media-*")
-	if err != nil {
-		return nil, fmt.Errorf("creating temp file: %w", err)
+		return err
 	}
 
 	_, err = io.CopyN(tempFile, file, contentLength)
 	if err != nil {
-		return nil, fmt.Errorf("filling temp file: %w", err)
+		return fmt.Errorf("copying bytes to temp file: %w", err)
 	}
 
-	_, err = tempFile.Seek(0, io.SeekStart)
-	if err != nil {
-		return nil, fmt.Errorf("rewinding temp file: %w", err)
-	}
-
-	return tempFile, nil
+	return nil
 }
 
 func parseAndValidateImage(ctx context.Context, tempFile *os.File) (image.Image, string, error) {

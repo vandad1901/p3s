@@ -28,6 +28,7 @@ func NewService(s3ExternalEndpoint string, db *gorm.DB, s3Client *s3.Client,
 	}
 }
 
+// TODO: delete this service as GetMediaInfos does the same thing and is more complete
 func (s *Service) MediaIngested(ctx context.Context, keys []string) (int64, error) {
 	db := s.db.WithContext(ctx)
 
