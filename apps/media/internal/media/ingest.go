@@ -123,14 +123,14 @@ func (s *Service) replaceOriginalWithDerivatives(ctx context.Context, key string
 		if err != nil {
 			return fmt.Errorf("putting derivative to S3: %w", err)
 		}
+	}
 
-		_, err = s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
-			Bucket: aws.String(s3Bucket),
-			Key:    aws.String(key),
-		})
-		if err != nil {
-			return fmt.Errorf("deleting original media from S3: %w", err)
-		}
+	_, err := s.s3Client.DeleteObject(ctx, &s3.DeleteObjectInput{
+		Bucket: aws.String(s3Bucket),
+		Key:    aws.String(key),
+	})
+	if err != nil {
+		return fmt.Errorf("deleting original media from S3: %w", err)
 	}
 
 	return nil
