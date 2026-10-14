@@ -106,7 +106,7 @@ func (s *Service) takeLease(ctx context.Context, key string) (time.Time, error) 
 	return res, nil
 }
 
-func (s *Service) releaseLease(ctx context.Context, key string, leasedAt time.Time) error {
+func (s *Service) releaseLease(ctx context.Context, key string, leasedAt time.Time, retryable bool) error {
 	db := s.db.WithContext(ctx)
 
 	var (
@@ -114,7 +114,7 @@ func (s *Service) releaseLease(ctx context.Context, key string, leasedAt time.Ti
 	)
 
 	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
-		err = dbReleaseLease(ctx, tx, key, leasedAt)
+		err = dbReleaseLease(ctx, tx, key, leasedAt, retryable)
 		if err != nil {
 			return err
 		}

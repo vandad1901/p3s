@@ -124,11 +124,19 @@ func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, er
 }
 
 func dbReleaseLease(_ context.Context, db *gorm.DB,
-	mediaKey string, leasedAt time.Time) error {
+	mediaKey string, leasedAt time.Time, retryable bool) error {
+	newVals := map[string]any{
+		"leased_at": time.Time{},
+	}
+
+	if retryable {
+		newVals["ingest_status"] = MediaIngestStatusFailed
+	}
+
 	result := db.Model(&Media{}).
 		Where("media_key = ?", mediaKey).
 		Where("leased_at = ?", leasedAt).
-		Update("leased_at", time.Time{})
+		Updates(newVals)
 	if result.Error != nil {
 		return result.Error
 	}

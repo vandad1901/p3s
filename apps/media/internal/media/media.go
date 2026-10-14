@@ -11,6 +11,7 @@ const (
 	MediaIngestStatusUnspecified = iota
 	MediaIngestStatusIngesting
 	MediaIngestStatusIngested
+	MediaIngestStatusFailed
 )
 
 type Media struct {

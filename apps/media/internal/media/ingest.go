@@ -3,6 +3,7 @@ package media
 import (
 	"bytes"
 	"context"
+	"errors"
 	"fmt"
 	"image"
 	"io"
@@ -49,15 +50,17 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		return fmt.Errorf("creating media: %w", err)
 	}
 
-	shouldRelease := false
+	success := false
 	defer func() {
-		if !shouldRelease {
+		if !success {
 			const releaseTimeout = 2 * time.Second
 
 			releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), releaseTimeout)
 			defer cancel()
 
-			err := s.releaseLease(releaseCtx, key, leasedAt)
+			retryable := !errors.Is(err, ErrIngestFailed)
+
+			err := s.releaseLease(releaseCtx, key, leasedAt, retryable)
 			if err != nil {
 				s.logger.Error("releasing lease", "key", key, "error", err)
 			}
@@ -90,6 +93,8 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		return err
 	}
 
+	success = true
+
 	err = s.finalizeIngest(ctx, &Media{
 		MediaKey: key,
 
@@ -101,8 +106,6 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 	if err != nil {
 		return fmt.Errorf("changing media status: %w", err)
 	}
-
-	shouldRelease = true
 
 	return nil
 }
