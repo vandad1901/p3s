@@ -94,7 +94,7 @@ export default function Editor({ remoteResponse }: { remoteResponse?: EnrichedGe
   const [state, dispatch] = useReducer(reducer, undefined, () => ({
     past: [],
     future: [],
-    key: null,
+    key: { id: null },
     present: remoteResponse
       ? mapRemoteToDoc(remoteResponse)
       : {

@@ -93,7 +93,7 @@ export type State = {
   past: Doc[];
   present: Doc;
   future: Doc[];
-  key: string | null;
+  key: { id: string; lastTimestamp: number } | { id: null };
 };
 
 export type Action =
@@ -109,9 +109,24 @@ export type Action =
   | { type: "undo" }
   | { type: "redo" };
 
-export function commit(s: State, doc: Doc, key: string | null = null): State {
-  if (key !== null && key === s.key) return { ...s, present: doc, future: [] };
-  return { past: [...s.past, s.present].slice(-100), present: doc, future: [], key };
+const KEY_TIMEOUT = 1000; // timeout before a key is considered stale, in ms
+export function commit(s: State, doc: Doc, keyID: string | null = null): State {
+  const currentTime = Date.now();
+
+  if (
+    keyID !== null &&
+    s.key.id !== null &&
+    keyID === s.key.id &&
+    currentTime - s.key.lastTimestamp <= KEY_TIMEOUT
+  )
+    return { ...s, present: doc, future: [], key: { id: keyID, lastTimestamp: currentTime } };
+
+  return {
+    past: [...s.past, s.present].slice(-100),
+    present: doc,
+    future: [],
+    key: keyID !== null ? { id: keyID, lastTimestamp: currentTime } : { id: null },
+  };
 }
 
 export const newText = (): TextBlock => ({
@@ -219,13 +234,18 @@ export function reducer(s: State, a: Action): State {
     case "undo": {
       const prevDoc = s.past.at(-1);
       return prevDoc !== undefined
-        ? { past: s.past.slice(0, -1), present: prevDoc, future: [d, ...s.future], key: null }
+        ? {
+            past: s.past.slice(0, -1),
+            present: prevDoc,
+            future: [d, ...s.future],
+            key: { id: null },
+          }
         : s;
     }
     case "redo": {
       const nextDoc = s.future.at(0);
       return nextDoc !== undefined
-        ? { past: [...s.past, d], present: nextDoc, future: s.future.slice(1), key: null }
+        ? { past: [...s.past, d], present: nextDoc, future: s.future.slice(1), key: { id: null } }
         : s;
     }
   }
