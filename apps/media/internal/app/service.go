@@ -6,5 +6,5 @@ import (
 )
 
 func initializeServices(cfg *config.Config, a *App) {
-	a.mediaService = media.NewService(cfg.S3ExternalEndpoint, a.db, a.s3Client)
+	a.mediaService = media.NewService(cfg.S3ExternalEndpoint, a.db, a.s3Client, a.logger)
 }

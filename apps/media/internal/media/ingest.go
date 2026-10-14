@@ -7,6 +7,7 @@ import (
 	"image"
 	"io"
 	"os"
+	"time"
 
 	"image/gif"
 	"image/jpeg"
@@ -48,6 +49,21 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 		return fmt.Errorf("creating media: %w", err)
 	}
 
+	shouldRelease := false
+	defer func() {
+		if !shouldRelease {
+			const releaseTimeout = 2 * time.Second
+
+			releaseCtx, cancel := context.WithTimeout(context.WithoutCancel(ctx), releaseTimeout)
+			defer cancel()
+
+			err := s.releaseLease(releaseCtx, key, leasedAt)
+			if err != nil {
+				s.logger.Error("releasing lease", "key", key, "error", err)
+			}
+		}
+	}()
+
 	res, err := s.s3Client.GetObject(ctx, &s3.GetObjectInput{
 		Bucket: aws.String(s3Bucket),
 		Key:    aws.String(key),
@@ -85,6 +101,8 @@ func (s *Service) HandleMedia(ctx context.Context, key string) error {
 	if err != nil {
 		return fmt.Errorf("changing media status: %w", err)
 	}
+
+	shouldRelease = true
 
 	return nil
 }

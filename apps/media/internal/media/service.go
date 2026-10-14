@@ -3,6 +3,7 @@ package media
 import (
 	"context"
 	"fmt"
+	"log/slog"
 	"time"
 
 	"github.com/aws/aws-sdk-go-v2/service/s3"
@@ -14,13 +15,16 @@ type Service struct {
 	s3ExternalEndpoint string
 	db                 *gorm.DB
 	s3Client           *s3.Client
+	logger             *slog.Logger
 }
 
-func NewService(s3ExternalEndpoint string, db *gorm.DB, s3Client *s3.Client) *Service {
+func NewService(s3ExternalEndpoint string, db *gorm.DB, s3Client *s3.Client,
+	logger *slog.Logger) *Service {
 	return &Service{
 		s3ExternalEndpoint: s3ExternalEndpoint,
 		db:                 db,
 		s3Client:           s3Client,
+		logger:             logger,
 	}
 }
 
@@ -99,6 +103,28 @@ func (s *Service) takeLease(ctx context.Context, key string) (time.Time, error) 
 	}
 
 	return res, nil
+}
+
+func (s *Service) releaseLease(ctx context.Context, key string, leasedAt time.Time) error {
+	db := s.db.WithContext(ctx)
+
+	var (
+		err error
+	)
+
+	txErr := dbpattern.SerializableTx(db, func(tx *gorm.DB) error {
+		err = dbReleaseLease(ctx, tx, key, leasedAt)
+		if err != nil {
+			return err
+		}
+
+		return nil
+	})
+	if txErr != nil {
+		return txErr
+	}
+
+	return nil
 }
 
 func (s *Service) finalizeIngest(ctx context.Context,

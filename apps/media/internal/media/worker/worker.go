@@ -11,7 +11,7 @@ import (
 	"github.com/wagslane/go-rabbitmq"
 )
 
-const consumeTimeout = 3 * time.Second
+const consumeTimeout = 30 * time.Second // must stay below ingestTimeout
 
 type MediaWorker struct {
 	logger   *slog.Logger

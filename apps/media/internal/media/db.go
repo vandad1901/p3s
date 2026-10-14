@@ -123,6 +123,19 @@ func dbTakeLease(_ context.Context, db *gorm.DB, mediaKey string) (time.Time, er
 	return time.Time{}, ErrAlreadyProcessing
 }
 
+func dbReleaseLease(_ context.Context, db *gorm.DB,
+	mediaKey string, leasedAt time.Time) error {
+	result := db.Model(&Media{}).
+		Where("media_key = ?", mediaKey).
+		Where("leased_at = ?", leasedAt).
+		Update("leased_at", time.Time{})
+	if result.Error != nil {
+		return result.Error
+	}
+
+	return nil
+}
+
 func dbFinalizeIngest(_ context.Context, db *gorm.DB,
 	media *Media) (int64, error) {
 	var md Media
