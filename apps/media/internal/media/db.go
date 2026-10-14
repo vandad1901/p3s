@@ -131,6 +131,10 @@ func dbReleaseLease(_ context.Context, db *gorm.DB,
 
 	if !retryable {
 		newVals["ingest_status"] = MediaIngestStatusFailed
+	} else {
+		newVals["ingest_status"] = gorm.Expr(
+			"CASE WHEN try_count >= ? THEN ? ELSE ingest_status END",
+			tryCountLimit, MediaIngestStatusFailed)
 	}
 
 	result := db.Model(&Media{}).
